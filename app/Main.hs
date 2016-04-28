@@ -1,6 +1,9 @@
 module Main where
 
-import Lib
+import Unused.TermSearch (search)
 
 main :: IO ()
-main = someFunc
+main = do
+    tokens <- pure . lines =<< getContents
+    results <- pure . concat =<< mapM search tokens
+    putStrLn $ unlines results
