@@ -2,7 +2,6 @@ module Unused.TermSearch
     ( search
     ) where
 
-import System.IO
 import System.Process
 
 search :: String -> IO [String]
