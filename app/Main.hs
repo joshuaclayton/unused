@@ -1,18 +1,35 @@
 module Main where
 
 import System.Console.ANSI
-import Data.List (nub)
 import Unused.TermSearch (search)
 import Unused.Parser (parseLines)
 import Unused.Types
+import Data.Map.Strict (toList)
 
 main :: IO ()
 main = do
     terms <- pure . lines =<< getContents
     results <- pure . concat =<< mapM search terms
-    let groupedMatches = groupBy term $ parseLines $ unlines results
 
-    mapM_ printMatchPair groupedMatches
+    case parseLines $ unlines results of
+        ValidParse termMatchSet ->
+            mapM_ printMatchPair $ toList termMatchSet
+        InvalidParse e -> do
+            setSGR [SetColor Background Vivid Red]
+            setSGR [SetColor Foreground Vivid White]
+            setSGR [SetConsoleIntensity BoldIntensity]
+
+            putStrLn "\nThere was a problem parsing the data:\n"
+
+            setSGR [Reset]
+
+            setSGR [SetColor Foreground Vivid Red]
+            setSGR [SetConsoleIntensity BoldIntensity]
+
+            print e
+            putStr "\n"
+
+            setSGR [Reset]
 
     return ()
 
@@ -36,10 +53,3 @@ printMatches matches = do
         putStr $ " " ++ (show . occurrences) m ++ " "
         setSGR [Reset]
         putStr "\n"
-
-groupBy :: Eq b => (a -> b) -> [a] -> [(b, [a])]
-groupBy f l =
-    fmap (\t -> (t, byTerm t)) uniqueTerms
-  where
-    byTerm t = filter (((==) t) . f) l
-    uniqueTerms = nub $ fmap f l

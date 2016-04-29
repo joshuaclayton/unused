@@ -21,6 +21,7 @@ library
   build-depends:       base >= 4.7 && < 5
                      , process
                      , parsec
+                     , containers
   default-language:    Haskell2010
 
 executable unused
@@ -30,6 +31,7 @@ executable unused
   build-depends:       base
                      , unused
                      , ansi-terminal
+                     , containers
   default-language:    Haskell2010
 
 test-suite unused-test
