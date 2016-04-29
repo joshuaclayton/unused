@@ -10,11 +10,12 @@ main :: IO ()
 main = do
     terms <- pure . lines =<< getContents
     results <- pure . concat =<< mapM search terms
+    let response = responseFromParse $ parseLines $ unlines results
 
-    case parseLines $ unlines results of
-        ValidParse termMatchSet ->
+    case withOneOccurrence $ withOneFile response of
+        Right termMatchSet ->
             mapM_ printMatchPair $ toList termMatchSet
-        InvalidParse e -> do
+        Left e -> do
             setSGR [SetColor Background Vivid Red]
             setSGR [SetColor Foreground Vivid White]
             setSGR [SetConsoleIntensity BoldIntensity]

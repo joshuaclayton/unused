@@ -18,6 +18,7 @@ library
   exposed-modules:     Unused.TermSearch
                      , Unused.Parser
                      , Unused.Types
+                     , Unused.Util
   build-depends:       base >= 4.7 && < 5
                      , process
                      , parsec
