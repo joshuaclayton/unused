@@ -4,7 +4,6 @@ import System.Console.ANSI
 import Unused.TermSearch (search)
 import Unused.Parser (parseLines)
 import Unused.Types
-import Data.Map.Strict (toList)
 
 main :: IO ()
 main = do
@@ -14,7 +13,7 @@ main = do
 
     case withOneOccurrence $ withOneFile response of
         Right termMatchSet ->
-            mapM_ printMatchPair $ toList termMatchSet
+            mapM_ printMatchPair $ listFromMatchSet termMatchSet
         Left e -> do
             setSGR [SetColor Background Vivid Red]
             setSGR [SetColor Foreground Vivid White]
