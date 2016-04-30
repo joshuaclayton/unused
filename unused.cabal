@@ -23,6 +23,7 @@ library
                      , process
                      , parsec
                      , containers
+                     , filepath
   default-language:    Haskell2010
 
 executable unused

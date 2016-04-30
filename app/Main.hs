@@ -17,7 +17,8 @@ main = do
     case withOneOccurrence $ withOneFile response of
         Right termMatchSet -> do
             clearScreen
-            mapM_ printMatchPair $ listFromMatchSet termMatchSet
+            let responses = responsesGroupedByPath termMatchSet
+            mapM_ printDirectorySection responses
         Left e ->
             printParseError e
 
@@ -75,24 +76,35 @@ printAnalysisHeader terms = do
     setSGR [Reset]
     putStr " terms\n\n"
 
-printMatchPair :: (String, [TermMatch]) -> IO ()
-printMatchPair (term', matches) = do
-    setSGR   [SetColor Foreground Vivid Red]
-    setSGR   [SetConsoleIntensity BoldIntensity]
-    putStrLn term'
-    setSGR   [Reset]
-    printMatches matches
+printDirectorySection :: (DirectoryPrefix, TermMatchSet) -> IO ()
+printDirectorySection (dir, ss) = do
+    printDirectory dir
+    mapM_ printTermResults $ listFromMatchSet ss
     putStr "\n"
 
-printMatches :: [TermMatch] -> IO ()
-printMatches matches = do
-    mapM_ printMatch matches
+printDirectory :: DirectoryPrefix -> IO ()
+printDirectory (DirectoryPrefix dir) = do
+    setSGR   [SetColor Foreground Vivid Black]
+    setSGR   [SetConsoleIntensity BoldIntensity]
+    putStrLn dir
+    setSGR   [Reset]
+
+printTermResults :: (String, TermResults) -> IO ()
+printTermResults (_, results) = do
+    printMatches results $ matches results
+
+printMatches :: TermResults -> [TermMatch] -> IO ()
+printMatches _r ms = do
+    mapM_ printMatch ms
   where
     printMatch m = do
-        setSGR [SetColor Foreground Dull Green]
+        setSGR [SetColor Foreground Dull Red]
+        setSGR [SetConsoleIntensity NormalIntensity]
+        putStr $ "     " ++ term m
+        setSGR [Reset]
+        setSGR [SetColor Foreground Dull Cyan]
+        setSGR [SetConsoleIntensity FaintIntensity]
         putStr $ "  " ++ path m
-        setSGR [SetColor Foreground Dull Yellow]
-        putStr $ " " ++ (show . occurrences) m ++ " "
         setSGR [Reset]
         putStr "\n"
 
