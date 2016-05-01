@@ -1,5 +1,6 @@
 module Unused.Parser
     ( parseLines
+    , ParseError
     ) where
 
 import Control.Monad (void)
