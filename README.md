@@ -29,12 +29,11 @@ This project uses Haskell and Stack.
 Once you have these tools installed:
 
 ```sh
-stack setup
-stack build
+stack install
 ```
 
-This will generate a binary in `.stack-work/install/**/**/**/bin` that you'll
-want to move to somewhere in your `$PATH`.
+This will generate a binary in `$HOME/.local/bin`; ensure this directory is in
+your `$PATH`.
 
 ## License
 
