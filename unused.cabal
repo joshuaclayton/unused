@@ -33,6 +33,8 @@ executable unused
                      , unused
                      , ansi-terminal
                      , containers
+                     , terminal-progress-bar
+                     , mtl
   default-language:    Haskell2010
 
 test-suite unused-test
