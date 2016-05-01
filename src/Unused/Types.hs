@@ -2,17 +2,15 @@ module Unused.Types
     ( TermMatch(..)
     , TermMatchSet
     , ParseResponse(..)
-    , responseFromParse
     , listFromMatchSet
     , withOneFile
     , withOneOccurrence
+    , resultsFromMatches
     ) where
 
 import Text.Parsec (ParseError)
 import Data.Bifunctor (second)
 import qualified Data.Map.Strict as Map
-import Data.List (isInfixOf)
-import Unused.Util (groupBy)
 
 data TermMatch = TermMatch
     { term :: String
@@ -40,10 +38,6 @@ resultsFromMatches m =
   where
     totalFiles' = length m
     totalOccurrences' = sum $ fmap occurrences m
-
-responseFromParse :: Either ParseError [TermMatch] -> ParseResponse
-responseFromParse =
-    fmap $ Map.fromList . map (second resultsFromMatches) . groupBy term
 
 withOneFile :: ParseResponse -> ParseResponse
 withOneFile = fmap $ Map.filterWithKey (\_ a -> totalFiles a == 1)

@@ -3,14 +3,20 @@ module Unused.Parser
     ) where
 
 import Control.Monad (void)
-import Data.Map.Strict (fromList)
-import Text.Parsec.String (Parser)
+import Data.Bifunctor (second)
 import Text.Parsec
-import Unused.Types
+import Text.Parsec.String (Parser)
+import qualified Data.Map.Strict as Map
+import Unused.Util (groupBy)
+import Unused.Types (TermMatch(..), ParseResponse, resultsFromMatches)
 
-parseLines :: String -> Either ParseError [TermMatch]
+parseLines :: String -> ParseResponse
 parseLines =
-    parse parseTermMatches "matches"
+    responseFromParse . parse parseTermMatches "matches"
+
+responseFromParse :: Either ParseError [TermMatch] -> ParseResponse
+responseFromParse =
+    fmap $ Map.fromList . map (second resultsFromMatches) . groupBy term
 
 parseTermMatches :: Parser [TermMatch]
 parseTermMatches = do

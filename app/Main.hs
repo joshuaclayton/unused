@@ -9,7 +9,7 @@ main :: IO ()
 main = do
     terms <- pure . lines =<< getContents
     results <- pure . concat =<< mapM search terms
-    let response = responseFromParse $ parseLines $ unlines results
+    let response = parseLines $ unlines results
 
     case withOneOccurrence $ withOneFile response of
         Right termMatchSet ->
