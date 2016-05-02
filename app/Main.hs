@@ -8,7 +8,7 @@ import Unused.Types
 main :: IO ()
 main = do
     terms <- pure . lines =<< getContents
-    results <- pure . concat =<< mapM search terms
+    results <- executeSearch terms
     let response = parseLines $ unlines results
 
     case withOneOccurrence $ withOneFile response of
@@ -18,6 +18,11 @@ main = do
             printParseError e
 
     return ()
+
+executeSearch :: [String] -> IO [String]
+executeSearch terms = do
+    results <- mapM search terms
+    return $ concat results
 
 printMatchPair :: (String, [TermMatch]) -> IO ()
 printMatchPair (term', matches) = do
