@@ -22,7 +22,7 @@ data TermResults = TermResults
     { matches :: [TermMatch]
     , totalFiles :: Int
     , totalOccurrences :: Int
-    }
+    } deriving Show
 
 type TermMatchSet = Map.Map String TermResults
 
