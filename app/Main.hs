@@ -4,6 +4,7 @@ import Control.Monad.State
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import System.Console.ANSI
 import System.ProgressBar
+import Text.Printf
 import Unused.TermSearch (search)
 import Unused.Parser (parseLines, ParseError)
 import Unused.Types
@@ -79,8 +80,13 @@ printAnalysisHeader terms = do
 printDirectorySection :: (DirectoryPrefix, TermMatchSet) -> IO ()
 printDirectorySection (dir, ss) = do
     printDirectory dir
-    mapM_ printTermResults $ listFromMatchSet ss
+    mapM_ (printTermResults maxWidth) $ allSets
     putStr "\n"
+  where
+    allSets = listFromMatchSet ss
+    allResults = fmap snd allSets
+    termLength = return . length . term
+    maxWidth = maximum $ termLength =<< matches =<< allResults
 
 printDirectory :: DirectoryPrefix -> IO ()
 printDirectory (DirectoryPrefix dir) = do
@@ -89,18 +95,19 @@ printDirectory (DirectoryPrefix dir) = do
     putStrLn dir
     setSGR   [Reset]
 
-printTermResults :: (String, TermResults) -> IO ()
-printTermResults (_, results) = do
-    printMatches results $ matches results
+printTermResults :: Int -> (String, TermResults) -> IO ()
+printTermResults w (_, results) = do
+    printMatches w results $ matches results
 
-printMatches :: TermResults -> [TermMatch] -> IO ()
-printMatches _r ms = do
+printMatches :: Int -> TermResults -> [TermMatch] -> IO ()
+printMatches w _r ms = do
     mapM_ printMatch ms
   where
+    termFormat = "%-" ++ (show w) ++ "s"
     printMatch m = do
         setSGR [SetColor Foreground Dull Red]
         setSGR [SetConsoleIntensity NormalIntensity]
-        putStr $ "     " ++ term m
+        putStr $ "     " ++ (printf termFormat $ term m)
         setSGR [Reset]
         setSGR [SetColor Foreground Dull Cyan]
         setSGR [SetConsoleIntensity FaintIntensity]
