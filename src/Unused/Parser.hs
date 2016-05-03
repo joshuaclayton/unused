@@ -44,7 +44,7 @@ parseTermMatch = do
     colonSep = do { void $ try $ char ':' }
 
 termChars :: Parser Char
-termChars = choice [alphaNum, char '_', char '!', char '?', char '=', char '>', char '<']
+termChars = choice [alphaNum, char '_', char '!', char '?', char '=', char '>', char '<', char '[', char ']', char '.']
 
 termParser :: Parser String
 termParser = many1 termChars
