@@ -96,16 +96,18 @@ printDirectory (DirectoryPrefix dir) = do
     setSGR   [Reset]
 
 printTermResults :: Int -> (String, TermResults) -> IO ()
-printTermResults w (_, results) = do
+printTermResults w (_, results) =
     printMatches w results $ matches results
 
+likelihoodColor :: RemovalLikelihood -> Color
+likelihoodColor High = Red
+likelihoodColor Medium = Yellow
+likelihoodColor Low = Green
+
 printMatches :: Int -> TermResults -> [TermMatch] -> IO ()
-printMatches w _r ms = do
-    mapM_ printMatch ms
-  where
-    termFormat = "%-" ++ (show w) ++ "s"
-    printMatch m = do
-        setSGR [SetColor Foreground Dull Red]
+printMatches w r ms =
+    forM_ ms $ \m -> do
+        setSGR [SetColor Foreground Dull (likelihoodColor $ removalLikelihood r)]
         setSGR [SetConsoleIntensity NormalIntensity]
         putStr $ "     " ++ (printf termFormat $ term m)
         setSGR [Reset]
@@ -114,6 +116,8 @@ printMatches w _r ms = do
         putStr $ "  " ++ path m
         setSGR [Reset]
         putStr "\n"
+  where
+    termFormat = "%-" ++ (show w) ++ "s"
 
 printParseError :: ParseError -> IO ()
 printParseError e = do

@@ -19,11 +19,13 @@ library
                      , Unused.Parser
                      , Unused.Types
                      , Unused.Util
+                     , Unused.Regex
   build-depends:       base >= 4.7 && < 5
                      , process
                      , parsec
                      , containers
                      , filepath
+                     , regex-tdfa
   default-language:    Haskell2010
 
 executable unused
