@@ -15,7 +15,8 @@ main = do
     let response = parseLines $ unlines results
 
     case withOneOccurrence $ withOneFile response of
-        Right termMatchSet ->
+        Right termMatchSet -> do
+            clearScreen
             mapM_ printMatchPair $ listFromMatchSet termMatchSet
         Left e ->
             printParseError e
