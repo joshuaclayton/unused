@@ -40,10 +40,10 @@ resultsFromMatches m =
     totalOccurrences' = sum $ fmap occurrences m
 
 withOneFile :: ParseResponse -> ParseResponse
-withOneFile = fmap $ Map.filterWithKey (\_ a -> totalFiles a == 1)
+withOneFile = fmap $ Map.filterWithKey (const $ ((==) 1) . totalFiles)
 
 withOneOccurrence :: ParseResponse -> ParseResponse
-withOneOccurrence = fmap $ Map.filterWithKey (\_ a -> totalOccurrences a == 1)
+withOneOccurrence = fmap $ Map.filterWithKey (const $ ((==) 1 ) . totalOccurrences)
 
 listFromMatchSet :: TermMatchSet -> [(String, [TermMatch])]
 listFromMatchSet =
