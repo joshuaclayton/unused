@@ -85,8 +85,8 @@ printDirectorySection (dir, ss) = do
   where
     allSets = listFromMatchSet ss
     allResults = fmap snd allSets
-    termLength = return . length . term
-    maxWidth = maximum $ termLength =<< matches =<< allResults
+    termLength = return . length . tmTerm
+    maxWidth = maximum $ termLength =<< trMatches =<< allResults
 
 printDirectory :: DirectoryPrefix -> IO ()
 printDirectory (DirectoryPrefix dir) = do
@@ -97,7 +97,7 @@ printDirectory (DirectoryPrefix dir) = do
 
 printTermResults :: Int -> (String, TermResults) -> IO ()
 printTermResults w (_, results) =
-    printMatches w results $ matches results
+    printMatches w results $ trMatches results
 
 likelihoodColor :: RemovalLikelihood -> Color
 likelihoodColor High = Red
@@ -107,13 +107,13 @@ likelihoodColor Low = Green
 printMatches :: Int -> TermResults -> [TermMatch] -> IO ()
 printMatches w r ms =
     forM_ ms $ \m -> do
-        setSGR [SetColor Foreground Dull (likelihoodColor $ removalLikelihood r)]
+        setSGR [SetColor Foreground Dull (likelihoodColor $ trRemovalLikelihood r)]
         setSGR [SetConsoleIntensity NormalIntensity]
-        putStr $ "     " ++ (printf termFormat $ term m)
+        putStr $ "     " ++ (printf termFormat $ tmTerm m)
         setSGR [Reset]
         setSGR [SetColor Foreground Dull Cyan]
         setSGR [SetConsoleIntensity FaintIntensity]
-        putStr $ "  " ++ path m
+        putStr $ "  " ++ tmPath m
         setSGR [Reset]
         putStr "\n"
   where

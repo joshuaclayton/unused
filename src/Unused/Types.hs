@@ -20,17 +20,17 @@ import qualified Data.Map.Strict as Map
 import Unused.Regex (matchRegex)
 
 data TermMatch = TermMatch
-    { term :: String
-    , path :: String
-    , occurrences :: Int
+    { tmTerm :: String
+    , tmPath :: String
+    , tmOccurrences :: Int
     } deriving Show
 
 data TermResults = TermResults
-    { resultTerm :: String
-    , matches :: [TermMatch]
-    , totalFiles :: Int
-    , totalOccurrences :: Int
-    , removalLikelihood :: RemovalLikelihood
+    { trTerm :: String
+    , trMatches :: [TermMatch]
+    , trTotalFiles :: Int
+    , trTotalOccurrences :: Int
+    , trRemovalLikelihood :: RemovalLikelihood
     } deriving Show
 
 data RemovalLikelihood = High | Medium | Low deriving Show
@@ -44,18 +44,18 @@ newtype DirectoryPrefix = DirectoryPrefix String deriving (Eq, Show, Ord)
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
     calculateLikelihood $ TermResults
-        { resultTerm = resultTerm' terms
-        , matches = m
-        , totalFiles = totalFiles'
-        , totalOccurrences = totalOccurrences'
-        , removalLikelihood = High
+        { trTerm = resultTerm terms
+        , trMatches = m
+        , trTotalFiles = totalFiles
+        , trTotalOccurrences = totalOccurrences
+        , trRemovalLikelihood = High
         }
   where
-    totalFiles' = length m
-    totalOccurrences' = sum $ fmap occurrences m
-    terms = map term m
-    resultTerm' (x:_) = x
-    resultTerm' _ = ""
+    totalFiles = length m
+    totalOccurrences = sum $ fmap tmOccurrences m
+    terms = map tmTerm m
+    resultTerm (x:_) = x
+    resultTerm _ = ""
 
 withOneFile :: ParseResponse -> ParseResponse
 withOneFile = fmap $ Map.filterWithKey (const oneFile)
@@ -64,35 +64,35 @@ withOneOccurrence :: ParseResponse -> ParseResponse
 withOneOccurrence = fmap $ Map.filterWithKey (const oneOccurence)
 
 oneOccurence :: TermResults -> Bool
-oneOccurence = (== 1) . totalOccurrences
+oneOccurence = (== 1) . trTotalOccurrences
 
 oneFile :: TermResults -> Bool
-oneFile = (== 1) . totalFiles
+oneFile = (== 1) . trTotalFiles
 
 isClassOrModule :: TermResults -> Bool
-isClassOrModule = matchRegex "^[A-Z]" . resultTerm
+isClassOrModule = matchRegex "^[A-Z]" . trTerm
 
 railsSingleOkay :: TermResults -> Bool
 railsSingleOkay r =
     foldl1 (&&) [isClassOrModule r, oneFile r, oneOccurence r, (controller || helper || migration)]
   where
-    controller = (matchRegex "^app/controllers/" singlePath) && (matchRegex "Controller$" $ resultTerm r)
-    helper = (matchRegex "^app/helpers/" singlePath) && (matchRegex "Helper$" $ resultTerm r)
+    controller = (matchRegex "^app/controllers/" singlePath) && (matchRegex "Controller$" $ trTerm r)
+    helper = (matchRegex "^app/helpers/" singlePath) && (matchRegex "Helper$" $ trTerm r)
     migration = matchRegex "^db/migrate/" singlePath
-    singlePath = path' $ fmap path $ matches r
-    path' (x:_) = x
-    path' [] = ""
+    singlePath = path $ fmap tmPath $ trMatches r
+    path (x:_) = x
+    path [] = ""
 
 elixirSingleOkay :: TermResults -> Bool
 elixirSingleOkay r =
     foldl1 (&&) [isClassOrModule r, oneFile r, oneOccurence r, (view || test || migration)]
   where
     migration = matchRegex "^priv/repo/migrations/" singlePath
-    view = (matchRegex "^web/views/" singlePath) && (matchRegex "View$" $ resultTerm r)
-    test = (matchRegex "^test/" singlePath) && (matchRegex "Test$" $ resultTerm r)
-    singlePath = path' $ fmap path $ matches r
-    path' (x:_) = x
-    path' [] = ""
+    view = (matchRegex "^web/views/" singlePath) && (matchRegex "View$" $ trTerm r)
+    test = (matchRegex "^test/" singlePath) && (matchRegex "Test$" $ trTerm r)
+    singlePath = path $ fmap tmPath $ trMatches r
+    path (x:_) = x
+    path [] = ""
 
 listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
 listFromMatchSet =
@@ -106,9 +106,9 @@ responseForPath :: DirectoryPrefix -> TermMatchSet -> TermMatchSet
 responseForPath s =
     filterVByPath . filterKVByPath
   where
-    filterVByPath = Map.map (resultsFromMatches . filter (((==) s) . fileNameGrouping . path) . matches)
+    filterVByPath = Map.map (resultsFromMatches . filter (((==) s) . fileNameGrouping . tmPath) . trMatches)
     filterKVByPath = Map.filterWithKey (\_ a -> s `elem` allPaths a)
-    allPaths = fmap (fileNameGrouping . path) . matches
+    allPaths = fmap (fileNameGrouping . tmPath) . trMatches
 
 fileNameGrouping :: String -> DirectoryPrefix
 fileNameGrouping =
@@ -118,15 +118,15 @@ fileNameGrouping =
 
 directoriesForGrouping :: TermMatchSet -> [DirectoryPrefix]
 directoriesForGrouping =
-    uniqueValues . Map.map (fmap (fileNameGrouping . path) . matches)
+    uniqueValues . Map.map (fmap (fileNameGrouping . tmPath) . trMatches)
   where
     uniqueValues = sort . nub . concat . Map.elems
 
 calculateLikelihood :: TermResults -> TermResults
 calculateLikelihood r =
-    r { removalLikelihood = newLikelihood }
+    r { trRemovalLikelihood = newLikelihood }
   where
-    baseScore = totalOccurrences r
+    baseScore = trTotalOccurrences r
     railsScore = if railsSingleOkay r then 5 else 0
     elixirScore = if elixirSingleOkay r then 5 else 0
     totalScore = baseScore + railsScore + elixirScore

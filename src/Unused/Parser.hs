@@ -17,7 +17,7 @@ parseLines =
 
 responseFromParse :: Either ParseError [TermMatch] -> ParseResponse
 responseFromParse =
-    fmap $ Map.fromList . map (second resultsFromMatches) . groupBy term
+    fmap $ Map.fromList . map (second resultsFromMatches) . groupBy tmTerm
 
 parseTermMatches :: Parser [TermMatch]
 parseTermMatches = do
