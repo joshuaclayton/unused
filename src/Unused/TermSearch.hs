@@ -9,7 +9,7 @@ search t = do
     results <- ag t
     return $ linesMap prefixTerm results
   where
-    prefixTerm = (++ t)
+    prefixTerm = ((++) t)
 
 linesMap :: (String -> String) -> String -> [String]
 linesMap f =
