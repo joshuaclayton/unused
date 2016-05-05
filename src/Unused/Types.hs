@@ -43,7 +43,7 @@ newtype DirectoryPrefix = DirectoryPrefix String deriving (Eq, Show, Ord)
 
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
-    calculateLikelihood $ TermResults
+    calculateLikelihood TermResults
         { trTerm = resultTerm terms
         , trMatches = m
         , trTotalFiles = totalFiles
@@ -74,23 +74,23 @@ isClassOrModule = matchRegex "^[A-Z]" . trTerm
 
 railsSingleOkay :: TermResults -> Bool
 railsSingleOkay r =
-    foldl1 (&&) [isClassOrModule r, oneFile r, oneOccurence r, (controller || helper || migration)]
+    and [isClassOrModule r, oneFile r, oneOccurence r, controller || helper || migration]
   where
-    controller = (matchRegex "^app/controllers/" singlePath) && (matchRegex "Controller$" $ trTerm r)
-    helper = (matchRegex "^app/helpers/" singlePath) && (matchRegex "Helper$" $ trTerm r)
+    controller = matchRegex "^app/controllers/" singlePath && matchRegex "Controller$" (trTerm r)
+    helper = matchRegex "^app/helpers/" singlePath && matchRegex "Helper$" (trTerm r)
     migration = matchRegex "^db/migrate/" singlePath
-    singlePath = path $ fmap tmPath $ trMatches r
+    singlePath = path $ tmPath <$> trMatches r
     path (x:_) = x
     path [] = ""
 
 elixirSingleOkay :: TermResults -> Bool
 elixirSingleOkay r =
-    foldl1 (&&) [isClassOrModule r, oneFile r, oneOccurence r, (view || test || migration)]
+    and [isClassOrModule r, oneFile r, oneOccurence r, view || test || migration]
   where
     migration = matchRegex "^priv/repo/migrations/" singlePath
-    view = (matchRegex "^web/views/" singlePath) && (matchRegex "View$" $ trTerm r)
-    test = (matchRegex "^test/" singlePath) && (matchRegex "Test$" $ trTerm r)
-    singlePath = path $ fmap tmPath $ trMatches r
+    view = matchRegex "^web/views/" singlePath && matchRegex "View$" (trTerm r)
+    test = matchRegex "^test/" singlePath && matchRegex "Test$" (trTerm r)
+    singlePath = path $ tmPath <$> trMatches r
     path (x:_) = x
     path [] = ""
 
@@ -100,7 +100,7 @@ listFromMatchSet =
 
 responsesGroupedByPath :: TermMatchSet -> [(DirectoryPrefix, TermMatchSet)]
 responsesGroupedByPath pr =
-    fmap (\p -> (p, responseForPath p pr)) $ directoriesForGrouping pr
+    (\p -> (p, responseForPath p pr)) <$> directoriesForGrouping pr
 
 responseForPath :: DirectoryPrefix -> TermMatchSet -> TermMatchSet
 responseForPath s =
@@ -110,7 +110,7 @@ responseForPath s =
     filterKVByPath = Map.filterWithKey (const $ \a -> s `elem` allPaths a)
     allPaths = fmap (fileNameGrouping . tmPath) . trMatches
     updateMatchesWith f tr = tr { trMatches = f tr }
-    newMatches = (filter ((== s) . fileNameGrouping . tmPath) . trMatches)
+    newMatches = filter ((== s) . fileNameGrouping . tmPath) . trMatches
 
 fileNameGrouping :: String -> DirectoryPrefix
 fileNameGrouping =

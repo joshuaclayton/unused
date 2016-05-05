@@ -41,7 +41,7 @@ parseTermMatch = do
     return $ TermMatch term' path' $ toInt occurrences'
   where
     toInt i = read i :: Int
-    colonSep = do { void $ try $ char ':' }
+    colonSep = void $ try $ char ':'
 
 termChars :: Parser Char
 termChars = choice [alphaNum, char '_', char '!', char '?', char '=', char '>', char '<', char '[', char ']', char '.']

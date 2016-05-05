@@ -44,12 +44,12 @@ printMatches w r ms =
     forM_ ms $ \m -> do
         setSGR [SetColor Foreground Dull (likelihoodColor $ trRemovalLikelihood r)]
         setSGR [SetConsoleIntensity NormalIntensity]
-        putStr $ "     " ++ (printf termFormat $ tmTerm m)
+        putStr $ "     " ++ printf termFormat (tmTerm m)
         setSGR [Reset]
 
         setSGR [SetColor Foreground Vivid Cyan]
         setSGR [SetConsoleIntensity NormalIntensity]
-        putStr $ (printNumber $ trTotalFiles r) ++ "," ++ (printNumber $ trTotalOccurrences r) ++ " "
+        putStr $ printNumber (trTotalFiles r) ++ "," ++ printNumber (trTotalOccurrences r) ++ " "
         setSGR [Reset]
 
         setSGR [SetColor Foreground Dull Cyan]
@@ -58,5 +58,5 @@ printMatches w r ms =
         setSGR [Reset]
         putStr "\n"
   where
-    termFormat = "%-" ++ (show w) ++ "s"
+    termFormat = "%-" ++ show w ++ "s"
     printNumber = printf "%2d"
