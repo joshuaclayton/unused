@@ -15,9 +15,9 @@ main = do
     results <- executeSearch terms
     let response = parseLines $ unlines results
 
+    resetScreen
     case withOneOccurrence $ withOneFile response of
         Right termMatchSet -> do
-            clearScreen
             mapM_ (printDirectorySection $ maxWidth) responses
           where
             responses = responsesGroupedByPath termMatchSet
