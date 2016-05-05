@@ -107,10 +107,10 @@ responseForPath s =
     filterVByPath . filterKVByPath
   where
     filterVByPath = Map.map (updateMatchesWith newMatches)
-    filterKVByPath = Map.filterWithKey (\_ a -> s `elem` allPaths a)
+    filterKVByPath = Map.filterWithKey (const $ \a -> s `elem` allPaths a)
     allPaths = fmap (fileNameGrouping . tmPath) . trMatches
     updateMatchesWith f tr = tr { trMatches = f tr }
-    newMatches = (filter (((==) s) . fileNameGrouping . tmPath) . trMatches)
+    newMatches = (filter ((== s) . fileNameGrouping . tmPath) . trMatches)
 
 fileNameGrouping :: String -> DirectoryPrefix
 fileNameGrouping =

@@ -9,13 +9,13 @@ search t = do
     results <- ag t
     return $ linesMap prefixTerm results
   where
-    prefixTerm = ((++) t)
+    prefixTerm = (++ t)
 
 linesMap :: (String -> String) -> String -> [String]
 linesMap f =
     filter empty . map f . lines
   where
-    empty = ((/=) 0) . length
+    empty = (/= 0) . length
 
 ag :: String -> IO String
 ag t = do
