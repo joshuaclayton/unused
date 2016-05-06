@@ -2,23 +2,15 @@ module Unused.CLI.SearchWithProgress
     ( searchWithProgressBar
     ) where
 
-import Control.Concurrent (ThreadId, killThread)
-import System.ProgressBar (ProgressRef, startProgress, incProgress, msg, percentage)
+import Unused.CLI.ProgressBar (ProgressBar, startProgressBar, incrementProgressBar, stopProgressBar)
 import Unused.TermSearch (search)
 
 searchWithProgressBar :: [String] -> IO [String]
 searchWithProgressBar terms = do
     putStr "\n\n"
-    (bar, tid) <- buildProgressBar $ toInteger $ length terms
-    concat <$> mapM (performSearch bar) terms <* killThread tid
+    bar <- startProgressBar $ length terms
+    concat <$> mapM (performSearch bar) terms <* stopProgressBar bar
 
-performSearch :: ProgressRef -> String -> IO [String]
-performSearch ref t =
-    search t <* incProgress ref 1
-
-buildProgressBar :: Integer -> IO (ProgressRef, ThreadId)
-buildProgressBar =
-    startProgress (msg message) percentage progressBarWidth
-  where
-    message = "Working"
-    progressBarWidth = 60
+performSearch :: ProgressBar -> String -> IO [String]
+performSearch bar t =
+    search t <* incrementProgressBar bar
