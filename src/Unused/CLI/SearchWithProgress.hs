@@ -8,6 +8,7 @@ import Unused.TermSearch (search)
 
 searchWithProgressBar :: [String] -> IO [String]
 searchWithProgressBar terms = do
+    putStr "\n\n"
     (bar, tid) <- buildProgressBar $ toInteger $ length terms
     concat <$> mapM (performSearch bar) terms <* killThread tid
 

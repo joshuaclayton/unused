@@ -27,7 +27,7 @@ printAnalysisHeader terms = do
     setSGR [SetColor Foreground Dull Green]
     putStr $ show $ length terms
     setSGR [Reset]
-    putStr " terms\n\n"
+    putStr " terms"
 
 runSearch :: SearchRunner -> ([String] -> IO [String])
 runSearch SearchWithProgress    = searchWithProgressBar
