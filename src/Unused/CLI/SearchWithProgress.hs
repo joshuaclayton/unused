@@ -2,39 +2,22 @@ module Unused.CLI.SearchWithProgress
     ( searchWithProgressBar
     ) where
 
-import Control.Monad.State
-import System.ProgressBar
+import Control.Concurrent (ThreadId, killThread)
+import System.ProgressBar (ProgressRef, startProgress, incProgress, msg, percentage)
 import Unused.TermSearch (search)
 
 searchWithProgressBar :: [String] -> IO [String]
-searchWithProgressBar terms =
-    (concat . fst) <$> runStateT (performSearch $ length terms) terms
+searchWithProgressBar terms = do
+    (bar, tid) <- buildProgressBar $ toInteger $ length terms
+    concat <$> mapM (performSearch bar) terms <* killThread tid
 
-performSearch :: Int -> StateT [String] IO [[String]]
-performSearch total = do
-    currentTerm <- getSearchTerm
-    searchResults <- liftIO $ search currentTerm
+performSearch :: ProgressRef -> String -> IO [String]
+performSearch ref t =
+    search t <* incProgress ref 1
 
-    remainingTerms <- get
-    let remaining = length remainingTerms
-
-    liftIO $ printProgressBar (total - remaining) total
-
-    if remaining > 0
-        then do
-            res <- performSearch total
-            return $ searchResults:res
-        else return [searchResults]
-
-getSearchTerm :: StateT [String] IO String
-getSearchTerm = do
-    (x:xs) <- get
-    put xs
-    return x
-
-printProgressBar :: Int -> Int -> IO ()
-printProgressBar complete total = do
-    let message = "Working"
-    let progressBarWidth = 60
-
-    progressBar (msg message) percentage progressBarWidth (toInteger complete) (toInteger total)
+buildProgressBar :: Integer -> IO (ProgressRef, ThreadId)
+buildProgressBar =
+    startProgress (msg message) percentage progressBarWidth
+  where
+    message = "Working"
+    progressBarWidth = 60
