@@ -12,8 +12,9 @@ data SearchRunner = SearchWithProgress | SearchWithoutProgress
 executeSearch :: SearchRunner -> [String] -> IO [String]
 executeSearch runner terms = do
     resetScreen
+    hideCursor
     printAnalysisHeader terms
-    runSearch runner terms <* resetScreen
+    runSearch runner terms <* resetScreen <* showCursor
 
 printAnalysisHeader :: [String] -> IO ()
 printAnalysisHeader terms = do
