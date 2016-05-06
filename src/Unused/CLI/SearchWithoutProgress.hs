@@ -3,7 +3,10 @@ module Unused.CLI.SearchWithoutProgress
     ) where
 
 import Unused.TermSearch (search)
+import Unused.CLI.Spinner (startSpinner, stopSpinner)
 
 searchWithoutProgressBar :: [String] -> IO [String]
-searchWithoutProgressBar terms =
-    concat <$> mapM search terms
+searchWithoutProgressBar terms = do
+    putStr " "
+    sp <- startSpinner
+    concat <$> mapM search terms <* stopSpinner sp
