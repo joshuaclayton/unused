@@ -9,7 +9,8 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Data.Map.Strict as Map
 import Unused.Util (groupBy)
-import Unused.Types (TermMatch(..), ParseResponse, resultsFromMatches)
+import Unused.Types
+import Unused.LikelihoodCalculator
 
 parseLines :: String -> ParseResponse
 parseLines =
@@ -18,6 +19,22 @@ parseLines =
 responseFromParse :: Either ParseError [TermMatch] -> ParseResponse
 responseFromParse =
     fmap $ Map.fromList . map (second resultsFromMatches) . groupBy tmTerm
+
+resultsFromMatches :: [TermMatch] -> TermResults
+resultsFromMatches m =
+    calculateLikelihood TermResults
+        { trTerm = resultTerm terms
+        , trMatches = m
+        , trTotalFiles = totalFiles
+        , trTotalOccurrences = totalOccurrences
+        , trRemovalLikelihood = High
+        }
+  where
+    totalFiles = length m
+    totalOccurrences = sum $ fmap tmOccurrences m
+    terms = map tmTerm m
+    resultTerm (x:_) = x
+    resultTerm _ = ""
 
 parseTermMatches :: Parser [TermMatch]
 parseTermMatches = do

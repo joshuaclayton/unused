@@ -3,7 +3,7 @@ module Main where
 import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Unused.Parser (parseLines)
-import Unused.Types (withOneOccurrence, withOneFile)
+import Unused.ResponseFilter (withOneOccurrence, withOneFile)
 import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen)
 
 data Options = Options

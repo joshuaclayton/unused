@@ -20,6 +20,9 @@ library
                      , Unused.Types
                      , Unused.Util
                      , Unused.Regex
+                     , Unused.ResponseFilter
+                     , Unused.DirectoryGrouping
+                     , Unused.LikelihoodCalculator
                      , Unused.CLI
                      , Unused.CLI.Search
                      , Unused.CLI.SearchError

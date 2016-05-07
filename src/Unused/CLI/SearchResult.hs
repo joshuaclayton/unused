@@ -4,7 +4,9 @@ module Unused.CLI.SearchResult
 
 import Control.Monad (forM_)
 import Text.Printf
+import qualified Data.Map.Strict as Map
 import Unused.Types
+import Unused.DirectoryGrouping (DirectoryPrefix(..), responsesGroupedByPath)
 import Unused.CLI.Util
 
 printSearchResults :: TermMatchSet -> IO ()
@@ -16,6 +18,10 @@ printSearchResults termMatchSet =
     allResults = map snd allSets
     termLength = return . length . tmTerm
     maxWidth = maximum $ termLength =<< trMatches =<< allResults
+
+listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
+listFromMatchSet =
+  Map.toList
 
 printDirectorySection :: Int -> (DirectoryPrefix, TermMatchSet) -> IO ()
 printDirectorySection w (dir, ss) = do
