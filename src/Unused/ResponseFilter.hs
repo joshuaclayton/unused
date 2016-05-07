@@ -4,6 +4,7 @@ module Unused.ResponseFilter
     , withLikelihoods
     , oneFile
     , oneOccurence
+    , ignoringPaths
     , isClassOrModule
     , railsSingleOkay
     , elixirSingleOkay
@@ -11,6 +12,7 @@ module Unused.ResponseFilter
     ) where
 
 import qualified Data.Map.Strict as Map
+import Data.List (isInfixOf)
 import Unused.Regex (matchRegex)
 import Unused.Types
 
@@ -26,6 +28,13 @@ oneOccurence = (== 1) . trTotalOccurrences
 withLikelihoods :: [RemovalLikelihood] -> ParseResponse -> ParseResponse
 withLikelihoods [] = id
 withLikelihoods l = applyFilter (const $ includesLikelihood l)
+
+ignoringPaths :: [String] -> ParseResponse -> ParseResponse
+ignoringPaths xs =
+    fmap (updateMatches newMatches)
+  where
+    newMatches = filter (not . matchesPath . tmPath)
+    matchesPath p = any (`isInfixOf` p) xs
 
 oneFile :: TermResults -> Bool
 oneFile = (== 1) . trTotalFiles

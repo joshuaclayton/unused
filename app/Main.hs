@@ -4,13 +4,14 @@ import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
-import Unused.ResponseFilter (withOneOccurrence, withOneFile, withLikelihoods)
+import Unused.ResponseFilter (withOneOccurrence, withOneFile, withLikelihoods, ignoringPaths)
 import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen)
 
 data Options = Options
     { oSearchRunner :: SearchRunner
     , oAllOccurrencesAndFiles :: Bool
     , oLikelihoods :: [RemovalLikelihood]
+    , oIgnoredPaths :: [String]
     }
 
 main :: IO ()
@@ -42,6 +43,7 @@ optionFilters o =
     filters =
       [ if oAllOccurrencesAndFiles o then id else withOneOccurrence . withOneFile
       , withLikelihoods $ oLikelihoods o
+      , ignoringPaths $ oIgnoredPaths o
       ]
 
 parseOptions :: Parser Options
@@ -50,6 +52,7 @@ parseOptions =
     <$> parseSearchRunner
     <*> parseDisplayAllMatches
     <*> parseLikelihoods
+    <*> parseIgnorePaths
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -79,3 +82,9 @@ parseLikelihoodOption = strOption $
     short 'l'
     <> long "likelihood"
     <> help "[Allows multiple] [Allowed values: high, medium, low] Display results based on likelihood"
+
+parseIgnorePaths :: Parser [String]
+parseIgnorePaths = many $ strOption $
+    long "ignore"
+    <> metavar "PATH"
+    <> help "[Allows multiple] Ignore paths that contain PATH"
