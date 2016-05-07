@@ -45,8 +45,10 @@ parseOptions :: Parser Options
 parseOptions =
     Options
     <$> parseSearchRunner
-        (short 'P' <> long "no-progress" <> help "Don't display progress during analysis")
 
-parseSearchRunner :: Mod FlagFields SearchRunner -> Parser SearchRunner
+parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
-    flag SearchWithProgress SearchWithoutProgress
+    flag SearchWithProgress SearchWithoutProgress $
+        short 'P'
+        <> long "no-progress"
+        <> help "Don't display progress during analysis"
