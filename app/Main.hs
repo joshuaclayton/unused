@@ -3,13 +3,14 @@ module Main where
 import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Unused.Parser (parseLines)
-import Unused.Types (ParseResponse)
-import Unused.ResponseFilter (withOneOccurrence, withOneFile)
+import Unused.Types (ParseResponse, RemovalLikelihood(..))
+import Unused.ResponseFilter (withOneOccurrence, withOneFile, withLikelihoods)
 import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen)
 
 data Options = Options
     { oSearchRunner :: SearchRunner
     , oAllOccurrencesAndFiles :: Bool
+    , oLikelihoods :: [RemovalLikelihood]
     }
 
 main :: IO ()
@@ -40,6 +41,7 @@ optionFilters o =
   where
     filters =
       [ if oAllOccurrencesAndFiles o then id else withOneOccurrence . withOneFile
+      , withLikelihoods $ oLikelihoods o
       ]
 
 parseOptions :: Parser Options
@@ -47,6 +49,7 @@ parseOptions =
     Options
     <$> parseSearchRunner
     <*> parseDisplayAllMatches
+    <*> parseLikelihoods
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -60,3 +63,19 @@ parseDisplayAllMatches = switch $
     short 'a'
     <> long "all"
     <> help "Display all files and occurrences"
+
+parseLikelihoods :: Parser [RemovalLikelihood]
+parseLikelihoods = many $
+    parseLikelihood <$> parseLikelihoodOption
+
+parseLikelihood :: String -> RemovalLikelihood
+parseLikelihood "high" = High
+parseLikelihood "medium" = Medium
+parseLikelihood "low" = Low
+parseLikelihood _ = Unknown
+
+parseLikelihoodOption :: Parser String
+parseLikelihoodOption = strOption $
+    short 'l'
+    <> long "likelihood"
+    <> help "[Allows multiple] [Allowed values: high, medium, low] Display results based on likelihood"

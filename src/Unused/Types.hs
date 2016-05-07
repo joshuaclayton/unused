@@ -23,7 +23,7 @@ data TermResults = TermResults
     , trRemovalLikelihood :: RemovalLikelihood
     } deriving Show
 
-data RemovalLikelihood = High | Medium | Low deriving Show
+data RemovalLikelihood = High | Medium | Low | Unknown deriving (Eq, Show)
 
 type TermMatchSet = Map.Map String TermResults
 

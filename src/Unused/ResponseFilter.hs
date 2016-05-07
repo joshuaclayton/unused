@@ -1,6 +1,7 @@
 module Unused.ResponseFilter
     ( withOneFile
     , withOneOccurrence
+    , withLikelihoods
     , oneFile
     , oneOccurence
     , isClassOrModule
@@ -22,8 +23,15 @@ withOneOccurrence = applyFilter (const oneOccurence)
 oneOccurence :: TermResults -> Bool
 oneOccurence = (== 1) . trTotalOccurrences
 
+withLikelihoods :: [RemovalLikelihood] -> ParseResponse -> ParseResponse
+withLikelihoods [] = id
+withLikelihoods l = applyFilter (const $ includesLikelihood l)
+
 oneFile :: TermResults -> Bool
 oneFile = (== 1) . trTotalFiles
+
+includesLikelihood :: [RemovalLikelihood] -> TermResults -> Bool
+includesLikelihood l = (`elem` l) . trRemovalLikelihood
 
 isClassOrModule :: TermResults -> Bool
 isClassOrModule = matchRegex "^[A-Z]" . trTerm
