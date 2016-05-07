@@ -7,6 +7,7 @@ import System.FilePath (takeDirectory, splitDirectories)
 import qualified Data.Map.Strict as Map
 import Data.List (intercalate, sort, nub)
 import Unused.Types
+import Unused.ResponseFilter (updateMatches)
 
 newtype DirectoryPrefix = DirectoryPrefix String deriving (Eq, Show, Ord)
 
@@ -16,11 +17,9 @@ responsesGroupedByPath pr =
 
 responseForPath :: DirectoryPrefix -> TermMatchSet -> TermMatchSet
 responseForPath s =
-    filterVByPath
+    updateMatches newMatches
   where
-    filterVByPath = Map.map (updateMatchesWith newMatches)
-    updateMatchesWith f tr = tr { trMatches = f tr }
-    newMatches = filter ((== s) . fileNameGrouping . tmPath) . trMatches
+    newMatches = filter ((== s) . fileNameGrouping . tmPath)
 
 fileNameGrouping :: String -> DirectoryPrefix
 fileNameGrouping =

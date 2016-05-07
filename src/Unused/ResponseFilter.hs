@@ -6,6 +6,7 @@ module Unused.ResponseFilter
     , isClassOrModule
     , railsSingleOkay
     , elixirSingleOkay
+    , updateMatches
     ) where
 
 import qualified Data.Map.Strict as Map
@@ -48,6 +49,12 @@ elixirSingleOkay r =
     singlePath = path $ tmPath <$> trMatches r
     path (x:_) = x
     path [] = ""
+
+updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
+updateMatches fm =
+    Map.map (updateMatchesWith $ fm . trMatches)
+  where
+    updateMatchesWith f tr = tr { trMatches = f tr }
 
 applyFilter :: (String -> TermResults -> Bool) -> ParseResponse -> ParseResponse
 applyFilter = fmap . Map.filterWithKey
