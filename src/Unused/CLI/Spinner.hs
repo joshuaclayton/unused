@@ -27,7 +27,7 @@ stopSpinner Spinner{ sThreadId = Just tid } = killThread tid
 
 buildSpinner :: Spinner
 buildSpinner =
-    Spinner snapshots (length snapshots) 100000 colors Nothing
+    Spinner snapshots (length snapshots) 75000 colors Nothing
   where
     snapshots = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
     colors = cycle [Black, Red, Yellow, Green, Blue, Cyan, Magenta]
