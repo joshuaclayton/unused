@@ -9,6 +9,7 @@ import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearch
 
 data Options = Options
     { oSearchRunner :: SearchRunner
+    , oAllOccurrencesAndFiles :: Bool
     }
 
 main :: IO ()
@@ -34,17 +35,18 @@ withInfo :: Parser a -> String -> ParserInfo a
 withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
 optionFilters :: Options -> (ParseResponse -> ParseResponse)
-optionFilters _ =
+optionFilters o =
     foldl1 (.) filters
   where
     filters =
-      [ withOneOccurrence . withOneFile
+      [ if oAllOccurrencesAndFiles o then id else withOneOccurrence . withOneFile
       ]
 
 parseOptions :: Parser Options
 parseOptions =
     Options
     <$> parseSearchRunner
+    <*> parseDisplayAllMatches
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -52,3 +54,9 @@ parseSearchRunner =
         short 'P'
         <> long "no-progress"
         <> help "Don't display progress during analysis"
+
+parseDisplayAllMatches :: Parser Bool
+parseDisplayAllMatches = switch $
+    short 'a'
+    <> long "all"
+    <> help "Display all files and occurrences"
