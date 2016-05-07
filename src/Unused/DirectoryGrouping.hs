@@ -16,11 +16,9 @@ responsesGroupedByPath pr =
 
 responseForPath :: DirectoryPrefix -> TermMatchSet -> TermMatchSet
 responseForPath s =
-    filterVByPath . filterKVByPath
+    filterVByPath
   where
     filterVByPath = Map.map (updateMatchesWith newMatches)
-    filterKVByPath = Map.filterWithKey (const $ \a -> s `elem` allPaths a)
-    allPaths = fmap (fileNameGrouping . tmPath) . trMatches
     updateMatchesWith f tr = tr { trMatches = f tr }
     newMatches = filter ((== s) . fileNameGrouping . tmPath) . trMatches
 
