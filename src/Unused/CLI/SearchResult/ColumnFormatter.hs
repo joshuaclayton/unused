@@ -4,7 +4,7 @@ module Unused.CLI.SearchResult.ColumnFormatter
     ) where
 
 import Text.Printf
-import Unused.Types (TermResults(..), TermMatch(..))
+import Unused.Types (TermResults(..), TermMatch(..), totalFileCount, totalOccurrenceCount)
 
 data ColumnFormat = ColumnFormat
     { cfPrintTerm :: String -> String
@@ -37,8 +37,8 @@ numberFormat rs =
     numberWidth = maximum [fileWidth, occurrenceWidth]
     fileWidth = maximum $ fileLength =<< rs
     occurrenceWidth = maximum $ occurrenceLength =<< rs
-    fileLength = return . numberLength . trTotalFiles
-    occurrenceLength = return . numberLength . trTotalOccurrences
+    fileLength = return . numberLength . totalFileCount
+    occurrenceLength = return . numberLength . totalOccurrenceCount
 
 numberLength :: Int -> Int
 numberLength i =

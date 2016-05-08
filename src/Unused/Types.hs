@@ -4,11 +4,16 @@ module Unused.Types
     , TermMatchSet
     , ParseResponse
     , RemovalLikelihood(..)
+    , Removal(..)
+    , Occurrences(..)
     , resultsFromMatches
+    , totalFileCount
+    , totalOccurrenceCount
     ) where
 
 import Text.Parsec (ParseError)
 import qualified Data.Map.Strict as Map
+import Unused.Regex
 
 data TermMatch = TermMatch
     { tmTerm :: String
@@ -16,32 +21,83 @@ data TermMatch = TermMatch
     , tmOccurrences :: Int
     } deriving (Eq, Show)
 
+data Occurrences = Occurrences
+    { oFiles :: Int
+    , oOccurrences :: Int
+    } deriving (Eq, Show)
+
 data TermResults = TermResults
     { trTerm :: String
     , trMatches :: [TermMatch]
-    , trTotalFiles :: Int
-    , trTotalOccurrences :: Int
-    , trRemovalLikelihood :: RemovalLikelihood
+    , trTestOccurrences :: Occurrences
+    , trAppOccurrences :: Occurrences
+    , trTotalOccurrences :: Occurrences
+    , trRemoval :: Removal
     } deriving (Eq, Show)
 
-data RemovalLikelihood = High | Medium | Low | Unknown deriving (Eq, Show)
+data Removal = Removal
+    { rLikelihood :: RemovalLikelihood
+    , rReason :: String
+    } deriving (Eq, Show)
+
+data RemovalLikelihood = High | Medium | Low | Unknown | NotCalculated deriving (Eq, Show)
 
 type TermMatchSet = Map.Map String TermResults
 
 type ParseResponse = Either ParseError TermMatchSet
+
+totalFileCount :: TermResults -> Int
+totalFileCount = oFiles . trTotalOccurrences
+
+totalOccurrenceCount :: TermResults -> Int
+totalOccurrenceCount = oOccurrences . trTotalOccurrences
 
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
     TermResults
         { trTerm = resultTerm terms
         , trMatches = m
-        , trTotalFiles = totalFiles
-        , trTotalOccurrences = totalOccurrences
-        , trRemovalLikelihood = Unknown
+        , trAppOccurrences = appOccurrence
+        , trTestOccurrences = testOccurrence
+        , trTotalOccurrences = Occurrences (sum $ map oFiles [appOccurrence, testOccurrence]) (sum $ map oOccurrences [appOccurrence, testOccurrence])
+        , trRemoval = Removal NotCalculated "Likelihood not calculated"
         }
   where
-    totalFiles = length m
-    totalOccurrences = sum $ fmap tmOccurrences m
+    testOccurrence = testOccurrences m
+    appOccurrence = appOccurrences m
     terms = map tmTerm m
     resultTerm (x:_) = x
     resultTerm _ = ""
+
+appOccurrences :: [TermMatch] -> Occurrences
+appOccurrences ms =
+    Occurrences appFiles appOccurrences'
+  where
+    totalFiles = length ms
+    totalOccurrences = sum $ map tmOccurrences ms
+    tests = testOccurrences ms
+    appFiles = totalFiles - oFiles tests
+    appOccurrences' = totalOccurrences - oOccurrences tests
+
+testOccurrences :: [TermMatch] -> Occurrences
+testOccurrences ms =
+    Occurrences totalFiles totalOccurrences
+  where
+    testMatches = filter termMatchIsTest ms
+    totalFiles = length testMatches
+    totalOccurrences = sum $ map tmOccurrences testMatches
+
+testDir :: String -> Bool
+testDir = matchRegex "(spec|tests?)\\/"
+
+testSnakeCaseFilename :: String -> Bool
+testSnakeCaseFilename = matchRegex ".*(_spec|_test)\\."
+
+testCamelCaseFilename :: String -> Bool
+testCamelCaseFilename = matchRegex ".*(Spec|Test)\\."
+
+termMatchIsTest :: TermMatch -> Bool
+termMatchIsTest m =
+    testDir path || testSnakeCaseFilename path || testCamelCaseFilename path
+  where
+    path = tmPath m

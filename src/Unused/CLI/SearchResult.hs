@@ -44,26 +44,31 @@ likelihoodColor High = Red
 likelihoodColor Medium = Yellow
 likelihoodColor Low = Green
 likelihoodColor Unknown = Black
+likelihoodColor NotCalculated = Magenta
 
 printMatches :: ColumnFormat -> TermResults -> [TermMatch] -> IO ()
 printMatches cf r ms =
     forM_ ms $ \m -> do
-        setSGR [SetColor Foreground Dull (likelihoodColor $ trRemovalLikelihood r)]
+        setSGR [SetColor Foreground Dull (termColor r)]
         setSGR [SetConsoleIntensity NormalIntensity]
         putStr $ "     " ++ printTerm (tmTerm m)
         setSGR [Reset]
 
         setSGR [SetColor Foreground Vivid Cyan]
         setSGR [SetConsoleIntensity NormalIntensity]
-        putStr $ "  " ++ printNumber (trTotalFiles r) ++ ", " ++ printNumber (trTotalOccurrences r)
+        putStr $ "  " ++ printNumber (totalFileCount r) ++ ", " ++ printNumber (totalOccurrenceCount r)
         setSGR [Reset]
 
         setSGR [SetColor Foreground Dull Cyan]
         setSGR [SetConsoleIntensity FaintIntensity]
         putStr $ "  " ++ printPath (tmPath m)
         setSGR [Reset]
+
+        putStr $ "  " ++ removalReason r
         putStr "\n"
   where
     printTerm = cfPrintTerm cf
     printPath = cfPrintPath cf
     printNumber = cfPrintNumber cf
+    termColor = likelihoodColor . rLikelihood . trRemoval
+    removalReason = rReason . trRemoval

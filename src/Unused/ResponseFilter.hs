@@ -23,7 +23,7 @@ withOneOccurrence :: ParseResponse -> ParseResponse
 withOneOccurrence = applyFilter (const oneOccurence)
 
 oneOccurence :: TermResults -> Bool
-oneOccurence = (== 1) . trTotalOccurrences
+oneOccurence = (== 1) . totalOccurrenceCount
 
 withLikelihoods :: [RemovalLikelihood] -> ParseResponse -> ParseResponse
 withLikelihoods [] = id
@@ -37,10 +37,10 @@ ignoringPaths xs =
     matchesPath p = any (`isInfixOf` p) xs
 
 oneFile :: TermResults -> Bool
-oneFile = (== 1) . trTotalFiles
+oneFile = (== 1) . totalFileCount
 
 includesLikelihood :: [RemovalLikelihood] -> TermResults -> Bool
-includesLikelihood l = (`elem` l) . trRemovalLikelihood
+includesLikelihood l = (`elem` l) . rLikelihood . trRemoval
 
 isClassOrModule :: TermResults -> Bool
 isClassOrModule = matchRegex "^[A-Z]" . trTerm

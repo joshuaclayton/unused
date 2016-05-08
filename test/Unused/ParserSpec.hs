@@ -1,7 +1,7 @@
 module Unused.ParserSpec where
 
 import Test.Hspec
-import Unused.Types (TermResults(..), TermMatch(..), RemovalLikelihood(..))
+import Unused.Types
 import Unused.Parser
 import qualified Data.Map.Strict as Map
 
@@ -21,10 +21,10 @@ spec = parallel $
                             , TermMatch "method_name" "app/path/other.rb" 5
                             , TermMatch "method_name" "spec/path/foo_spec.rb" 10
                             ]
-            let r1Results = TermResults "method_name" r1Matches 3 16 Low
+            let r1Results = TermResults "method_name" r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
 
             let r2Matches = [ TermMatch "other" "app/path/other.rb" 1 ]
-            let r2Results = TermResults "other" r2Matches 1 1 High
+            let r2Results = TermResults "other" r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used infrequently")
 
             let (Right result) = parseLines input
 
