@@ -18,23 +18,7 @@ parseLines =
 
 responseFromParse :: Either ParseError [TermMatch] -> ParseResponse
 responseFromParse =
-    fmap $ Map.fromList . map (second resultsFromMatches) . groupBy tmTerm
-
-resultsFromMatches :: [TermMatch] -> TermResults
-resultsFromMatches m =
-    calculateLikelihood TermResults
-        { trTerm = resultTerm terms
-        , trMatches = m
-        , trTotalFiles = totalFiles
-        , trTotalOccurrences = totalOccurrences
-        , trRemovalLikelihood = High
-        }
-  where
-    totalFiles = length m
-    totalOccurrences = sum $ fmap tmOccurrences m
-    terms = map tmTerm m
-    resultTerm (x:_) = x
-    resultTerm _ = ""
+    fmap $ Map.fromList . map (second $ calculateLikelihood . resultsFromMatches) . groupBy tmTerm
 
 parseTermMatches :: Parser [TermMatch]
 parseTermMatches = do
