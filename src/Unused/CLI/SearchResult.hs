@@ -44,6 +44,7 @@ likelihoodColor :: RemovalLikelihood -> Color
 likelihoodColor High = Red
 likelihoodColor Medium = Yellow
 likelihoodColor Low = Green
+likelihoodColor Unknown = Black
 
 printMatches :: Int -> TermResults -> [TermMatch] -> IO ()
 printMatches w r ms =
