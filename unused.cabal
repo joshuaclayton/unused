@@ -27,6 +27,7 @@ library
                      , Unused.CLI.Search
                      , Unused.CLI.SearchError
                      , Unused.CLI.SearchResult
+                     , Unused.CLI.SearchResult.ColumnFormatter
                      , Unused.CLI.SearchWithProgress
                      , Unused.CLI.SearchWithoutProgress
                      , Unused.CLI.Util
