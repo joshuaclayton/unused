@@ -5,7 +5,7 @@ import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
 import Unused.ResponseFilter (withOneOccurrence, withOneFile, withLikelihoods, ignoringPaths)
-import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen)
+import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
 
 data Options = Options
     { oSearchRunner :: SearchRunner
@@ -15,8 +15,9 @@ data Options = Options
     }
 
 main :: IO ()
-main = run =<< execParser
-    (parseOptions `withInfo` "Analyze potentially unused code")
+main = withInterruptHandler $
+    run =<< execParser
+        (parseOptions `withInfo` "Analyze potentially unused code")
 
 run :: Options -> IO ()
 run options = do
