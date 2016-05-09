@@ -40,6 +40,13 @@ spec = parallel $ do
 
             railsSingleOkay result `shouldBe` False
 
+        it "allows matches intermixed with other results" $ do
+            let appToken = TermMatch "ApplicationHelper" "app/helpers/application_helper.rb" 1
+            let testToken = TermMatch "ApplicationHelper" "spec/helpers/application_helper_spec.rb" 10
+            let result = resultsFromMatches [appToken, testToken]
+
+            railsSingleOkay result `shouldBe` True
+
     describe "elixirSingleOkay" $ do
         it "disallows controllers" $ do
             let match = TermMatch "PageController" "web/controllers/page_controller.rb" 1
@@ -77,3 +84,10 @@ spec = parallel $ do
             let result = resultsFromMatches [match]
 
             elixirSingleOkay result `shouldBe` False
+
+        it "allows matches intermixed with other results" $ do
+            let appToken = TermMatch "UserView" "web/views/user_view.ex" 1
+            let testToken = TermMatch "UserView" "test/views/user_view_test.exs" 10
+            let result = resultsFromMatches [appToken, testToken]
+
+            elixirSingleOkay result `shouldBe` True

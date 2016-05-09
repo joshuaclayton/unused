@@ -47,25 +47,21 @@ isClassOrModule = matchRegex "^[A-Z]" . trTerm
 
 railsSingleOkay :: TermResults -> Bool
 railsSingleOkay r =
-    and [isClassOrModule r, oneFile r, oneOccurence r, controller || helper || migration]
+    isClassOrModule r && (controller || helper || migration)
   where
-    controller = matchRegex "^app/controllers/" singlePath && matchRegex "Controller$" (trTerm r)
-    helper = matchRegex "^app/helpers/" singlePath && matchRegex "Helper$" (trTerm r)
-    migration = matchRegex "^db/migrate/" singlePath
-    singlePath = path $ tmPath <$> trMatches r
-    path (x:_) = x
-    path [] = ""
+    controller = any (matchRegex "^app/controllers/") paths && matchRegex "Controller$" (trTerm r)
+    helper = any (matchRegex "^app/helpers/") paths && matchRegex "Helper$" (trTerm r)
+    migration = any (matchRegex "^db/migrate/") paths
+    paths = tmPath <$> trMatches r
 
 elixirSingleOkay :: TermResults -> Bool
 elixirSingleOkay r =
-    and [isClassOrModule r, oneFile r, oneOccurence r, view || test || migration]
+    isClassOrModule r && (view || test || migration)
   where
-    migration = matchRegex "^priv/repo/migrations/" singlePath
-    view = matchRegex "^web/views/" singlePath && matchRegex "View$" (trTerm r)
-    test = matchRegex "^test/" singlePath && matchRegex "Test$" (trTerm r)
-    singlePath = path $ tmPath <$> trMatches r
-    path (x:_) = x
-    path [] = ""
+    migration = any (matchRegex "^priv/repo/migrations/") paths
+    view = any (matchRegex "^web/views/") paths && matchRegex "View$" (trTerm r)
+    test = any (matchRegex "^test/") paths && matchRegex "Test$" (trTerm r)
+    paths = tmPath <$> trMatches r
 
 updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
 updateMatches fm =
