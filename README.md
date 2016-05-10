@@ -2,6 +2,8 @@
 
 A command line tool in Haskell to identify unused code.
 
+![Image of Unused Output](http://i.giphy.com/l39707ITHLsymwSiI.gif)
+
 ## Using Unused
 
 `unused` reads from a pipe expecting a series of tokens to search the codebase
