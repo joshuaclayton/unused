@@ -37,6 +37,14 @@ stack install
 This will generate a binary in `$HOME/.local/bin`; ensure this directory is in
 your `$PATH`.
 
+## Testing
+
+To run the test suite, run:
+
+```sh
+stack test
+```
+
 ## License
 
 Copyright 2016 Josh Clayton. See the [LICENSE](LICENSE).
