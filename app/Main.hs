@@ -17,7 +17,14 @@ data Options = Options
 main :: IO ()
 main = withInterruptHandler $
     run =<< execParser
-        (parseOptions `withInfo` "Analyze potentially unused code")
+        (withInfo parseOptions pHeader pDescription pFooter)
+  where
+    pHeader      = "Unused: Analyze potentially unused code"
+    pDescription = "Unused allows a developer to pipe in a list of tokens to\
+                  \ search through in directory to determine likelihood a\
+                  \ token can be removed. Requires tokens be piped into the\
+                  \ program seperated by newlines. See CLI USAGE below."
+    pFooter      = "CLI USAGE: $ cat path/to/ctags | cut -f1 | sort -u | unused"
 
 run :: Options -> IO ()
 run options = do
@@ -34,8 +41,9 @@ run options = do
 
     return ()
 
-withInfo :: Parser a -> String -> ParserInfo a
-withInfo opts desc = info (helper <*> opts) $ progDesc desc
+withInfo :: Parser a -> String -> String -> String -> ParserInfo a
+withInfo opts h d f =
+    info (helper <*> opts) $ header h <> progDesc d <> footer f
 
 optionFilters :: Options -> (ParseResponse -> ParseResponse)
 optionFilters o =
@@ -82,7 +90,7 @@ parseLikelihoodOption :: Parser String
 parseLikelihoodOption = strOption $
     short 'l'
     <> long "likelihood"
-    <> help "[Allows multiple] [Allowed values: high, medium, low] Display results based on likelihood"
+    <> help "[Allows multiple] [Allowed: high, medium, low] Display results based on likelihood"
 
 parseIgnorePaths :: Parser [String]
 parseIgnorePaths = many $ strOption $
