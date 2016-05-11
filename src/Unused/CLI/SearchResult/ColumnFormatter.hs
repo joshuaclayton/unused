@@ -42,4 +42,4 @@ numberFormat rs =
 
 numberLength :: Int -> Int
 numberLength i =
-    1 + floor (logBase 10 $ fromIntegral i)
+    1 + floor (logBase 10 $ fromIntegral i :: Double)

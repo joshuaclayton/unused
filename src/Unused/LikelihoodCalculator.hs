@@ -2,7 +2,6 @@ module Unused.LikelihoodCalculator
     ( calculateLikelihood
     ) where
 
-import Control.Monad (ap)
 import Unused.Types
 import Unused.ResponseFilter (railsSingleOkay, elixirSingleOkay)
 
