@@ -4,13 +4,14 @@ import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
-import Unused.ResponseFilter (withOneOccurrence, withOneFile, withLikelihoods, ignoringPaths)
+import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
 
 data Options = Options
     { oSearchRunner :: SearchRunner
-    , oAllOccurrencesAndFiles :: Bool
+    , oSingleOccurrenceMatches :: Bool
     , oLikelihoods :: [RemovalLikelihood]
+    , oAllLikelihoods :: Bool
     , oIgnoredPaths :: [String]
     }
 
@@ -50,17 +51,22 @@ optionFilters o =
     foldl1 (.) filters
   where
     filters =
-        [ if oAllOccurrencesAndFiles o then id else withOneOccurrence . withOneFile
-        , withLikelihoods $ oLikelihoods o
+        [ if oSingleOccurrenceMatches o then withOneOccurrence else id
+        , withLikelihoods likelihoods
         , ignoringPaths $ oIgnoredPaths o
         ]
+    likelihoods
+        | oAllLikelihoods o = [High, Medium, Low]
+        | length (oLikelihoods o) == 0 = [High]
+        | otherwise = oLikelihoods o
 
 parseOptions :: Parser Options
 parseOptions =
     Options
     <$> parseSearchRunner
-    <*> parseDisplayAllMatches
+    <*> parseDisplaySingleOccurrenceMatches
     <*> parseLikelihoods
+    <*> parseAllLikelihoods
     <*> parseIgnorePaths
 
 parseSearchRunner :: Parser SearchRunner
@@ -70,15 +76,14 @@ parseSearchRunner =
         <> long "no-progress"
         <> help "Don't display progress during analysis"
 
-parseDisplayAllMatches :: Parser Bool
-parseDisplayAllMatches = switch $
-    short 'a'
-    <> long "all"
-    <> help "Display all files and occurrences"
+parseDisplaySingleOccurrenceMatches :: Parser Bool
+parseDisplaySingleOccurrenceMatches = switch $
+    short 's'
+    <> long "single-occurrence"
+    <> help "Display only single occurrences"
 
 parseLikelihoods :: Parser [RemovalLikelihood]
-parseLikelihoods = many $
-    parseLikelihood <$> parseLikelihoodOption
+parseLikelihoods = many (parseLikelihood <$> parseLikelihoodOption)
 
 parseLikelihood :: String -> RemovalLikelihood
 parseLikelihood "high" = High
@@ -91,6 +96,12 @@ parseLikelihoodOption = strOption $
     short 'l'
     <> long "likelihood"
     <> help "[Allows multiple] [Allowed: high, medium, low] Display results based on likelihood"
+
+parseAllLikelihoods :: Parser Bool
+parseAllLikelihoods = switch $
+    short 'a'
+    <> long "all-likelihoods"
+    <> help "Display all likelihoods"
 
 parseIgnorePaths :: Parser [String]
 parseIgnorePaths = many $ strOption $
