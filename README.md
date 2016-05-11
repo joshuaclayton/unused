@@ -24,6 +24,12 @@ cat .git/tags | cut -f1 | sort -u | unused
 My end goal is to have the latter rolled up into unused itself, so you can
 navigate to a directory, run `unused`, and everything works as expected.
 
+## Requirements
+
+Unused leverages [Ag](https://github.com/ggreer/the_silver_searcher) to
+analyze the codebase; as such, you'll need to have `ag` available in your
+`$PATH`.
+
 ## Building and Compiling
 
 This project uses Haskell and Stack.
