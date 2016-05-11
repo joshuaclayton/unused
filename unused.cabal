@@ -1,6 +1,6 @@
 name:                unused
 version:             0.1.0.0
-synopsis:            Initial project template from stack
+synopsis:            A command line tool to identify unused code.
 description:         Please see README.md
 homepage:            https://github.com/joshuaclayton/unused#readme
 license:             MIT
@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Josh Clayton
 maintainer:          sayhi@joshuaclayton.me
 copyright:           2016 Josh Clayton
-category:            CLI
+category:            Development
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
