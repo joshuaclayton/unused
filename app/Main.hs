@@ -50,10 +50,10 @@ optionFilters o =
     foldl1 (.) filters
   where
     filters =
-      [ if oAllOccurrencesAndFiles o then id else withOneOccurrence . withOneFile
-      , withLikelihoods $ oLikelihoods o
-      , ignoringPaths $ oIgnoredPaths o
-      ]
+        [ if oAllOccurrencesAndFiles o then id else withOneOccurrence . withOneFile
+        , withLikelihoods $ oLikelihoods o
+        , ignoringPaths $ oIgnoredPaths o
+        ]
 
 parseOptions :: Parser Options
 parseOptions =
