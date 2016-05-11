@@ -88,7 +88,7 @@ testOccurrences ms =
     totalOccurrences = sum $ map tmOccurrences testMatches
 
 testDir :: String -> Bool
-testDir = matchRegex "(spec|tests?)\\/"
+testDir = matchRegex "(spec|tests?|features)\\/"
 
 testSnakeCaseFilename :: String -> Bool
 testSnakeCaseFilename = matchRegex ".*(_spec|_test)\\."
