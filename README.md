@@ -2,7 +2,7 @@
 
 A command line tool in Haskell to identify unused code.
 
-![Image of Unused Output](http://i.giphy.com/l39707ITHLsymwSiI.gif)
+![Image of Unused Output](http://i.giphy.com/3oEjHGgyV2EDdy1Ogw.gif)
 
 ## Using Unused
 

@@ -1,8 +1,6 @@
 module Unused.ResponseFilter
-    ( withOneFile
-    , withOneOccurrence
+    ( withOneOccurrence
     , withLikelihoods
-    , oneFile
     , oneOccurence
     , ignoringPaths
     , isClassOrModule
@@ -15,9 +13,6 @@ import qualified Data.Map.Strict as Map
 import Data.List (isInfixOf)
 import Unused.Regex (matchRegex)
 import Unused.Types
-
-withOneFile :: ParseResponse -> ParseResponse
-withOneFile = applyFilter (const oneFile)
 
 withOneOccurrence :: ParseResponse -> ParseResponse
 withOneOccurrence = applyFilter (const oneOccurence)
@@ -35,9 +30,6 @@ ignoringPaths xs =
   where
     newMatches = filter (not . matchesPath . tmPath)
     matchesPath p = any (`isInfixOf` p) xs
-
-oneFile :: TermResults -> Bool
-oneFile = (== 1) . totalFileCount
 
 includesLikelihood :: [RemovalLikelihood] -> TermResults -> Bool
 includesLikelihood l = (`elem` l) . rLikelihood . trRemoval
