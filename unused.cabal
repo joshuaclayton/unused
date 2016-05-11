@@ -42,6 +42,7 @@ library
                      , terminal-progress-bar
                      , ansi-terminal
                      , unix
+  ghc-options:         -Wall -Werror -O2
   default-language:    Haskell2010
 
 executable unused
