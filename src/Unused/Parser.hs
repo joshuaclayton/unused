@@ -21,15 +21,7 @@ responseFromParse =
     fmap $ Map.fromList . map (second $ calculateLikelihood . resultsFromMatches) . groupBy tmTerm
 
 parseTermMatches :: Parser [TermMatch]
-parseTermMatches = do
-    tm <- many1 $ do
-        m <- parseTermMatch
-        void eol
-
-        return m
-    eof
-
-    return tm
+parseTermMatches = many1 parseTermMatch <* eof
 
 parseTermMatch :: Parser TermMatch
 parseTermMatch = do
@@ -38,6 +30,7 @@ parseTermMatch = do
     path' <- pathParser
     colonSep
     occurrences' <- occurrenceParser
+    void eol
 
     return $ TermMatch term' path' $ toInt occurrences'
   where
