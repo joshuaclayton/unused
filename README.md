@@ -1,4 +1,4 @@
-# Unused
+# Unused [![Build Status](https://travis-ci.org/joshuaclayton/unused.svg?branch=master)](https://travis-ci.org/joshuaclayton/unused)
 
 A command line tool in Haskell to identify unused code.
 
