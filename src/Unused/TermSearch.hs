@@ -7,9 +7,9 @@ import System.Process
 search :: String -> IO [String]
 search t = do
     results <- ag t
-    return $ linesMap prefixTerm results
+    return $ linesMap suffixTerm results
   where
-    prefixTerm = (t ++)
+    suffixTerm = (++ (":" ++ t))
 
 linesMap :: (String -> String) -> String -> [String]
 linesMap f =

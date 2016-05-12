@@ -12,10 +12,10 @@ spec :: Spec
 spec = parallel $
     describe "parseLines" $ do
         it "parses from the correct format" $ do
-            let input = "method_name:app/path/foo.rb:1\n\
-                        \other:app/path/other.rb:1\n\
-                        \method_name:app/path/other.rb:5\n\
-                        \method_name:spec/path/foo_spec.rb:10\n"
+            let input = ":app/path/foo.rb:1:method_name\n\
+                        \:app/path/other.rb:1:other\n\
+                        \:app/path/other.rb:5:method_name\n\
+                        \:spec/path/foo_spec.rb:10:method_name\n"
 
             let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" 1
                             , TermMatch "method_name" "app/path/other.rb" 5

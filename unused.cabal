@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Unused.TermSearch
                      , Unused.Parser
+                     , Unused.Parser.Internal
                      , Unused.Types
                      , Unused.Util
                      , Unused.Regex
@@ -63,6 +64,7 @@ test-suite unused-test
                      , hspec
                      , containers
   other-modules:       Unused.ParserSpec
+                     , Unused.Parser.InternalSpec
                      , Unused.ResponseFilterSpec
                      , Unused.TypesSpec
                      , Unused.LikelihoodCalculatorSpec
