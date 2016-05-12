@@ -26,7 +26,7 @@ can help here, but still cannot determine every possible execution path.
 
 ## Installing
 
-### Homebrew
+### Homebrew (Recommended)
 
 You can install [my formulae] via [Homebrew] with `brew tap`:
 
@@ -45,7 +45,7 @@ brew install unused
 
 Alternatively, you can install by hand.
 
-### Stack
+### Installing by hand
 
 This project uses [Haskell] and [Stack].
 
