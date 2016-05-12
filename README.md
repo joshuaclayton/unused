@@ -67,13 +67,7 @@ your `$PATH`.
 `unused` reads from a pipe expecting a series of tokens to search the codebase
 for.
 
-This could be done with `echo`:
-
-```sh
-echo "module\nimport" | unused
-```
-
-Or pulling in a ctags file:
+The recommended way to do this is to clean up your tags file and pipe it in:
 
 ```sh
 cat .git/tags | cut -f1 | sort -u | unused
