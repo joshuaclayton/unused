@@ -4,6 +4,7 @@ module Unused.CLI.Util
     , module System.Console.ANSI
     ) where
 
+import Control.Monad (void)
 import System.Console.ANSI
 import Control.Exception (throwTo)
 import System.Posix.Signals (Handler(Catch), installHandler, keyboardSignal)
@@ -18,7 +19,7 @@ resetScreen = do
 withInterruptHandler :: IO () -> IO ()
 withInterruptHandler body = do
     tid <- myThreadId
-    _ <- installHandler keyboardSignal (Catch (handleInterrupt tid)) Nothing
+    void $ installHandler keyboardSignal (Catch (handleInterrupt tid)) Nothing
     body
 
 handleInterrupt :: ThreadId -> IO ()
