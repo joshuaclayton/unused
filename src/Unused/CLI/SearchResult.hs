@@ -11,12 +11,16 @@ import Unused.CLI.Util
 
 printSearchResults :: TermMatchSet -> IO ()
 printSearchResults termMatchSet =
-    mapM_ (printDirectorySection columnFormat) responses
+    printFormattedResponses columnFormat responses
   where
     responses = responsesGroupedByPath termMatchSet
     allSets = listFromMatchSet =<< map snd responses
     allResults = map snd allSets
     columnFormat = buildColumnFormatter allResults
+
+printFormattedResponses :: ColumnFormat -> [(DirectoryPrefix, TermMatchSet)] -> IO ()
+printFormattedResponses _ [] = printNoResultsFound
+printFormattedResponses cf r = mapM_ (printDirectorySection cf) r
 
 listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
 listFromMatchSet =
@@ -72,3 +76,10 @@ printMatches cf r ms =
     printNumber = cfPrintNumber cf
     termColor = likelihoodColor . rLikelihood . trRemoval
     removalReason = rReason . trRemoval
+
+printNoResultsFound :: IO ()
+printNoResultsFound = do
+    setSGR   [SetColor Foreground Dull Green]
+    setSGR   [SetConsoleIntensity BoldIntensity]
+    putStrLn "Unused found no results"
+    setSGR   [Reset]
