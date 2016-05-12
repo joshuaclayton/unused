@@ -72,6 +72,17 @@ spec = parallel $ do
 
             elixirSingleOkay result `shouldBe` True
 
+        it "allows Mixfile" $ do
+            let match = TermMatch "Mixfile" "mix.exs" 1
+            let result = resultsFromMatches [match]
+
+            elixirSingleOkay result `shouldBe` True
+
+        it "allows __using__" $ do
+            let match = TermMatch "__using__" "web/web.ex" 1
+            let result = resultsFromMatches [match]
+
+            elixirSingleOkay result `shouldBe` True
 
         it "disallows service modules" $ do
             let match = TermMatch "CreatePostWithNotifications" "web/services/create_post_with_notifications.ex" 1

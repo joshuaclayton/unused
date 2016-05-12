@@ -48,11 +48,13 @@ railsSingleOkay r =
 
 elixirSingleOkay :: TermResults -> Bool
 elixirSingleOkay r =
-    isClassOrModule r && (view || test || migration)
+    isAllowedTerm r allowedTerms ||
+      isClassOrModule r && (view || test || migration)
   where
     migration = any (matchRegex "^priv/repo/migrations/") paths
     view = any (matchRegex "^web/views/") paths && matchRegex "View$" (trTerm r)
     test = any (matchRegex "^test/") paths && matchRegex "Test$" (trTerm r)
+    allowedTerms = ["Mixfile", "__using__"]
     paths = tmPath <$> trMatches r
 
 updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
@@ -63,3 +65,6 @@ updateMatches fm =
 
 applyFilter :: (String -> TermResults -> Bool) -> ParseResponse -> ParseResponse
 applyFilter = fmap . Map.filterWithKey
+
+isAllowedTerm :: TermResults -> [String] -> Bool
+isAllowedTerm = elem . trTerm
