@@ -5,39 +5,39 @@ module Unused.CLI.SearchResult
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
 import Unused.Types
-import Unused.DirectoryGrouping (DirectoryPrefix(..), responsesGroupedByPath)
+import Unused.Grouping (Grouping(..), GroupedTerms)
 import Unused.CLI.SearchResult.ColumnFormatter
 import Unused.CLI.Util
 
-printSearchResults :: TermMatchSet -> IO ()
-printSearchResults termMatchSet =
+printSearchResults :: [GroupedTerms] -> IO ()
+printSearchResults responses =
     printFormattedResponses columnFormat responses
   where
-    responses = responsesGroupedByPath termMatchSet
     allSets = listFromMatchSet =<< map snd responses
     allResults = map snd allSets
     columnFormat = buildColumnFormatter allResults
 
-printFormattedResponses :: ColumnFormat -> [(DirectoryPrefix, TermMatchSet)] -> IO ()
+printFormattedResponses :: ColumnFormat -> [GroupedTerms] -> IO ()
 printFormattedResponses _ [] = printNoResultsFound
-printFormattedResponses cf r = mapM_ (printDirectorySection cf) r
+printFormattedResponses cf r = mapM_ (printGroupingSection cf) r
 
 listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
 listFromMatchSet =
   Map.toList
 
-printDirectorySection :: ColumnFormat -> (DirectoryPrefix, TermMatchSet) -> IO ()
-printDirectorySection cf (dir, ss) = do
-    printDirectory dir
+printGroupingSection :: ColumnFormat -> GroupedTerms -> IO ()
+printGroupingSection cf (g, ss) = do
+    printGrouping g
     mapM_ (printTermResults cf) $ listFromMatchSet ss
-    putStr "\n"
 
-printDirectory :: DirectoryPrefix -> IO ()
-printDirectory (DirectoryPrefix dir) = do
-    setSGR   [SetColor Foreground Vivid Black]
-    setSGR   [SetConsoleIntensity BoldIntensity]
-    putStrLn dir
-    setSGR   [Reset]
+printGrouping :: Grouping -> IO ()
+printGrouping NoGrouping = return ()
+printGrouping g = do
+    putStr "\n"
+    setSGR [SetColor Foreground Vivid Black]
+    setSGR [SetConsoleIntensity BoldIntensity]
+    print g
+    setSGR [Reset]
 
 printTermResults :: ColumnFormat -> (String, TermResults) -> IO ()
 printTermResults cf (_, results) =

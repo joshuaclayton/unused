@@ -22,7 +22,9 @@ library
                      , Unused.Util
                      , Unused.Regex
                      , Unused.ResponseFilter
-                     , Unused.DirectoryGrouping
+                     , Unused.Grouping
+                     , Unused.Grouping.Internal
+                     , Unused.Grouping.Types
                      , Unused.LikelihoodCalculator
                      , Unused.CLI
                      , Unused.CLI.Search

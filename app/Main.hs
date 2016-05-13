@@ -2,9 +2,11 @@ module Main where
 
 import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
+import Data.Maybe (fromMaybe)
 import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
+import Unused.Grouping (CurrentGrouping(..), groupedResponses)
 import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
 
 data Options = Options
@@ -13,6 +15,7 @@ data Options = Options
     , oLikelihoods :: [RemovalLikelihood]
     , oAllLikelihoods :: Bool
     , oIgnoredPaths :: [String]
+    , oGrouping :: CurrentGrouping
     }
 
 main :: IO ()
@@ -37,7 +40,7 @@ run options = do
 
     resetScreen
 
-    either printParseError printSearchResults $
+    either printParseError (printSearchResults . groupedResponses (oGrouping options)) $
         optionFilters options response
 
     return ()
@@ -68,6 +71,7 @@ parseOptions =
     <*> parseLikelihoods
     <*> parseAllLikelihoods
     <*> parseIgnorePaths
+    <*> parseGroupings
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -108,3 +112,22 @@ parseIgnorePaths = many $ strOption $
     long "ignore"
     <> metavar "PATH"
     <> help "[Allows multiple] Ignore paths that contain PATH"
+
+parseGroupings :: Parser CurrentGrouping
+parseGroupings =
+    fromMaybe GroupByDirectory <$> maybeGroup
+  where
+    maybeGroup = optional $ parseGrouping <$> parseGroupingOption
+
+parseGrouping :: String -> CurrentGrouping
+parseGrouping "directory" = GroupByDirectory
+parseGrouping "term" = GroupByTerm
+parseGrouping "file" = GroupByFile
+parseGrouping "none" = NoGroup
+parseGrouping _ = NoGroup
+
+parseGroupingOption :: Parser String
+parseGroupingOption = strOption $
+    short 'g'
+    <> long "group-by"
+    <> help "[Allowed: directory, term, file, none] Group results"
