@@ -23,4 +23,6 @@ progressWithIndicator :: (a -> IO [b]) -> ProgressIndicator -> [a] -> IO [b]
 progressWithIndicator f i terms = do
     printPrefix i
     indicator <- start i $ length terms
-    concat <$> mapM (\t -> f t <* increment indicator) terms <* stop indicator
+    concat <$> sequence (ioOps indicator) <* stop indicator
+  where
+    ioOps i' = map (\t -> f t <* increment i') terms
