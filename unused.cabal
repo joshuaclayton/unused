@@ -29,11 +29,10 @@ library
                      , Unused.CLI.SearchError
                      , Unused.CLI.SearchResult
                      , Unused.CLI.SearchResult.ColumnFormatter
-                     , Unused.CLI.SearchWithProgress
-                     , Unused.CLI.SearchWithoutProgress
                      , Unused.CLI.Util
-                     , Unused.CLI.Spinner
-                     , Unused.CLI.ProgressBar
+                     , Unused.CLI.ProgressIndicator
+                     , Unused.CLI.ProgressIndicator.Internal
+                     , Unused.CLI.ProgressIndicator.Types
   build-depends:       base >= 4.7 && < 5
                      , process
                      , parsec
