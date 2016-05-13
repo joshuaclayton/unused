@@ -16,7 +16,7 @@ calculateLikelihood r =
         | elixirSingleOkay r = (Low, "a class, module, or migration that often occurs in only one file")
         | singleNonTestUsage r && testsExist r = (High, "only the definition and corresponding tests exist")
         | doubleNonTestUsage r && testsExist r = (Medium, "only the definition and one other use, along with tests, exists")
-        | totalScore < 2 = (High, "used infrequently")
+        | totalScore < 2 = (High, "used once")
         | totalScore < 6 = (Medium, "used semi-frequently")
         | totalScore >= 6 = (Low, "used frequently")
         | otherwise = (Unknown, "could not determine likelihood")

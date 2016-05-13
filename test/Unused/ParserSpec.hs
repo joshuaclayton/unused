@@ -24,7 +24,7 @@ spec = parallel $
             let r1Results = TermResults "method_name" r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
 
             let r2Matches = [ TermMatch "other" "app/path/other.rb" 1 ]
-            let r2Results = TermResults "other" r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used infrequently")
+            let r2Results = TermResults "other" r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used once")
 
             let (Right result) = parseLines input
 
