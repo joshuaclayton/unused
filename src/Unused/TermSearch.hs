@@ -3,6 +3,7 @@ module Unused.TermSearch
     ) where
 
 import System.Process
+import Unused.TermSearch.Internal (commandLineOptions)
 
 search :: String -> IO [String]
 search t = do
@@ -19,5 +20,5 @@ linesMap f =
 
 ag :: String -> IO String
 ag t = do
-  (_, results, _) <- readProcessWithExitCode "ag" [t, ".", "-c", "-Q", "--ackmate"] ""
+  (_, results, _) <- readProcessWithExitCode "ag" (commandLineOptions t) ""
   return results
