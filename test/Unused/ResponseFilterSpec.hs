@@ -102,3 +102,16 @@ spec = parallel $ do
             let result = resultsFromMatches [appToken, testToken]
 
             elixirSingleOkay result `shouldBe` True
+
+    describe "haskellSingleOkay" $ do
+        it "allows instance" $ do
+            let match = TermMatch "instance" "src/Lib/Types.hs" 1
+            let result = resultsFromMatches [match]
+
+            haskellSingleOkay result `shouldBe` True
+
+        it "allows items in the *.cabal file" $ do
+            let match = TermMatch "Lib.SomethingSpec" "lib.cabal" 1
+            let result = resultsFromMatches [match]
+
+            haskellSingleOkay result `shouldBe` True

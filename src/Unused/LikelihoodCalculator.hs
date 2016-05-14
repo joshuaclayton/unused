@@ -3,7 +3,7 @@ module Unused.LikelihoodCalculator
     ) where
 
 import Unused.Types
-import Unused.ResponseFilter (railsSingleOkay, elixirSingleOkay)
+import Unused.ResponseFilter (railsSingleOkay, elixirSingleOkay, haskellSingleOkay)
 
 calculateLikelihood :: TermResults -> TermResults
 calculateLikelihood r =
@@ -14,6 +14,7 @@ calculateLikelihood r =
     newLikelihood
         | railsSingleOkay r = (Low, "a class, module, or migration that often occurs in only one file")
         | elixirSingleOkay r = (Low, "a class, module, or migration that often occurs in only one file")
+        | haskellSingleOkay r = (Low, "a module, function, or special case that often occurs in only one file")
         | singleNonTestUsage r && testsExist r = (High, "only the definition and corresponding tests exist")
         | doubleNonTestUsage r && testsExist r = (Medium, "only the definition and one other use, along with tests, exists")
         | totalScore < 2 = (High, "used once")

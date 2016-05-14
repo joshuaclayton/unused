@@ -6,6 +6,7 @@ module Unused.ResponseFilter
     , isClassOrModule
     , railsSingleOkay
     , elixirSingleOkay
+    , haskellSingleOkay
     , updateMatches
     ) where
 
@@ -55,6 +56,14 @@ elixirSingleOkay r =
     view = any (matchRegex "^web/views/") paths && matchRegex "View$" (trTerm r)
     test = any (matchRegex "^test/") paths && matchRegex "Test$" (trTerm r)
     allowedTerms = ["Mixfile", "__using__"]
+    paths = tmPath <$> trMatches r
+
+haskellSingleOkay :: TermResults -> Bool
+haskellSingleOkay r =
+    isAllowedTerm r allowedTerms || cabalFile
+  where
+    allowedTerms = ["instance"]
+    cabalFile = any (matchRegex "^*.cabal$") paths
     paths = tmPath <$> trMatches r
 
 updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
