@@ -8,6 +8,7 @@ import Unused.Types (ParseResponse, RemovalLikelihood(..))
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
 import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
+import Unused.Cache
 
 data Options = Options
     { oSearchRunner :: SearchRunner
@@ -37,8 +38,7 @@ run options = withoutCursor $ do
     terms <- pure . lines =<< getContents
     renderHeader terms
 
-    results <- unlines <$> executeSearch (oSearchRunner options) terms
-
+    results <- cached $ unlines <$> executeSearch (oSearchRunner options) terms
     let response = parseLines results
 
     resetScreen

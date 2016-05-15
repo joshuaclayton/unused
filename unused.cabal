@@ -27,6 +27,8 @@ library
                      , Unused.Grouping.Internal
                      , Unused.Grouping.Types
                      , Unused.LikelihoodCalculator
+                     , Unused.Cache
+                     , Unused.Cache.DirectoryFingerprint
                      , Unused.CLI
                      , Unused.CLI.Search
                      , Unused.CLI.SearchError
@@ -41,6 +43,7 @@ library
                      , parsec
                      , containers
                      , filepath
+                     , directory
                      , regex-tdfa
                      , terminal-progress-bar
                      , ansi-terminal
