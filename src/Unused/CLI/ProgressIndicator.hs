@@ -23,7 +23,8 @@ createSpinner =
 progressWithIndicator :: (a -> IO [b]) -> ProgressIndicator -> [a] -> IO [b]
 progressWithIndicator f i terms = do
     printPrefix i
-    (_, indicator) <- start i $ length terms
+    (tid, indicator) <- start i $ length terms
+    installChildInterruptHandler tid
     concat <$> parallel (ioOps indicator) <* stop indicator <* stopGlobalPool
   where
     ioOps i' = map (\t -> f t <* increment i') terms
