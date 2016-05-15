@@ -7,7 +7,7 @@ import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), renderHeader, executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
 
 data Options = Options
     { oSearchRunner :: SearchRunner
@@ -31,7 +31,7 @@ main = withInterruptHandler $
     pFooter      = "CLI USAGE: $ cat path/to/ctags | cut -f1 | sort -u | unused"
 
 run :: Options -> IO ()
-run options = do
+run options = withoutCursor $ do
     hSetBuffering stdout NoBuffering
 
     terms <- pure . lines =<< getContents

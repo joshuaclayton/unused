@@ -1,5 +1,6 @@
 module Unused.CLI.Util
     ( resetScreen
+    , withoutCursor
     , withInterruptHandler
     , module System.Console.ANSI
     ) where
@@ -10,6 +11,11 @@ import Control.Exception (throwTo)
 import System.Posix.Signals (Handler(Catch), installHandler, keyboardSignal)
 import Control.Concurrent (ThreadId, myThreadId)
 import System.Exit (ExitCode(ExitFailure))
+
+withoutCursor :: IO a -> IO a
+withoutCursor body = do
+    hideCursor
+    body <* showCursor
 
 resetScreen :: IO ()
 resetScreen = do
