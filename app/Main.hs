@@ -35,8 +35,8 @@ run options = do
     hSetBuffering stdout NoBuffering
 
     terms <- pure . lines =<< getContents
-    results <- executeSearch (oSearchRunner options) terms
-    let response = parseLines $ unlines results
+    results <- unlines <$> executeSearch (oSearchRunner options) terms
+    let response = parseLines results
 
     resetScreen
 
