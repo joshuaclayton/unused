@@ -32,6 +32,7 @@ handleInterrupt :: ThreadId -> IO ()
 handleInterrupt tid = do
     resetScreen
     showCursor
+    setSGR [Reset]
     throwTo tid $ ExitFailure code
   where
     code = signalToInt $ 128 + keyboardSignal
