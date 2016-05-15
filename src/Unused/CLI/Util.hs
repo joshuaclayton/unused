@@ -16,7 +16,7 @@ resetScreen = do
     clearScreen
     setCursorPosition 0 0
 
-withInterruptHandler :: IO () -> IO ()
+withInterruptHandler :: IO a -> IO a
 withInterruptHandler body = do
     tid <- myThreadId
     void $ installHandler keyboardSignal (Catch (handleInterrupt tid)) Nothing
