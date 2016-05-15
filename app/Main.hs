@@ -7,7 +7,7 @@ import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), renderHeader, executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
 
 data Options = Options
     { oSearchRunner :: SearchRunner
@@ -35,7 +35,10 @@ run options = do
     hSetBuffering stdout NoBuffering
 
     terms <- pure . lines =<< getContents
+    renderHeader terms
+
     results <- unlines <$> executeSearch (oSearchRunner options) terms
+
     let response = parseLines results
 
     resetScreen

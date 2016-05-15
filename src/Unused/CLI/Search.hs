@@ -1,5 +1,6 @@
 module Unused.CLI.Search
     ( SearchRunner(..)
+    , renderHeader
     , executeSearch
     ) where
 
@@ -9,11 +10,15 @@ import Unused.CLI.ProgressIndicator
 
 data SearchRunner = SearchWithProgress | SearchWithoutProgress
 
-executeSearch :: SearchRunner -> [String] -> IO [String]
-executeSearch runner terms = do
+renderHeader :: [String] -> IO ()
+renderHeader terms = do
     resetScreen
     hideCursor
     printAnalysisHeader terms
+
+executeSearch :: SearchRunner -> [String] -> IO [String]
+executeSearch runner terms = do
+    renderHeader terms
     runSearch runner terms <* resetScreen <* showCursor
 
 printAnalysisHeader :: [String] -> IO ()
