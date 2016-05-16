@@ -11,13 +11,13 @@ import System.ProgressBar (ProgressRef, startProgress, incProgress, msg, percent
 import Unused.CLI.ProgressIndicator.Types
 import Unused.CLI.Util
 
-start :: ProgressIndicator -> Int -> IO ProgressIndicator
+start :: ProgressIndicator -> Int -> IO (ThreadId, ProgressIndicator)
 start s@Spinner{} _ = do
     tid <- forkIO $ runSpinner 0 s
-    return $ s { sThreadId = Just tid }
+    return (tid, s { sThreadId = Just tid })
 start ProgressBar{} i = do
     (ref, tid) <- buildProgressBar $ toInteger i
-    return $ ProgressBar (Just ref) (Just tid)
+    return (tid, ProgressBar (Just ref) (Just tid))
 
 stop :: ProgressIndicator -> IO ()
 stop ProgressBar{ pbThreadId = Just tid } = killThread tid
