@@ -33,7 +33,10 @@ handleInterrupt tid = do
     resetScreen
     showCursor
     setSGR [Reset]
-    throwTo tid $ ExitFailure code
+    throwTo tid $ ExitFailure interruptExitCode
+
+interruptExitCode :: Int
+interruptExitCode =
+    signalToInt $ 128 + keyboardSignal
   where
-    code = signalToInt $ 128 + keyboardSignal
     signalToInt s = read $ show s :: Int
