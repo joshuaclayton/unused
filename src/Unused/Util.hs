@@ -2,11 +2,11 @@ module Unused.Util
     ( groupBy
     ) where
 
-import Data.List (nub)
+import Control.Arrow ((&&&))
+import qualified Data.List as L
+import Data.Function
 
-groupBy :: Eq b => (a -> b) -> [a] -> [(b, [a])]
-groupBy f l =
-    fmap (\t -> (t, byTerm t)) uniqueTerms
-  where
-    byTerm t = filter ((== t) . f) l
-    uniqueTerms = nub $ fmap f l
+groupBy :: (Ord b) => (a -> b) -> [a] -> [(b, [a])]
+groupBy f = map (f . head &&& id)
+                   . L.groupBy ((==) `on` f)
+                   . L.sortBy (compare `on` f)
