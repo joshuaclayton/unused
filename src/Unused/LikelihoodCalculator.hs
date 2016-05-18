@@ -1,26 +1,40 @@
 module Unused.LikelihoodCalculator
     ( calculateLikelihood
+    , LanguageConfiguration
     ) where
 
+import Data.Maybe (isJust)
+import Data.List (find, intercalate)
+import Unused.ResultsClassifier
 import Unused.Types
-import Unused.ResponseFilter (railsSingleOkay, elixirSingleOkay, haskellSingleOkay)
+import Unused.ResponseFilter (autoLowLikelihood)
 
-calculateLikelihood :: TermResults -> TermResults
-calculateLikelihood r =
+calculateLikelihood :: [LanguageConfiguration] -> TermResults -> TermResults
+calculateLikelihood lcs r =
     r { trRemoval = uncurry Removal newLikelihood }
   where
     baseScore = totalOccurrenceCount r
     totalScore = baseScore
     newLikelihood
-        | railsSingleOkay r = (Low, "a class, module, or migration that often occurs in only one file")
-        | elixirSingleOkay r = (Low, "a class, module, or migration that often occurs in only one file")
-        | haskellSingleOkay r = (Low, "a module, function, or special case that often occurs in only one file")
+        | isJust firstAutoLowLikelihood = (Low, autoLowLikelihoodMessage)
         | singleNonTestUsage r && testsExist r = (High, "only the definition and corresponding tests exist")
         | doubleNonTestUsage r && testsExist r = (Medium, "only the definition and one other use, along with tests, exists")
         | totalScore < 2 = (High, "used once")
         | totalScore < 6 = (Medium, "used semi-frequently")
         | totalScore >= 6 = (Low, "used frequently")
         | otherwise = (Unknown, "could not determine likelihood")
+    firstAutoLowLikelihood = find (`autoLowLikelihood` r) lcs
+    autoLowLikelihoodMessage =
+        case firstAutoLowLikelihood of
+            Nothing -> ""
+            Just lang -> languageConfirmationMessage lang
+
+languageConfirmationMessage :: LanguageConfiguration -> String
+languageConfirmationMessage lc =
+    langFramework ++ ": allowed term or " ++ lowLikelihoodNames
+  where
+    langFramework = lcName lc
+    lowLikelihoodNames = intercalate ", " $ map smName $ lcAutoLowLikelihood lc
 
 singleNonTestUsage :: TermResults -> Bool
 singleNonTestUsage = (1 ==) . oOccurrences . trAppOccurrences

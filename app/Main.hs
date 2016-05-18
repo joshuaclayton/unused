@@ -5,6 +5,7 @@ import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Data.Maybe (fromMaybe)
 import Unused.Parser (parseLines)
 import Unused.Types (ParseResponse, RemovalLikelihood(..))
+import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
 import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
@@ -39,8 +40,11 @@ run options = withoutCursor $ do
     terms <- pure . lines =<< getContents
     renderHeader terms
 
+    languageConfig <- loadLanguageConfig
+
     results <- withCache options $ unlines <$> executeSearch (oSearchRunner options) terms
-    let response = parseLines results
+
+    let response = parseLines languageConfig results
 
     resetScreen
 
@@ -48,6 +52,9 @@ run options = withoutCursor $ do
         optionFilters options response
 
     return ()
+
+loadLanguageConfig :: IO [LanguageConfiguration]
+loadLanguageConfig = either (const []) id <$> loadConfig
 
 withCache :: Options -> IO String -> IO String
 withCache Options{ oWithCache = True } = cached

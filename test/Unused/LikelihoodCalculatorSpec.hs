@@ -6,6 +6,7 @@ module Unused.LikelihoodCalculatorSpec
 import Test.Hspec
 import Unused.Types
 import Unused.LikelihoodCalculator
+import Unused.ResultsClassifier
 
 main :: IO ()
 main = hspec spec
@@ -15,10 +16,10 @@ spec = parallel $
     describe "calculateLikelihood" $ do
         it "prefers language-specific checks first" $ do
             let railsMatches = [ TermMatch "ApplicationController" "app/controllers/application_controller.rb" 1 ]
-            removalLikelihood railsMatches `shouldBe` Low
+            removalLikelihood railsMatches `shouldReturn` Low
 
             let elixirMatches = [ TermMatch "AwesomeView" "web/views/awesome_view.ex" 1 ]
-            removalLikelihood elixirMatches `shouldBe` Low
+            removalLikelihood elixirMatches `shouldReturn` Low
 
         it "weighs widely-used methods as low likelihood" $ do
             let matches = [ TermMatch "full_name" "app/models/user.rb" 4
@@ -27,19 +28,19 @@ spec = parallel $
                           , TermMatch "full_name" "spec/models/user_spec.rb" 10
                           ]
 
-            removalLikelihood matches `shouldBe` Low
+            removalLikelihood matches `shouldReturn` Low
 
         it "weighs only-used-once methods as high likelihood" $ do
             let matches = [ TermMatch "obscure_method" "app/models/user.rb" 1 ]
 
-            removalLikelihood matches `shouldBe` High
+            removalLikelihood matches `shouldReturn` High
 
         it "weighs methods that seem to only be tested and never used as high likelihood" $ do
             let matches = [ TermMatch "obscure_method" "app/models/user.rb" 1
                           , TermMatch "obscure_method" "spec/models/user_spec.rb" 5
                           ]
 
-            removalLikelihood matches `shouldBe` High
+            removalLikelihood matches `shouldReturn` High
 
         it "weighs methods that seem to only be tested and used in one other area as medium likelihood" $ do
             let matches = [ TermMatch "obscure_method" "app/models/user.rb" 1
@@ -48,8 +49,9 @@ spec = parallel $
                           , TermMatch "obscure_method" "spec/controllers/user_controller_spec.rb" 5
                           ]
 
-            removalLikelihood matches `shouldBe` Medium
+            removalLikelihood matches `shouldReturn` Medium
 
-removalLikelihood :: [TermMatch] -> RemovalLikelihood
-removalLikelihood =
-    rLikelihood . trRemoval . calculateLikelihood . resultsFromMatches
+removalLikelihood :: [TermMatch] -> IO RemovalLikelihood
+removalLikelihood ms = do
+    (Right config) <- loadConfig
+    return $ rLikelihood $ trRemoval $ calculateLikelihood config $ resultsFromMatches ms

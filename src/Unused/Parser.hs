@@ -10,10 +10,10 @@ import Unused.Types (ParseResponse, TermMatch, resultsFromMatches, tmTerm)
 import Unused.LikelihoodCalculator
 import Unused.Parser.Internal
 
-parseLines :: String -> ParseResponse
-parseLines =
-    responseFromParse . parse parseTermMatches "matches"
+parseLines :: [LanguageConfiguration] -> String -> ParseResponse
+parseLines lcs =
+    responseFromParse lcs . parse parseTermMatches "matches"
 
-responseFromParse :: Either ParseError [TermMatch] -> ParseResponse
-responseFromParse =
-    fmap $ Map.fromList . map (second $ calculateLikelihood . resultsFromMatches) . groupBy tmTerm
+responseFromParse :: [LanguageConfiguration] -> Either ParseError [TermMatch] -> ParseResponse
+responseFromParse lcs =
+    fmap $ Map.fromList . map (second $ calculateLikelihood lcs . resultsFromMatches) . groupBy tmTerm

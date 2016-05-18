@@ -1,0 +1,43 @@
+- name: Rails
+  allowedTerms: []
+  autoLowLikelihood:
+    - name: Migration
+      pathStartsWith: db/migrate/
+      classOrModule: true
+      appOccurrences: 1
+    - name: Controller
+      pathStartsWith: app/controllers
+      termEndsWith: Controller
+      classOrModule: true
+    - name: Helper
+      pathStartsWith: app/helpers
+      termEndsWith: Helper
+      classOrModule: true
+- name: Phoenix
+  allowedTerms:
+    - Mixfile
+    - __using__
+  autoLowLikelihood:
+    - name: Migration
+      pathStartsWith: priv/repo/migrations
+      classOrModule: true
+    - name: View
+      pathStartsWith: web/views/
+      termEndsWith: View
+      classOrModule: true
+    - name: Test
+      pathStartsWith: test/
+      termEndsWith: Test
+      classOrModule: true
+- name: Haskell
+  allowedTerms:
+    - instance
+    - spec
+  autoLowLikelihood:
+    - name: Spec
+      pathStartsWith: test/
+      termEndsWith: Spec
+      classOrModule: true
+    - name: Cabalfile
+      pathEndsWith: .cabal
+      appOccurrences: 1

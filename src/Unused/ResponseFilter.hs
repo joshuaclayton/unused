@@ -4,9 +4,7 @@ module Unused.ResponseFilter
     , oneOccurence
     , ignoringPaths
     , isClassOrModule
-    , railsSingleOkay
-    , elixirSingleOkay
-    , haskellSingleOkay
+    , autoLowLikelihood
     , updateMatches
     ) where
 
@@ -14,6 +12,7 @@ import qualified Data.Map.Strict as Map
 import Data.List (isInfixOf)
 import Unused.Regex (matchRegex)
 import Unused.Types
+import Unused.ResultsClassifier
 
 withOneOccurrence :: ParseResponse -> ParseResponse
 withOneOccurrence = applyFilter (const oneOccurence)
@@ -38,33 +37,33 @@ includesLikelihood l = (`elem` l) . rLikelihood . trRemoval
 isClassOrModule :: TermResults -> Bool
 isClassOrModule = matchRegex "^[A-Z]" . trTerm
 
-railsSingleOkay :: TermResults -> Bool
-railsSingleOkay r =
-    isClassOrModule r && (controller || helper || migration)
+autoLowLikelihood :: LanguageConfiguration -> TermResults -> Bool
+autoLowLikelihood l r =
+    isAllowedTerm r allowedTerms || or anySinglesOkay
   where
-    controller = any (matchRegex "^app/controllers/") paths && matchRegex "Controller$" (trTerm r)
-    helper = any (matchRegex "^app/helpers/") paths && matchRegex "Helper$" (trTerm r)
-    migration = any (matchRegex "^db/migrate/") paths
-    paths = tmPath <$> trMatches r
+    allowedTerms = lcAllowedTerms l
+    anySinglesOkay = map (\sm -> classOrModule sm r && matchesToBool (smMatchers sm)) singles
+    singles = lcAutoLowLikelihood l
+    classOrModule = classOrModuleFunction . smClassOrModule
 
-elixirSingleOkay :: TermResults -> Bool
-elixirSingleOkay r =
-    isAllowedTerm r allowedTerms ||
-      isClassOrModule r && (view || test || migration)
-  where
-    migration = any (matchRegex "^priv/repo/migrations/") paths
-    view = any (matchRegex "^web/views/") paths && matchRegex "View$" (trTerm r)
-    test = any (matchRegex "^test/") paths && matchRegex "Test$" (trTerm r)
-    allowedTerms = ["Mixfile", "__using__"]
-    paths = tmPath <$> trMatches r
+    matchesToBool :: [Matcher] -> Bool
+    matchesToBool = all (`matcherToBool` r)
 
-haskellSingleOkay :: TermResults -> Bool
-haskellSingleOkay r =
-    isAllowedTerm r allowedTerms || cabalFile
-  where
-    allowedTerms = ["instance"]
-    cabalFile = any (matchRegex "^*.cabal$") paths
-    paths = tmPath <$> trMatches r
+classOrModuleFunction :: Bool -> TermResults -> Bool
+classOrModuleFunction True = isClassOrModule
+classOrModuleFunction False = const True
+
+matcherToBool :: Matcher -> TermResults -> Bool
+matcherToBool (Path p v) = any (positionToRegex p v) . paths
+matcherToBool (Term p v) = positionToRegex p v . trTerm
+matcherToBool (AppOccurrences i) = (== i) . appOccurrenceCount
+
+positionToRegex :: Position -> (String -> String -> Bool)
+positionToRegex StartsWith = \v -> matchRegex ("^" ++ v)
+positionToRegex EndsWith = \v -> matchRegex (v ++ "$")
+
+paths :: TermResults -> [String]
+paths r = tmPath <$> trMatches r
 
 updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
 updateMatches fm =

@@ -9,6 +9,7 @@ module Unused.Types
     , resultsFromMatches
     , totalFileCount
     , totalOccurrenceCount
+    , appOccurrenceCount
     ) where
 
 import Text.Parsec (ParseError)
@@ -51,6 +52,9 @@ totalFileCount = oFiles . trTotalOccurrences
 
 totalOccurrenceCount :: TermResults -> Int
 totalOccurrenceCount = oOccurrences . trTotalOccurrences
+
+appOccurrenceCount :: TermResults -> Int
+appOccurrenceCount = oOccurrences . trAppOccurrences
 
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
