@@ -17,6 +17,7 @@ data Options = Options
     , oAllLikelihoods :: Bool
     , oIgnoredPaths :: [String]
     , oGrouping :: CurrentGrouping
+    , oWithCache :: Bool
     }
 
 main :: IO ()
@@ -38,7 +39,7 @@ run options = withoutCursor $ do
     terms <- pure . lines =<< getContents
     renderHeader terms
 
-    results <- cached $ unlines <$> executeSearch (oSearchRunner options) terms
+    results <- withCache options $ unlines <$> executeSearch (oSearchRunner options) terms
     let response = parseLines results
 
     resetScreen
@@ -47,6 +48,10 @@ run options = withoutCursor $ do
         optionFilters options response
 
     return ()
+
+withCache :: Options -> IO String -> IO String
+withCache Options{ oWithCache = True } = cached
+withCache Options{ oWithCache = False } = id
 
 withInfo :: Parser a -> String -> String -> String -> ParserInfo a
 withInfo opts h d f =
@@ -75,6 +80,7 @@ parseOptions =
     <*> parseAllLikelihoods
     <*> parseIgnorePaths
     <*> parseGroupings
+    <*> parseWithCache
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -134,3 +140,9 @@ parseGroupingOption = strOption $
     short 'g'
     <> long "group-by"
     <> help "[Allowed: directory, term, file, none] Group results"
+
+parseWithCache :: Parser Bool
+parseWithCache = switch $
+    short 'c'
+    <> long "with-cache"
+    <> help "Write to cache and read when available"
