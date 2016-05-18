@@ -7,10 +7,10 @@ module Unused.Parser.Internal
 
 import Control.Monad (void)
 import Data.Maybe (fromMaybe)
-import Text.Read (readMaybe)
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import Unused.Types (TermMatch(..))
+import Unused.Util (stringToInt)
 
 parseTermMatches :: Parser [TermMatch]
 parseTermMatches = many1 parseTermMatch <* eof
@@ -37,10 +37,7 @@ pathParser = many1 (noneOf ":")
 
 occurrenceParser :: Parser Int
 occurrenceParser =
-    toInt <$> many1 digit
-  where
-    toInt = fromMaybe 0 . maybeInt
-    maybeInt s = readMaybe s :: Maybe Int
+    fromMaybe 0 . stringToInt <$> many1 digit
 
 eol :: Parser String
 eol = try (string "\n\r")
