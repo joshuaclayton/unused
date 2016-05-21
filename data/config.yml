@@ -1,5 +1,12 @@
 - name: Rails
-  allowedTerms: []
+  allowedTerms:
+    # migrations
+    - up
+    - down
+    - change
+    - index
+    # i18n
+    - t
   autoLowLikelihood:
     - name: Migration
       pathStartsWith: db/migrate/
