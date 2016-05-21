@@ -64,17 +64,27 @@ your `$PATH`.
 
 ## Using Unused
 
-`unused` reads from a pipe expecting a series of tokens to search the codebase
-for.
+`unused` attempts to read from common tags file locations (`.git/tags`,
+`tags`, and `tmp/tags`).
 
-The recommended way to do this is to clean up your tags file and pipe it in:
+In an application where the tags file exists, run:
 
 ```sh
-cat .git/tags | cut -f1 | sort -u | unused
+unused
 ```
 
-My end goal is to have the latter rolled up into unused itself, so you can
-navigate to a directory, run `unused`, and everything works as expected.
+If you want to specify a custom tags file, or load tokens from somewhere else,
+run:
+
+```sh
+cat .custom/tags | unused --stdin
+```
+
+To view more usage options, run:
+
+```sh
+unused --help
+```
 
 ## Requirements
 

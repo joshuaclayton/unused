@@ -8,8 +8,9 @@ import Unused.Types (ParseResponse, RemovalLikelihood(..))
 import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printParseError, printSearchResults, resetScreen, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printParseError, printMissingTagsFileError, printSearchResults, resetScreen, withInterruptHandler)
 import Unused.Cache
+import Unused.TagsSource
 
 data Options = Options
     { oSearchRunner :: SearchRunner
@@ -19,6 +20,7 @@ data Options = Options
     , oIgnoredPaths :: [String]
     , oGrouping :: CurrentGrouping
     , oWithCache :: Bool
+    , oFromStdIn :: Bool
     }
 
 main :: IO ()
@@ -27,34 +29,41 @@ main = withInterruptHandler $
         (withInfo parseOptions pHeader pDescription pFooter)
   where
     pHeader      = "Unused: Analyze potentially unused code"
-    pDescription = "Unused allows a developer to pipe in a list of tokens to\
-                  \ search through in directory to determine likelihood a\
-                  \ token can be removed. Requires tokens be piped into the\
-                  \ program seperated by newlines. See CLI USAGE below."
-    pFooter      = "CLI USAGE: $ cat path/to/ctags | cut -f1 | sort -u | unused"
+    pDescription = "Unused allows a developer to leverage an existing tags file\
+                  \ (located at .git/tags, tags, or tmp/tags) to identify tokens\
+                  \ in a codebase that are unused."
+    pFooter      = "CLI USAGE: $ unused"
 
 run :: Options -> IO ()
 run options = withoutCursor $ do
     hSetBuffering stdout NoBuffering
 
-    terms <- pure . lines =<< getContents
-    renderHeader terms
+    terms' <- calculateTagInput options
 
-    languageConfig <- loadLanguageConfig
+    case terms' of
+       (Left e) -> printMissingTagsFileError e
+       (Right terms) -> do
+            renderHeader terms
 
-    results <- withCache options $ unlines <$> executeSearch (oSearchRunner options) terms
+            languageConfig <- loadLanguageConfig
 
-    let response = parseLines languageConfig results
+            results <- withCache options $ unlines <$> executeSearch (oSearchRunner options) terms
 
-    resetScreen
+            let response = parseLines languageConfig results
 
-    either printParseError (printSearchResults . groupedResponses (oGrouping options)) $
-        optionFilters options response
+            resetScreen
+
+            either printParseError (printSearchResults . groupedResponses (oGrouping options)) $
+                optionFilters options response
 
     return ()
 
 loadLanguageConfig :: IO [LanguageConfiguration]
 loadLanguageConfig = either (const []) id <$> loadConfig
+
+calculateTagInput :: Options -> IO (Either TagSearchOutcome [String])
+calculateTagInput Options{ oFromStdIn = True } = loadTagsFromPipe
+calculateTagInput Options{ oFromStdIn = False } = loadTagsFromFile
 
 withCache :: Options -> IO String -> IO String
 withCache Options{ oWithCache = True } = cached
@@ -88,6 +97,7 @@ parseOptions =
     <*> parseIgnorePaths
     <*> parseGroupings
     <*> parseWithCache
+    <*> parseFromStdIn
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -153,3 +163,8 @@ parseWithCache = switch $
     short 'c'
     <> long "with-cache"
     <> help "Write to cache and read when available"
+
+parseFromStdIn :: Parser Bool
+parseFromStdIn = switch $
+    long "stdin"
+    <> help "Read tags from STDIN"

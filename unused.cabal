@@ -33,9 +33,11 @@ library
                      , Unused.LikelihoodCalculator
                      , Unused.Cache
                      , Unused.Cache.DirectoryFingerprint
+                     , Unused.TagsSource
                      , Unused.CLI
                      , Unused.CLI.Search
                      , Unused.CLI.SearchError
+                     , Unused.CLI.MissingTagsFileError
                      , Unused.CLI.SearchResult
                      , Unused.CLI.SearchResult.ColumnFormatter
                      , Unused.CLI.Util
