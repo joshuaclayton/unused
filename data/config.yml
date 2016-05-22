@@ -7,6 +7,16 @@
     - index
     # i18n
     - t
+    # serialization
+    - as_json
+    # inflection
+    - Inflector
+    # Concerns
+    - ClassMethods
+    - class_methods
+    - included
+    # rendering
+    - to_partial_path
   autoLowLikelihood:
     - name: Migration
       pathStartsWith: db/migrate/
