@@ -1,3 +1,15 @@
+0.2.0.0 (May 22, 2016)
+  Load tags automatically
+  Allow users to opt into reading tokens from stdin
+  Improve language/framework support
+  Increase speed drastically
+  Allow users to opt into a caching mechanism
+  Ensure Ctrl-C stops all work
+  Better match tokens during search to improve accuracy
+  Allow users to group results
+  Parallelize search
+  Improve usage likelihood messaging
+
 0.1.1.0 (May 12, 2016)
   Improve Elixir support
   Improve documentation
