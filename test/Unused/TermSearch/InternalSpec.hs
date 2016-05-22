@@ -19,4 +19,4 @@ spec = parallel $
             commandLineOptions "window.globalOverride" `shouldBe` ["window.globalOverride", ".", "-c", "-Q", "--ackmate"]
 
         it "uses regular expression match with surrounding non-word matches for accuracy" $
-            commandLineOptions "awesome_method" `shouldBe` ["\\Wawesome_method\\W", ".", "-c", "--ackmate"]
+            commandLineOptions "awesome_method" `shouldBe` ["(\\W|^)awesome_method(\\W|$)", ".", "-c", "--ackmate"]
