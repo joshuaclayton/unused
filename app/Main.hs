@@ -4,7 +4,7 @@ import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Data.Maybe (fromMaybe)
 import Unused.Parser (parseLines)
-import Unused.Types (ParseResponse, RemovalLikelihood(..))
+import Unused.Types (TermMatchSet, RemovalLikelihood(..))
 import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
@@ -54,7 +54,7 @@ run options = withoutCursor $ do
             resetScreen
 
             either printParseError (printSearchResults . groupedResponses (oGrouping options)) $
-                optionFilters options response
+                fmap (optionFilters options) response
 
     return ()
 
@@ -73,7 +73,7 @@ withInfo :: Parser a -> String -> String -> String -> ParserInfo a
 withInfo opts h d f =
     info (helper <*> opts) $ header h <> progDesc d <> footer f
 
-optionFilters :: Options -> (ParseResponse -> ParseResponse)
+optionFilters :: Options -> (TermMatchSet -> TermMatchSet)
 optionFilters o =
     foldl1 (.) filters
   where

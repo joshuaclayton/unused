@@ -14,19 +14,19 @@ import Unused.Regex (matchRegex)
 import Unused.Types
 import Unused.ResultsClassifier
 
-withOneOccurrence :: ParseResponse -> ParseResponse
-withOneOccurrence = applyFilter (const oneOccurence)
+withOneOccurrence :: TermMatchSet -> TermMatchSet
+withOneOccurrence = Map.filterWithKey (const oneOccurence)
 
 oneOccurence :: TermResults -> Bool
 oneOccurence = (== 1) . totalOccurrenceCount
 
-withLikelihoods :: [RemovalLikelihood] -> ParseResponse -> ParseResponse
+withLikelihoods :: [RemovalLikelihood] -> TermMatchSet -> TermMatchSet
 withLikelihoods [] = id
-withLikelihoods l = applyFilter (const $ includesLikelihood l)
+withLikelihoods l = Map.filterWithKey (const $ includesLikelihood l)
 
-ignoringPaths :: [String] -> ParseResponse -> ParseResponse
+ignoringPaths :: [String] -> TermMatchSet -> TermMatchSet
 ignoringPaths xs =
-    fmap (updateMatches newMatches)
+    updateMatches newMatches
   where
     newMatches = filter (not . matchesPath . tmPath)
     matchesPath p = any (`isInfixOf` p) xs
@@ -70,9 +70,6 @@ updateMatches fm =
     Map.map (updateMatchesWith $ fm . trMatches)
   where
     updateMatchesWith f tr = tr { trMatches = f tr }
-
-applyFilter :: (String -> TermResults -> Bool) -> ParseResponse -> ParseResponse
-applyFilter = fmap . Map.filterWithKey
 
 isAllowedTerm :: TermResults -> [String] -> Bool
 isAllowedTerm = elem . trTerm
