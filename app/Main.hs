@@ -53,10 +53,12 @@ run options = withoutCursor $ do
 
             resetScreen
 
-            either printParseError (printSearchResults . groupedResponses (oGrouping options)) $
-                fmap (optionFilters options) response
+            either printParseError (printResults options) response
 
     return ()
+
+printResults :: Options -> TermMatchSet -> IO ()
+printResults options = printSearchResults . groupedResponses (oGrouping options) . optionFilters options
 
 loadLanguageConfig :: IO [LanguageConfiguration]
 loadLanguageConfig = either (const []) id <$> loadConfig
