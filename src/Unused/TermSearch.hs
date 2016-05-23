@@ -1,22 +1,18 @@
 module Unused.TermSearch
-    ( search
+    ( SearchResults(..)
+    , fromResults
+    , search
     ) where
 
 import System.Process
-import Unused.TermSearch.Internal (commandLineOptions)
+import Data.Maybe (mapMaybe)
+import Unused.TermSearch.Types
+import Unused.TermSearch.Internal
 
-search :: String -> IO [String]
+search :: String -> IO SearchResults
 search t = do
-    results <- ag t
-    return $ linesMap suffixTerm results
-  where
-    suffixTerm = (++ (":" ++ t))
-
-linesMap :: (String -> String) -> String -> [String]
-linesMap f =
-    filter empty . map f . lines
-  where
-    empty = not . null
+    results <- lines <$> ag t
+    return $ SearchResults $ mapMaybe (parseSearchResult t) results
 
 ag :: String -> IO String
 ag t = do

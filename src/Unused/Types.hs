@@ -1,8 +1,9 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Unused.Types
     ( TermMatch(..)
     , TermResults(..)
     , TermMatchSet
-    , ParseResponse
     , RemovalLikelihood(..)
     , Removal(..)
     , Occurrences(..)
@@ -12,15 +13,19 @@ module Unused.Types
     , appOccurrenceCount
     ) where
 
-import Text.Parsec (ParseError)
 import qualified Data.Map.Strict as Map
+import Data.Csv
+import GHC.Generics
 import Unused.Regex
 
 data TermMatch = TermMatch
     { tmTerm :: String
     , tmPath :: String
     , tmOccurrences :: Int
-    } deriving (Eq, Show)
+    } deriving (Eq, Show, Generic)
+
+instance FromRecord TermMatch
+instance ToRecord TermMatch
 
 data Occurrences = Occurrences
     { oFiles :: Int
@@ -44,8 +49,6 @@ data Removal = Removal
 data RemovalLikelihood = High | Medium | Low | Unknown | NotCalculated deriving (Eq, Show)
 
 type TermMatchSet = Map.Map String TermResults
-
-type ParseResponse = Either ParseError TermMatchSet
 
 totalFileCount :: TermResults -> Int
 totalFileCount = oFiles . trTotalOccurrences

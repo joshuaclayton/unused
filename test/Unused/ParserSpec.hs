@@ -3,6 +3,7 @@ module Unused.ParserSpec where
 import Test.Hspec
 import Unused.Types
 import Unused.Parser
+import Unused.TermSearch
 import Unused.ResultsClassifier
 import qualified Data.Map.Strict as Map
 
@@ -11,13 +12,8 @@ main = hspec spec
 
 spec :: Spec
 spec = parallel $
-    describe "parseLines" $ do
+    describe "parseResults" $ do
         it "parses from the correct format" $ do
-            let input = ":app/path/foo.rb:1:method_name\n\
-                        \:app/path/other.rb:1:other\n\
-                        \:app/path/other.rb:5:method_name\n\
-                        \:spec/path/foo_spec.rb:10:method_name\n"
-
             let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" 1
                             , TermMatch "method_name" "app/path/other.rb" 5
                             , TermMatch "method_name" "spec/path/foo_spec.rb" 10
@@ -28,12 +24,14 @@ spec = parallel $
             let r2Results = TermResults "other" r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used once")
 
             (Right config) <- loadConfig
-            let (Right result) = parseLines config input
+            let searchResults = r1Matches ++ r2Matches
+
+            let result = parseResults config $ SearchResults searchResults
 
             result `shouldBe`
                 Map.fromList [ ("method_name", r1Results), ("other", r2Results) ]
 
         it "handles empty input" $ do
             (Right config) <- loadConfig
-            let (Left result) = parseLines config ""
-            show result `shouldContain` "unexpected end of input"
+            let result = parseResults config $ SearchResults []
+            result `shouldBe` Map.fromList []

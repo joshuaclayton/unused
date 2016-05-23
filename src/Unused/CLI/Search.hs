@@ -4,7 +4,7 @@ module Unused.CLI.Search
     , executeSearch
     ) where
 
-import Unused.TermSearch (search)
+import Unused.TermSearch (SearchResults, search)
 import Unused.CLI.Util
 import Unused.CLI.ProgressIndicator
 
@@ -15,7 +15,7 @@ renderHeader terms = do
     resetScreen
     printAnalysisHeader terms
 
-executeSearch :: SearchRunner -> [String] -> IO [String]
+executeSearch :: SearchRunner -> [String] -> IO SearchResults
 executeSearch runner terms = do
     renderHeader terms
     runSearch runner terms <* resetScreen
@@ -33,6 +33,6 @@ printAnalysisHeader terms = do
     setSGR [Reset]
     putStr " terms"
 
-runSearch :: SearchRunner -> [String] -> IO [String]
+runSearch :: SearchRunner -> [String] -> IO SearchResults
 runSearch SearchWithProgress    = progressWithIndicator search createProgressBar
 runSearch SearchWithoutProgress = progressWithIndicator search createSpinner

@@ -3,12 +3,13 @@ module Main where
 import Options.Applicative
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Data.Maybe (fromMaybe)
-import Unused.Parser (parseLines)
+import Unused.Parser (parseResults)
 import Unused.Types (TermMatchSet, RemovalLikelihood(..))
+import Unused.TermSearch (SearchResults(..), fromResults)
 import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printParseError, printMissingTagsFileError, printSearchResults, resetScreen, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printMissingTagsFileError, printSearchResults, resetScreen, withInterruptHandler)
 import Unused.Cache
 import Unused.TagsSource
 
@@ -47,13 +48,13 @@ run options = withoutCursor $ do
 
             languageConfig <- loadLanguageConfig
 
-            results <- withCache options $ unlines <$> executeSearch (oSearchRunner options) terms
+            results <- withCache options $ executeSearch (oSearchRunner options) terms
 
-            let response = parseLines languageConfig results
+            let response = parseResults languageConfig results
 
             resetScreen
 
-            either printParseError (printResults options) response
+            printResults options response
 
     return ()
 
@@ -67,8 +68,8 @@ calculateTagInput :: Options -> IO (Either TagSearchOutcome [String])
 calculateTagInput Options{ oFromStdIn = True } = loadTagsFromPipe
 calculateTagInput Options{ oFromStdIn = False } = loadTagsFromFile
 
-withCache :: Options -> IO String -> IO String
-withCache Options{ oWithCache = True } = cached
+withCache :: Options -> IO SearchResults -> IO SearchResults
+withCache Options{ oWithCache = True } = fmap SearchResults . cached "term-matches" . fmap fromResults
 withCache Options{ oWithCache = False } = id
 
 withInfo :: Parser a -> String -> String -> String -> ParserInfo a
