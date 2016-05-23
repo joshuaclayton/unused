@@ -10,9 +10,10 @@ Anything.
 
 Yes, literally anything.
 
-It's probably best if you have a ctags file you can pipe into it, but if you
-have another way to pipe a bunch of methods/functions/classes/modules/whatever
-in, that works too.
+It's probably best if you have a ctags file it can read from (it looks in
+`.git`, `tmp`, and the root directory for a `tags` file), but if you have
+another way to pipe a bunch of methods/functions/classes/modules/whatever in,
+that works too.
 
 Right now, there are some special cases built in for Rails and Phoenix apps
 (specifically, assumptions about what's fine to only have one reference to,
