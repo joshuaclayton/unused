@@ -20,11 +20,11 @@ createSpinner =
     snapshots = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
     colors = cycle [Black, Red, Yellow, Green, Blue, Cyan, Magenta]
 
-progressWithIndicator :: (a -> IO [b]) -> ProgressIndicator -> [a] -> IO [b]
+progressWithIndicator :: Monoid b => (a -> IO b) -> ProgressIndicator -> [a] -> IO b
 progressWithIndicator f i terms = do
     printPrefix i
     (tid, indicator) <- start i $ length terms
     installChildInterruptHandler tid
-    concat <$> parallel (ioOps indicator) <* stop indicator <* stopGlobalPool
+    mconcat <$> parallel (ioOps indicator) <* stop indicator <* stopGlobalPool
   where
     ioOps i' = map (\t -> f t <* increment i') terms
