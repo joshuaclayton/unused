@@ -1,8 +1,10 @@
 module Unused.Util
     ( groupBy
     , stringToInt
+    , readIfFileExists
     ) where
 
+import System.Directory (doesFileExist)
 import Control.Arrow ((&&&))
 import qualified Data.List as L
 import Data.Function
@@ -19,3 +21,11 @@ stringToInt xs
     | otherwise = Nothing
   where
     loop = foldl (\acc x -> acc * 10 + digitToInt x)
+
+readIfFileExists :: String -> IO (Maybe String)
+readIfFileExists path = do
+    exists <- doesFileExist path
+
+    if exists
+        then Just <$> readFile path
+        else return Nothing

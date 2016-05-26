@@ -33,6 +33,7 @@ library
                      , Unused.LikelihoodCalculator
                      , Unused.Cache
                      , Unused.Cache.DirectoryFingerprint
+                     , Unused.Cache.FindArgsFromIgnoredPaths
                      , Unused.TagsSource
                      , Unused.CLI
                      , Unused.CLI.Search
