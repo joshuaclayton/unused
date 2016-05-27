@@ -1,34 +1,35 @@
-module Unused.CLI.SearchResult
-    ( printSearchResults
+module Unused.CLI.Views.SearchResult
+    ( searchResults
     ) where
 
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
 import Unused.Types
 import Unused.Grouping (Grouping(..), GroupedTerms)
-import Unused.CLI.SearchResult.ColumnFormatter
+import Unused.CLI.Views.SearchResult.ColumnFormatter
 import Unused.CLI.Util
+import qualified Unused.CLI.Views.NoResultsFound as V
 
-printSearchResults :: [GroupedTerms] -> IO ()
-printSearchResults responses =
-    printFormattedResponses columnFormat responses
+searchResults :: [GroupedTerms] -> IO ()
+searchResults terms =
+    printFormattedTerms columnFormat terms
   where
-    allSets = listFromMatchSet =<< map snd responses
+    allSets = listFromMatchSet =<< map snd terms
     allResults = map snd allSets
     columnFormat = buildColumnFormatter allResults
 
-printFormattedResponses :: ColumnFormat -> [GroupedTerms] -> IO ()
-printFormattedResponses _ [] = printNoResultsFound
-printFormattedResponses cf r = mapM_ (printGroupingSection cf) r
+printFormattedTerms :: ColumnFormat -> [GroupedTerms] -> IO ()
+printFormattedTerms _ [] = V.noResultsFound
+printFormattedTerms cf ts = mapM_ (printGroupingSection cf) ts
 
 listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
 listFromMatchSet =
   Map.toList
 
 printGroupingSection :: ColumnFormat -> GroupedTerms -> IO ()
-printGroupingSection cf (g, ss) = do
+printGroupingSection cf (g, tms) = do
     printGrouping g
-    mapM_ (printTermResults cf) $ listFromMatchSet ss
+    mapM_ (printTermResults cf) $ listFromMatchSet tms
 
 printGrouping :: Grouping -> IO ()
 printGrouping NoGrouping = return ()
@@ -76,10 +77,3 @@ printMatches cf r ms =
     printNumber = cfPrintNumber cf
     termColor = likelihoodColor . rLikelihood . trRemoval
     removalReason = rReason . trRemoval
-
-printNoResultsFound :: IO ()
-printNoResultsFound = do
-    setSGR   [SetColor Foreground Dull Green]
-    setSGR   [SetConsoleIntensity BoldIntensity]
-    putStrLn "Unused found no results"
-    setSGR   [Reset]

@@ -6,6 +6,7 @@ module Unused.CLI.Search
 
 import Unused.TermSearch (SearchResults, search)
 import Unused.CLI.Util
+import qualified Unused.CLI.Views as V
 import Unused.CLI.ProgressIndicator
 
 data SearchRunner = SearchWithProgress | SearchWithoutProgress
@@ -13,25 +14,12 @@ data SearchRunner = SearchWithProgress | SearchWithoutProgress
 renderHeader :: [String] -> IO ()
 renderHeader terms = do
     resetScreen
-    printAnalysisHeader terms
+    V.analysisHeader terms
 
 executeSearch :: SearchRunner -> [String] -> IO SearchResults
 executeSearch runner terms = do
     renderHeader terms
     runSearch runner terms <* resetScreen
-
-printAnalysisHeader :: [String] -> IO ()
-printAnalysisHeader terms = do
-    setSGR [SetConsoleIntensity BoldIntensity]
-    putStr "Unused: "
-    setSGR [Reset]
-
-    putStr "analyzing "
-
-    setSGR [SetColor Foreground Dull Green]
-    putStr $ show $ length terms
-    setSGR [Reset]
-    putStr " terms"
 
 runSearch :: SearchRunner -> [String] -> IO SearchResults
 runSearch SearchWithProgress    = progressWithIndicator search createProgressBar

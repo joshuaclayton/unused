@@ -1,12 +1,12 @@
-module Unused.CLI.MissingTagsFileError
-    ( printMissingTagsFileError
+module Unused.CLI.Views.MissingTagsFileError
+    ( missingTagsFileError
     ) where
 
 import Unused.TagsSource
 import Unused.CLI.Util
 
-printMissingTagsFileError :: TagSearchOutcome -> IO ()
-printMissingTagsFileError e = do
+missingTagsFileError :: TagSearchOutcome -> IO ()
+missingTagsFileError e = do
     setSGR [SetColor Background Vivid Red]
     setSGR [SetColor Foreground Vivid White]
     setSGR [SetConsoleIntensity BoldIntensity]
@@ -45,4 +45,3 @@ printOutcomeMessage :: TagSearchOutcome -> IO ()
 printOutcomeMessage (TagsFileNotFound directoriesSearched) = do
     putStrLn "Looked for a 'tags' file in the following directories:\n"
     mapM_ (\d -> putStrLn $ "* " ++ d) directoriesSearched
-

@@ -1,4 +1,4 @@
-module Unused.CLI.SearchResult.ColumnFormatter
+module Unused.CLI.Views.SearchResult.ColumnFormatter
     ( ColumnFormat(..)
     , buildColumnFormatter
     ) where

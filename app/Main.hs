@@ -9,7 +9,8 @@ import Unused.TermSearch (SearchResults(..), fromResults)
 import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, printMissingTagsFileError, printSearchResults, resetScreen, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, resetScreen, withInterruptHandler)
+import qualified Unused.CLI.Views as V
 import Unused.Cache
 import Unused.TagsSource
 
@@ -42,7 +43,7 @@ run options = withoutCursor $ do
     terms' <- calculateTagInput options
 
     case terms' of
-       (Left e) -> printMissingTagsFileError e
+       (Left e) -> V.missingTagsFileError e
        (Right terms) -> do
             renderHeader terms
 
@@ -59,7 +60,7 @@ run options = withoutCursor $ do
     return ()
 
 printResults :: Options -> TermMatchSet -> IO ()
-printResults options = printSearchResults . groupedResponses (oGrouping options) . optionFilters options
+printResults options = V.searchResults . groupedResponses (oGrouping options) . optionFilters options
 
 loadLanguageConfig :: IO [LanguageConfiguration]
 loadLanguageConfig = either (const []) id <$> loadConfig

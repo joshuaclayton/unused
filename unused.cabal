@@ -37,10 +37,13 @@ library
                      , Unused.TagsSource
                      , Unused.CLI
                      , Unused.CLI.Search
-                     , Unused.CLI.MissingTagsFileError
-                     , Unused.CLI.SearchResult
-                     , Unused.CLI.SearchResult.ColumnFormatter
                      , Unused.CLI.Util
+                     , Unused.CLI.Views
+                     , Unused.CLI.Views.NoResultsFound
+                     , Unused.CLI.Views.AnalysisHeader
+                     , Unused.CLI.Views.MissingTagsFileError
+                     , Unused.CLI.Views.SearchResult
+                     , Unused.CLI.Views.SearchResult.ColumnFormatter
                      , Unused.CLI.ProgressIndicator
                      , Unused.CLI.ProgressIndicator.Internal
                      , Unused.CLI.ProgressIndicator.Types
