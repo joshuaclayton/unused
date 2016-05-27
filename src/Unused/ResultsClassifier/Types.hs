@@ -28,8 +28,8 @@ data LowLikelihoodMatch = LowLikelihoodMatch
     , smClassOrModule :: Bool
     } deriving Show
 
-data Position = StartsWith | EndsWith deriving Show
-data Matcher = Term Position String | Path Position String | AppOccurrences Int deriving Show
+data Position = StartsWith | EndsWith | Equals deriving Show
+data Matcher = Term Position String | Path Position String | AppOccurrences Int | AllowedTerms [String] deriving Show
 
 instance FromJSON LanguageConfiguration where
     parseJSON (Y.Object o) = LanguageConfiguration
@@ -61,7 +61,7 @@ intHandler = MatchHandler
 
 stringHandler :: MatchHandler String
 stringHandler = MatchHandler
-    { mhKeys = ["pathStartsWith", "pathEndsWith", "termStartsWith", "termEndsWith"]
+    { mhKeys = ["pathStartsWith", "pathEndsWith", "termStartsWith", "termEndsWith", "termEquals"]
     , mhKeyToMatcher = keyToMatcher
     }
   where
@@ -69,11 +69,21 @@ stringHandler = MatchHandler
     keyToMatcher "pathEndsWith"   = Right $ Path EndsWith
     keyToMatcher "termStartsWith" = Right $ Term StartsWith
     keyToMatcher "termEndsWith"   = Right $ Term EndsWith
+    keyToMatcher "termEquals"     = Right $ Term Equals
     keyToMatcher t                = Left t
+
+stringListHandler :: MatchHandler [String]
+stringListHandler = MatchHandler
+    { mhKeys = ["allowedTerms"]
+    , mhKeyToMatcher = keyToMatcher
+    }
+  where
+    keyToMatcher "allowedTerms" = Right $ AllowedTerms
+    keyToMatcher t              = Left t
 
 parseMatchers :: Y.Object -> Y.Parser [Matcher]
 parseMatchers o =
-    myFold (++) [buildMatcherList o intHandler, buildMatcherList o stringHandler]
+    myFold (++) [buildMatcherList o intHandler, buildMatcherList o stringHandler, buildMatcherList o stringListHandler]
   where
     myFold :: (Foldable t, Monad m) => (a -> a -> a) -> t (m a) -> m a
     myFold f = foldl1 (\acc i -> acc >>= (\l -> f l <$> i))

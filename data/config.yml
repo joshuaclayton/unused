@@ -1,12 +1,5 @@
 - name: Rails
   allowedTerms:
-    # migrations
-    - up
-    - down
-    - change
-    - index
-    # i18n
-    - t
     # serialization
     - as_json
     # inflection
@@ -22,6 +15,18 @@
       pathStartsWith: db/migrate/
       classOrModule: true
       appOccurrences: 1
+    - name: Migration Helper
+      pathStartsWith: db/migrate/
+      allowedTerms:
+      - up
+      - down
+      - change
+      - index
+    - name: i18n
+      allowedTerms:
+      - t
+      - l
+      pathEndsWith: .rb
     - name: Controller
       pathStartsWith: app/controllers
       termEndsWith: Controller
@@ -47,9 +52,7 @@
       termEndsWith: Test
       classOrModule: true
 - name: Haskell
-  allowedTerms:
-    - instance
-    - spec
+  allowedTerms: []
   autoLowLikelihood:
     - name: Spec
       pathStartsWith: test/
@@ -58,3 +61,9 @@
     - name: Cabalfile
       pathEndsWith: .cabal
       appOccurrences: 1
+    - name: TypeClasses
+      termEquals: instance
+      pathEndsWith: .hs
+    - name: Spec functions
+      termEquals: spec
+      pathStartsWith: test/

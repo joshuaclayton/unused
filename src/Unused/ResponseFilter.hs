@@ -57,10 +57,12 @@ matcherToBool :: Matcher -> TermResults -> Bool
 matcherToBool (Path p v) = any (positionToRegex p v) . paths
 matcherToBool (Term p v) = positionToRegex p v . trTerm
 matcherToBool (AppOccurrences i) = (== i) . appOccurrenceCount
+matcherToBool (AllowedTerms ts) = flip isAllowedTerm ts
 
 positionToRegex :: Position -> (String -> String -> Bool)
 positionToRegex StartsWith = \v -> matchRegex ("^" ++ v)
 positionToRegex EndsWith = \v -> matchRegex (v ++ "$")
+positionToRegex Equals = (==)
 
 paths :: TermResults -> [String]
 paths r = tmPath <$> trMatches r

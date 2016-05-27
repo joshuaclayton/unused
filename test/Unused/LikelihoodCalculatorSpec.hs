@@ -51,6 +51,11 @@ spec = parallel $
 
             removalLikelihood matches `shouldReturn` Medium
 
+        it "doesn't mis-categorize allowed terms from different languages" $ do
+            let matches = [ TermMatch "t" "web/models/foo.ex" 1 ]
+
+            removalLikelihood matches `shouldReturn` High
+
 removalLikelihood :: [TermMatch] -> IO RemovalLikelihood
 removalLikelihood ms = do
     (Right config) <- loadConfig
