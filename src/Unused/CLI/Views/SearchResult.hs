@@ -3,33 +3,37 @@ module Unused.CLI.Views.SearchResult
     ) where
 
 import Control.Monad (forM_)
+import Control.Arrow ((&&&))
 import qualified Data.Map.Strict as Map
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Reader
 import Unused.Types
 import Unused.Grouping (Grouping(..), GroupedTerms)
 import Unused.CLI.Views.SearchResult.ColumnFormatter
 import Unused.CLI.Util
 import qualified Unused.CLI.Views.NoResultsFound as V
 
+type ResultsPrinter = ReaderT ColumnFormat IO
+
 searchResults :: [GroupedTerms] -> IO ()
 searchResults terms =
-    printFormattedTerms columnFormat terms
+    runReaderT (printFormattedTerms terms) columnFormat
   where
-    allSets = listFromMatchSet =<< map snd terms
-    allResults = map snd allSets
-    columnFormat = buildColumnFormatter allResults
+    columnFormat = buildColumnFormatter $ termsToResults terms
+    termsToResults = concatMap Map.elems . map snd
 
-printFormattedTerms :: ColumnFormat -> [GroupedTerms] -> IO ()
-printFormattedTerms _ [] = V.noResultsFound
-printFormattedTerms cf ts = mapM_ (printGroupingSection cf) ts
+printFormattedTerms :: [GroupedTerms] -> ResultsPrinter ()
+printFormattedTerms [] = liftIO V.noResultsFound
+printFormattedTerms ts = mapM_ printGroupingSection ts
 
 listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
 listFromMatchSet =
   Map.toList
 
-printGroupingSection :: ColumnFormat -> GroupedTerms -> IO ()
-printGroupingSection cf (g, tms) = do
-    printGrouping g
-    mapM_ (printTermResults cf) $ listFromMatchSet tms
+printGroupingSection :: GroupedTerms -> ResultsPrinter ()
+printGroupingSection (g, tms) = do
+    liftIO $ printGrouping g
+    mapM_ printTermResults $ listFromMatchSet tms
 
 printGrouping :: Grouping -> IO ()
 printGrouping NoGrouping = return ()
@@ -40,9 +44,9 @@ printGrouping g = do
     print g
     setSGR [Reset]
 
-printTermResults :: ColumnFormat -> (String, TermResults) -> IO ()
-printTermResults cf (_, results) =
-    printMatches cf results $ trMatches results
+printTermResults :: (String, TermResults) -> ResultsPrinter ()
+printTermResults =
+    uncurry printMatches . (id &&& trMatches) . snd
 
 likelihoodColor :: RemovalLikelihood -> Color
 likelihoodColor High = Red
@@ -51,9 +55,14 @@ likelihoodColor Low = Green
 likelihoodColor Unknown = Black
 likelihoodColor NotCalculated = Magenta
 
-printMatches :: ColumnFormat -> TermResults -> [TermMatch] -> IO ()
-printMatches cf r ms =
-    forM_ ms $ \m -> do
+printMatches :: TermResults -> [TermMatch] -> ResultsPrinter ()
+printMatches r ms = do
+    cf <- ask
+    let printTerm = cfPrintTerm cf
+    let printPath = cfPrintPath cf
+    let printNumber = cfPrintNumber cf
+
+    liftIO $ forM_ ms $ \m -> do
         setSGR [SetColor Foreground Dull (termColor r)]
         setSGR [SetConsoleIntensity NormalIntensity]
         putStr $ "     " ++ printTerm (tmTerm m)
@@ -72,8 +81,5 @@ printMatches cf r ms =
         putStr $ "  " ++ removalReason r
         putStr "\n"
   where
-    printTerm = cfPrintTerm cf
-    printPath = cfPrintPath cf
-    printNumber = cfPrintNumber cf
     termColor = likelihoodColor . rLikelihood . trRemoval
     removalReason = rReason . trRemoval
