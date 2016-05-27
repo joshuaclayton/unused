@@ -51,6 +51,16 @@
       pathStartsWith: test/
       termEndsWith: Test
       classOrModule: true
+    - name: Controller actions
+      pathStartsWith: web/controllers
+      allowedTerms:
+      - index
+      - new
+      - create
+      - show
+      - edit
+      - update
+      - destroy
 - name: Haskell
   allowedTerms: []
   autoLowLikelihood:
