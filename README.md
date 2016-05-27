@@ -2,7 +2,7 @@
 
 A command line tool to identify unused code.
 
-![Image of Unused Output](http://i.giphy.com/3oEjHGgyV2EDdy1Ogw.gif)
+![Image of Unused Output](http://i.giphy.com/3o7qDT1I4OfQxnJTvW.gif)
 
 ## "What kinds of projects can I used it on?"
 
