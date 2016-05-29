@@ -9,7 +9,7 @@ module Unused.ResponseFilter
     ) where
 
 import qualified Data.Map.Strict as Map
-import Data.List (isInfixOf)
+import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
 import Unused.Regex (matchRegex)
 import Unused.Types
 import Unused.ResultsClassifier
@@ -60,8 +60,8 @@ matcherToBool (AppOccurrences i) = (== i) . appOccurrenceCount
 matcherToBool (AllowedTerms ts) = flip isAllowedTerm ts
 
 positionToRegex :: Position -> (String -> String -> Bool)
-positionToRegex StartsWith = \v -> matchRegex ("^" ++ v)
-positionToRegex EndsWith = \v -> matchRegex (v ++ "$")
+positionToRegex StartsWith = \v -> isPrefixOf v
+positionToRegex EndsWith = \v -> isSuffixOf v
 positionToRegex Equals = (==)
 
 paths :: TermResults -> [String]
