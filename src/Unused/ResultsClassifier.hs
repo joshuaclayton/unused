@@ -1,6 +1,7 @@
 module Unused.ResultsClassifier
     ( LanguageConfiguration(..)
     , LowLikelihoodMatch(..)
+    , TermAlias(..)
     , Position(..)
     , Matcher(..)
     , loadConfig

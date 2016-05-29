@@ -23,6 +23,7 @@ library
                      , Unused.Types
                      , Unused.Util
                      , Unused.Regex
+                     , Unused.Aliases
                      , Unused.ResponseFilter
                      , Unused.ResultsClassifier
                      , Unused.ResultsClassifier.Types

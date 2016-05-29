@@ -12,6 +12,7 @@ import Unused.Grouping (CurrentGrouping(..), groupedResponses)
 import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, resetScreen, withInterruptHandler)
 import qualified Unused.CLI.Views as V
 import Unused.Cache
+import Unused.Aliases (termsAndAliases)
 import Unused.TagsSource
 
 data Options = Options
@@ -44,11 +45,12 @@ run options = withoutCursor $ do
 
     case terms' of
        (Left e) -> V.missingTagsFileError e
-       (Right terms) -> do
-            renderHeader terms
-
+       (Right terms'') -> do
             languageConfig <- loadLanguageConfig
 
+            let terms = termsWithAlternatesFromConfig languageConfig terms''
+
+            renderHeader terms
             results <- withCache options $ executeSearch (oSearchRunner options) terms
 
             let response = parseResults languageConfig results
@@ -58,6 +60,12 @@ run options = withoutCursor $ do
             printResults options response
 
     return ()
+
+termsWithAlternatesFromConfig :: [LanguageConfiguration] -> [String] -> [String]
+termsWithAlternatesFromConfig lcs =
+    termsAndAliases aliases
+  where
+    aliases = concatMap lcTermAliases lcs
 
 printResults :: Options -> TermMatchSet -> IO ()
 printResults options = V.searchResults . groupedResponses (oGrouping options) . optionFilters options

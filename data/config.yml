@@ -1,4 +1,9 @@
 - name: Rails
+  aliases:
+  - from: "%s?"
+    to: "be_%s"
+  - from: "has_%s?"
+    to: "have_%s"
   allowedTerms:
     # serialization
     - as_json

@@ -4,6 +4,7 @@
 module Unused.ResultsClassifier.Types
     ( LanguageConfiguration(..)
     , LowLikelihoodMatch(..)
+    , TermAlias(..)
     , Position(..)
     , Matcher(..)
     ) where
@@ -20,12 +21,18 @@ data LanguageConfiguration = LanguageConfiguration
     { lcName :: String
     , lcAllowedTerms :: [String]
     , lcAutoLowLikelihood :: [LowLikelihoodMatch]
+    , lcTermAliases :: [TermAlias]
     } deriving Show
 
 data LowLikelihoodMatch = LowLikelihoodMatch
     { smName :: String
     , smMatchers :: [Matcher]
     , smClassOrModule :: Bool
+    } deriving Show
+
+data TermAlias = TermAlias
+    { taFrom :: String
+    , taTo :: String
     } deriving Show
 
 data Position = StartsWith | EndsWith | Equals deriving Show
@@ -36,6 +43,7 @@ instance FromJSON LanguageConfiguration where
         <$> o .: "name"
         <*> o .: "allowedTerms"
         <*> o .: "autoLowLikelihood"
+        <*> o .:? "aliases" .!= []
     parseJSON _ = mzero
 
 instance FromJSON LowLikelihoodMatch where
@@ -43,6 +51,12 @@ instance FromJSON LowLikelihoodMatch where
         <$> o .: "name"
         <*> parseMatchers o
         <*> o .:? "classOrModule" .!= False
+    parseJSON _ = mzero
+
+instance FromJSON TermAlias where
+    parseJSON (Y.Object o) = TermAlias
+        <$> o .: "from"
+        <*> o .: "to"
     parseJSON _ = mzero
 
 data MatchHandler a = MatchHandler

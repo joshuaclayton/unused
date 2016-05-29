@@ -24,12 +24,28 @@ spec = parallel $
             let r2Results = TermResults "other" r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used once")
 
             (Right config) <- loadConfig
+
+            let result = parseResults config $ SearchResults $ r1Matches ++ r2Matches
+
+            result `shouldBe`
+                Map.fromList [ ("method_name", r1Results), ("other", r2Results) ]
+
+        it "handles aliases correctly" $ do
+            let r1Matches = [ TermMatch "admin?" "app/path/user.rb" 3 ]
+
+            let r2Matches = [ TermMatch "be_admin" "spec/models/user_spec.rb" 2
+                            , TermMatch "be_admin" "spec/features/user_promoted_to_admin_spec.rb" 2
+                            ]
+
+
+            (Right config) <- loadConfig
             let searchResults = r1Matches ++ r2Matches
 
             let result = parseResults config $ SearchResults searchResults
 
+            let results = TermResults "admin?" searchResults (Occurrences 2 4) (Occurrences 1 3) (Occurrences 3 7) (Removal Low "used frequently")
             result `shouldBe`
-                Map.fromList [ ("method_name", r1Results), ("other", r2Results) ]
+                Map.fromList [ ("admin?|be_admin", results) ]
 
         it "handles empty input" $ do
             (Right config) <- loadConfig
