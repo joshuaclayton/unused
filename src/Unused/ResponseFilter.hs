@@ -60,8 +60,8 @@ matcherToBool (AppOccurrences i) = (== i) . appOccurrenceCount
 matcherToBool (AllowedTerms ts) = flip isAllowedTerm ts
 
 positionToRegex :: Position -> (String -> String -> Bool)
-positionToRegex StartsWith = \v -> isPrefixOf v
-positionToRegex EndsWith = \v -> isSuffixOf v
+positionToRegex StartsWith = isPrefixOf
+positionToRegex EndsWith = isSuffixOf
 positionToRegex Equals = (==)
 
 paths :: TermResults -> [String]

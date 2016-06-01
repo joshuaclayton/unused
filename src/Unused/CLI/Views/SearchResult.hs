@@ -20,7 +20,7 @@ searchResults terms =
     runReaderT (printFormattedTerms terms) columnFormat
   where
     columnFormat = buildColumnFormatter $ termsToResults terms
-    termsToResults = concatMap Map.elems . map snd
+    termsToResults = concatMap (Map.elems . snd)
 
 printFormattedTerms :: [GroupedTerms] -> ResultsPrinter ()
 printFormattedTerms [] = liftIO V.noResultsFound

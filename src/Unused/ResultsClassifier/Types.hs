@@ -78,7 +78,7 @@ stringListHandler = MatchHandler
     , mhKeyToMatcher = keyToMatcher
     }
   where
-    keyToMatcher "allowedTerms" = Right $ AllowedTerms
+    keyToMatcher "allowedTerms" = Right AllowedTerms
     keyToMatcher t              = Left t
 
 parseMatchers :: Y.Object -> Y.Parser [Matcher]

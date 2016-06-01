@@ -13,9 +13,9 @@ import Unused.Util (stringToInt)
 
 commandLineOptions :: String -> [String]
 commandLineOptions t =
-    case regexSafeTerm t of
-        True -> ["(\\W|^)" ++ t ++ "(\\W|$)", "."] ++ baseFlags
-        False -> [t, ".", "-Q"] ++ baseFlags
+    if regexSafeTerm t
+        then ["(\\W|^)" ++ t ++ "(\\W|$)", "."] ++ baseFlags
+        else [t, ".", "-Q"] ++ baseFlags
   where
     baseFlags = ["-c", "--ackmate", "--ignore-dir", "tmp/unused"]
 
