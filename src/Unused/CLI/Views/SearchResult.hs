@@ -16,7 +16,8 @@ import qualified Unused.CLI.Views.NoResultsFound as V
 type ResultsPrinter = ReaderT ColumnFormat IO
 
 searchResults :: [GroupedTerms] -> IO ()
-searchResults terms =
+searchResults terms = do
+    resetScreen
     runReaderT (printFormattedTerms terms) columnFormat
   where
     columnFormat = buildColumnFormatter $ termsToResults terms

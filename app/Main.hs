@@ -9,7 +9,7 @@ import Unused.TermSearch (SearchResults(..), fromResults)
 import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, resetScreen, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, withInterruptHandler)
 import qualified Unused.CLI.Views as V
 import Unused.Cache
 import Unused.Aliases (termsAndAliases)
@@ -27,7 +27,7 @@ data Options = Options
     }
 
 main :: IO ()
-main = withInterruptHandler $
+main = withInterruptHandler $ withoutCursor $
     run =<< execParser
         (withInfo parseOptions pHeader pDescription pFooter)
   where
@@ -38,7 +38,7 @@ main = withInterruptHandler $
     pFooter      = "CLI USAGE: $ unused"
 
 run :: Options -> IO ()
-run options = withoutCursor $ do
+run options = do
     hSetBuffering stdout NoBuffering
 
     terms' <- calculateTagInput options
@@ -53,11 +53,7 @@ run options = withoutCursor $ do
             renderHeader terms
             results <- withCache options $ executeSearch (oSearchRunner options) terms
 
-            let response = parseResults languageConfig results
-
-            resetScreen
-
-            printResults options response
+            printResults options $ parseResults languageConfig results
 
     return ()
 
