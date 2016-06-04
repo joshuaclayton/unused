@@ -22,7 +22,7 @@ data Options = Options
     , oAllLikelihoods :: Bool
     , oIgnoredPaths :: [String]
     , oGrouping :: CurrentGrouping
-    , oWithCache :: Bool
+    , oWithoutCache :: Bool
     , oFromStdIn :: Bool
     }
 
@@ -74,8 +74,8 @@ calculateTagInput Options{ oFromStdIn = True } = loadTagsFromPipe
 calculateTagInput Options{ oFromStdIn = False } = loadTagsFromFile
 
 withCache :: Options -> IO SearchResults -> IO SearchResults
-withCache Options{ oWithCache = True } = fmap SearchResults . cached "term-matches" . fmap fromResults
-withCache Options{ oWithCache = False } = id
+withCache Options{ oWithoutCache = True } = id
+withCache Options{ oWithoutCache = False } = fmap SearchResults . cached "term-matches" . fmap fromResults
 
 withInfo :: Parser a -> String -> String -> String -> ParserInfo a
 withInfo opts h d f =
@@ -104,7 +104,7 @@ parseOptions =
     <*> parseAllLikelihoods
     <*> parseIgnorePaths
     <*> parseGroupings
-    <*> parseWithCache
+    <*> parseWithoutCache
     <*> parseFromStdIn
 
 parseSearchRunner :: Parser SearchRunner
@@ -166,11 +166,11 @@ parseGroupingOption = strOption $
     <> long "group-by"
     <> help "[Allowed: directory, term, file, none] Group results"
 
-parseWithCache :: Parser Bool
-parseWithCache = switch $
-    short 'c'
-    <> long "with-cache"
-    <> help "Write to cache and read when available"
+parseWithoutCache :: Parser Bool
+parseWithoutCache = switch $
+    short 'C'
+    <> long "no-cache"
+    <> help "Ignore cache when performing calculations"
 
 parseFromStdIn :: Parser Bool
 parseFromStdIn = switch $
