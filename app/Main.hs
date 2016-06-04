@@ -27,7 +27,7 @@ data Options = Options
     }
 
 main :: IO ()
-main = withInterruptHandler $ withoutCursor $
+main = withInterruptHandler $
     run =<< execParser
         (withInfo parseOptions pHeader pDescription pFooter)
   where
@@ -38,7 +38,7 @@ main = withInterruptHandler $ withoutCursor $
     pFooter      = "CLI USAGE: $ unused"
 
 run :: Options -> IO ()
-run options = do
+run options = withoutCursor $ do
     hSetBuffering stdout NoBuffering
 
     terms' <- calculateTagInput options
