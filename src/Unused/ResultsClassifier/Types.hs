@@ -41,8 +41,8 @@ data Matcher = Term Position String | Path Position String | AppOccurrences Int 
 instance FromJSON LanguageConfiguration where
     parseJSON (Y.Object o) = LanguageConfiguration
         <$> o .: "name"
-        <*> o .: "allowedTerms"
-        <*> o .: "autoLowLikelihood"
+        <*> o .:? "allowedTerms" .!= []
+        <*> o .:? "autoLowLikelihood" .!= []
         <*> o .:? "aliases" .!= []
     parseJSON _ = mzero
 
