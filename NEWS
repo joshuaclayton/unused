@@ -1,3 +1,10 @@
+0.3.0.0 (June 4, 2016)
+  Introduce aliases for RSpec predicate matchers
+  Remove certain instances of regex use for speed improvements
+  Improve framework support for Rails and Phoenix
+  Use .gitignore to reduce number of checksummed files for directory fingerprinting
+  Fix bug where matches at the very beginning or end of a file weren't captured
+
 0.2.0.0 (May 22, 2016)
   Load tags automatically
   Allow users to opt into reading tokens from stdin
