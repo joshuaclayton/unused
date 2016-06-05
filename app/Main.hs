@@ -1,5 +1,8 @@
 module Main where
 
+import Control.Monad.IO.Class (liftIO)
+import qualified Data.Bifunctor as B
+import Control.Monad.Except (ExceptT(..), runExceptT)
 import Options.Applicative
 import Data.Maybe (fromMaybe)
 import Unused.Parser (parseResults)
@@ -26,33 +29,35 @@ data Options = Options
     }
 
 main :: IO ()
-main =
-    run =<< execParser
-        (withInfo parseOptions pHeader pDescription pFooter)
+main = runProgram =<< execParser (withInfo parseOptions pHeader pDescription pFooter)
   where
+    runProgram options = withRuntime $
+        runExceptT (run options) >>= either renderError return
     pHeader      = "Unused: Analyze potentially unused code"
     pDescription = "Unused allows a developer to leverage an existing tags file\
                   \ (located at .git/tags, tags, or tmp/tags) to identify tokens\
                   \ in a codebase that are unused."
     pFooter      = "CLI USAGE: $ unused"
 
-run :: Options -> IO ()
-run options = withRuntime $ do
-    terms' <- calculateTagInput options
+data LocalizedError = TagError TagSearchOutcome | InvalidConfigError [ParseConfigError]
 
-    case terms' of
-       (Left e) -> V.missingTagsFileError e
-       (Right terms'') -> do
-            languageConfig <- loadLanguageConfig
+renderError :: LocalizedError -> IO ()
+renderError (TagError e) = V.missingTagsFileError e
+renderError (InvalidConfigError e) = V.invalidConfigError e
 
-            let terms = termsWithAlternatesFromConfig languageConfig terms''
+run :: Options -> ExceptT LocalizedError IO ()
+run options = do
+    terms' <- withException TagError $ calculateTagInput options
+    languageConfig <- withException InvalidConfigError loadAllConfigurations
 
-            renderHeader terms
-            results <- withCache options $ executeSearch (oSearchRunner options) terms
+    let terms = termsWithAlternatesFromConfig languageConfig terms'
 
-            printResults options $ parseResults languageConfig results
+    liftIO $ renderHeader terms
+    results <- liftIO $ withCache options $ executeSearch (oSearchRunner options) terms
 
-    return ()
+    liftIO $ printResults options $ parseResults languageConfig results
+  where
+    withException e = ExceptT . fmap (B.first e)
 
 termsWithAlternatesFromConfig :: [LanguageConfiguration] -> [String] -> [String]
 termsWithAlternatesFromConfig lcs =
@@ -62,9 +67,6 @@ termsWithAlternatesFromConfig lcs =
 
 printResults :: Options -> TermMatchSet -> IO ()
 printResults options = V.searchResults . groupedResponses (oGrouping options) . optionFilters options
-
-loadLanguageConfig :: IO [LanguageConfiguration]
-loadLanguageConfig = either (const []) id <$> loadConfig
 
 calculateTagInput :: Options -> IO (Either TagSearchOutcome [String])
 calculateTagInput Options{ oFromStdIn = True } = loadTagsFromPipe

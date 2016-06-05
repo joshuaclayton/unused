@@ -7,6 +7,7 @@ module Unused.ResultsClassifier.Types
     , TermAlias(..)
     , Position(..)
     , Matcher(..)
+    , ParseConfigError(..)
     ) where
 
 import Control.Monad (mzero)
@@ -34,6 +35,11 @@ data TermAlias = TermAlias
     { taFrom :: String
     , taTo :: String
     } deriving Show
+
+data ParseConfigError = ParseConfigError
+    { pcePath :: String
+    , pceParseError :: String
+    }
 
 data Position = StartsWith | EndsWith | Equals deriving Show
 data Matcher = Term Position String | Path Position String | AppOccurrences Int | AllowedTerms [String] deriving Show
@@ -95,9 +101,22 @@ stringListHandler = MatchHandler
     keyToMatcher "allowedTerms" = Right AllowedTerms
     keyToMatcher t              = Left t
 
+lowLikelihoodMatchKeys :: [T.Text]
+lowLikelihoodMatchKeys =
+    map T.pack $ ["name", "classOrModule"] ++ mhKeys intHandler ++ mhKeys stringHandler ++ mhKeys stringListHandler
+
+validateLowLikelihoodKeys :: Y.Object -> Y.Parser [Matcher] -> Y.Parser [Matcher]
+validateLowLikelihoodKeys o ms =
+    if fullOverlap
+        then ms
+        else fail $ "The following keys are unsupported: " ++ L.intercalate ", " (T.unpack <$> unsupportedKeys)
+  where
+    fullOverlap = null unsupportedKeys
+    unsupportedKeys = keys o L.\\ lowLikelihoodMatchKeys
+
 parseMatchers :: Y.Object -> Y.Parser [Matcher]
 parseMatchers o =
-    myFold (++) [buildMatcherList o intHandler, buildMatcherList o stringHandler, buildMatcherList o stringListHandler]
+    validateLowLikelihoodKeys o $ myFold (++) [buildMatcherList o intHandler, buildMatcherList o stringHandler, buildMatcherList o stringListHandler]
   where
     myFold :: (Foldable t, Monad m) => (a -> a -> a) -> t (m a) -> m a
     myFold f = foldl1 (\acc i -> acc >>= (\l -> f l <$> i))

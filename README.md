@@ -87,6 +87,117 @@ To view more usage options, run:
 unused --help
 ```
 
+## Custom Configuration
+
+The first time you use `unused`, you might see a handful of false positives.
+`unused` will look in two additional locations in an attempt to load
+additional custom configuration to help improve this.
+
+### Configuration format
+
+```yaml
+# Language or framework name
+#   e.g. Rails, Ruby, Go, Play
+- name: Framework or language
+  # Collection of matches allowed to have one occurrence
+  autoLowLikelihood:
+    # Low likelihood match name
+    - name: ActiveModel::Serializer
+      # Flag to capture only capitalized names
+      #   e.g. would match `ApplicationController`, not `with_comments`
+      classOrModule: true
+
+      # Matcher for `.*Serializer$`
+      #   e.g. `UserSerializer`, `ProjectSerializer`
+      termEndsWith: Serializer
+
+      # Matcher for `^with_.*`
+      #   e.g. `with_comments`, `with_previous_payments`
+      termStartsWith: with_
+
+      # Matcher for `^ApplicationController$`
+      termEquals: ApplicationController
+
+      # Matcher for `.*_factory.ex`
+      #   e.g. `lib/appname/user_factory.ex`, `lib/appname/project_factory.ex`
+      pathEndsWith: _factory.ex
+
+      # Matcher for `^app/policies.*`
+      #   e.g. `app/policies/user_policy.rb`, `app/policies/project_policy.rb`
+      pathStartsWith: app/policies
+
+      # Matcher for `^config/application.rb$`
+      pathEquals: config/application.rb
+
+      # list of termEquals
+      # Matcher allowing any exact match from a list
+      allowedTerms:
+      - index?
+      - edit?
+      - create?
+```
+
+### `~/.unused.yml`
+
+The first location is `~/.unused.yml`. This should hold widely-used
+configuration roughly applicable across projects. Here's an example of what
+might be present:
+
+```yaml
+- name: Rails
+  autoLowLikelihood:
+    - name: ActiveModel::Serializer
+      termEndsWith: Serializer
+      classOrModule: true
+    - name: Pundit
+      termEndsWith: Policy
+      classOrModule: true
+      pathEndsWith: .rb
+    - name: Pundit Helpers
+      allowedTerms:
+        - Scope
+        - index?
+        - new?
+        - create?
+        - show?
+        - edit?
+        - destroy?
+        - resolve
+    - name: JSONAPI::Resources
+      termEndsWith: Resource
+      classOrModule: true
+      pathStartsWith: app/resources
+    - name: JSONAPI::Resources Helpers
+      allowedTerms:
+      - updatable_fields
+      pathStartsWith: app/resources
+```
+
+I tend to work on different APIs, and the two libraries I most commonly use
+have a fairly similar pattern when it comes to class naming. They both also
+use that naming structure to identify serializers automatically, meaning they
+very well may only be referenced once in the entire application (when they're
+initially defined).
+
+Similarly, with Pundit, an authorization library, naming conventions often
+mean only one reference to the class name.
+
+This is a file that might grow, but is focused on widely-used patterns across
+codebases. You might even want to check it into your dotfiles.
+
+### `APP_ROOT/.unused.yml`
+
+The second location is `APP_ROOT/.unused.yml`. This is where any
+project-specific settings might live. If you're working on a library before
+extracting to a gem or package, you might have this configuration take that
+into account.
+
+### Validation
+
+`unused` will attempt to parse both of these files, if it finds them. If
+either is invalid either due to missing or mistyped keys, an error will be
+displayed.
+
 ## Requirements
 
 Unused leverages [Ag](https://github.com/ggreer/the_silver_searcher) to

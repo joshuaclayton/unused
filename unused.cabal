@@ -43,6 +43,7 @@ library
                      , Unused.CLI.Views.NoResultsFound
                      , Unused.CLI.Views.AnalysisHeader
                      , Unused.CLI.Views.MissingTagsFileError
+                     , Unused.CLI.Views.InvalidConfigError
                      , Unused.CLI.Views.SearchResult
                      , Unused.CLI.Views.SearchResult.ColumnFormatter
                      , Unused.CLI.ProgressIndicator
@@ -77,6 +78,8 @@ executable unused
   build-depends:       base
                      , unused
                      , optparse-applicative
+                     , mtl
+                     , transformers
   default-language:    Haskell2010
 
 test-suite unused-test
