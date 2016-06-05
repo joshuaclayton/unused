@@ -16,6 +16,7 @@ cached context f =
     fromCache = maybe (writeCache =<< liftReaderT f) return =<< readCache
 
 writeCache :: ToRecord a => [a] -> ReaderT String IO [a]
+writeCache [] = return []
 writeCache contents = do
     liftReaderT $ createDirectoryIfMissing True cacheDirectory
     fileName <- ask
