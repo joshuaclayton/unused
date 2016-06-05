@@ -24,6 +24,7 @@ groupedTermsAndAliases as ms =
     aliases = map toAlias as
 
 termsAndAliases :: [TermAlias] -> [String] -> [String]
+termsAndAliases [] = id
 termsAndAliases as =
     nub . map T.unpack . concatMap (allAliases aliases . T.pack)
   where

@@ -95,6 +95,7 @@ test-suite unused-test
                      , Unused.TermSearch.InternalSpec
                      , Unused.UtilSpec
                      , Unused.Cache.FindArgsFromIgnoredPathsSpec
+                     , Unused.AliasesSpec
                      , Paths_unused
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -Werror
   default-language:    Haskell2010

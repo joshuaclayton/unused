@@ -30,6 +30,18 @@ spec = parallel $
             result `shouldBe`
                 Map.fromList [ ("method_name", r1Results), ("other", r2Results) ]
 
+        it "parses when no config is provided" $ do
+            let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" 1
+                            , TermMatch "method_name" "app/path/other.rb" 5
+                            , TermMatch "method_name" "spec/path/foo_spec.rb" 10
+                            ]
+            let r1Results = TermResults "method_name" r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
+
+            let result = parseResults [] $ SearchResults r1Matches
+
+            result `shouldBe`
+                Map.fromList [ ("method_name", r1Results) ]
+
         it "handles aliases correctly" $ do
             let r1Matches = [ TermMatch "admin?" "app/path/user.rb" 3 ]
 
