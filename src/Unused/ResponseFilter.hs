@@ -47,7 +47,8 @@ autoLowLikelihood l r =
     classOrModule = classOrModuleFunction . smClassOrModule
 
     matchesToBool :: [Matcher] -> Bool
-    matchesToBool = all (`matcherToBool` r)
+    matchesToBool [] = False
+    matchesToBool a = all (`matcherToBool` r) a
 
 classOrModuleFunction :: Bool -> TermResults -> Bool
 classOrModuleFunction True = isClassOrModule

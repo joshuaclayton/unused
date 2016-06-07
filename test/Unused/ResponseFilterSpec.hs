@@ -128,6 +128,14 @@ spec = parallel $ do
 
             haskellAutoLowLikelihood result `shouldReturn` True
 
+    describe "autoLowLikelihood" $
+        it "doesn't qualify as low when no matchers are present in a language config" $ do
+            let match = TermMatch "AwesomeThing" "app/foo/awesome_thing.rb" 1
+            let result = resultsFromMatches [match]
+            let languageConfig = LanguageConfiguration "Bad" [] [LowLikelihoodMatch "Match with empty matchers" [] False] []
+
+            autoLowLikelihood languageConfig result `shouldBe` False
+
 configByName :: String -> IO LanguageConfiguration
 configByName s = do
     (Right config) <- loadConfig
