@@ -1,11 +1,6 @@
 module Unused.ResultsClassifier
-    ( LanguageConfiguration(..)
-    , LowLikelihoodMatch(..)
-    , TermAlias(..)
-    , Position(..)
-    , Matcher(..)
-    , loadConfig
+    ( module X
     ) where
 
-import Unused.ResultsClassifier.Types
-import Unused.ResultsClassifier.Config
+import Unused.ResultsClassifier.Types as X
+import Unused.ResultsClassifier.Config as X
