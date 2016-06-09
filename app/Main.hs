@@ -1,7 +1,6 @@
 module Main where
 
 import Options.Applicative
-import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Data.Maybe (fromMaybe)
 import Unused.Parser (parseResults)
 import Unused.Types (TermMatchSet, RemovalLikelihood(..))
@@ -9,7 +8,7 @@ import Unused.TermSearch (SearchResults(..), fromResults)
 import Unused.ResultsClassifier
 import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), withoutCursor, renderHeader, executeSearch, withInterruptHandler)
+import Unused.CLI (SearchRunner(..), withRuntime, renderHeader, executeSearch)
 import qualified Unused.CLI.Views as V
 import Unused.Cache
 import Unused.Aliases (termsAndAliases)
@@ -27,7 +26,7 @@ data Options = Options
     }
 
 main :: IO ()
-main = withInterruptHandler $
+main =
     run =<< execParser
         (withInfo parseOptions pHeader pDescription pFooter)
   where
@@ -38,9 +37,7 @@ main = withInterruptHandler $
     pFooter      = "CLI USAGE: $ unused"
 
 run :: Options -> IO ()
-run options = withoutCursor $ do
-    hSetBuffering stdout NoBuffering
-
+run options = withRuntime $ do
     terms' <- calculateTagInput options
 
     case terms' of

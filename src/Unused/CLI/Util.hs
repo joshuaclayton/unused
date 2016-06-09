@@ -1,27 +1,32 @@
 module Unused.CLI.Util
     ( resetScreen
-    , withoutCursor
-    , withInterruptHandler
+    , withRuntime
     , installChildInterruptHandler
     , module System.Console.ANSI
     ) where
 
 import Control.Monad (void)
 import System.Console.ANSI
+import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Control.Exception (throwTo)
 import System.Posix.Signals (Handler(Catch), installHandler, keyboardSignal)
 import Control.Concurrent (ThreadId, myThreadId, killThread)
 import System.Exit (ExitCode(ExitFailure))
 
-withoutCursor :: IO a -> IO a
-withoutCursor body = do
-    hideCursor
-    body <* showCursor
+withRuntime :: IO a -> IO a
+withRuntime a = do
+    hSetBuffering stdout NoBuffering
+    withInterruptHandler $ withoutCursor a
 
 resetScreen :: IO ()
 resetScreen = do
     clearScreen
     setCursorPosition 0 0
+
+withoutCursor :: IO a -> IO a
+withoutCursor body = do
+    hideCursor
+    body <* showCursor
 
 withInterruptHandler :: IO a -> IO a
 withInterruptHandler body = do
