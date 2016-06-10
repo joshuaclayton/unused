@@ -1,3 +1,6 @@
+0.4.0.0 (June 10, 2016)
+  Allow for custom configurations on a per-user and per-project basis
+
 0.3.0.0 (June 4, 2016)
   Introduce aliases for RSpec predicate matchers
   Remove certain instances of regex use for speed improvements
