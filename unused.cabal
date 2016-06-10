@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Josh Clayton
 maintainer:          sayhi@joshuaclayton.me
 copyright:           2016 Josh Clayton
-category:            Development
+category:            CLI
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
