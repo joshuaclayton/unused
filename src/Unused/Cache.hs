@@ -2,6 +2,7 @@ module Unused.Cache
     ( cached
     ) where
 
+import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader
 import System.Directory
 import Data.Csv (FromRecord, ToRecord, HasHeader(..), encode, decode)
@@ -13,23 +14,23 @@ cached :: (FromRecord a, ToRecord a) => String -> IO [a] -> IO [a]
 cached context f =
     runReaderT fromCache =<< cacheFileName context
   where
-    fromCache = maybe (writeCache =<< liftReaderT f) return =<< readCache
+    fromCache = maybe (writeCache =<< liftIO f) return =<< readCache
 
 writeCache :: ToRecord a => [a] -> ReaderT String IO [a]
 writeCache [] = return []
 writeCache contents = do
-    liftReaderT $ createDirectoryIfMissing True cacheDirectory
+    liftIO $ createDirectoryIfMissing True cacheDirectory
     fileName <- ask
-    liftReaderT $ BS.writeFile fileName $ encode contents
+    liftIO $ BS.writeFile fileName $ encode contents
     return contents
 
 readCache :: FromRecord a => ReaderT String IO (Maybe [a])
 readCache = do
     fileName <- ask
-    exists <- liftReaderT $ doesFileExist fileName
+    exists <- liftIO $ doesFileExist fileName
 
     if exists
-        then fmap processCsv (decode NoHeader <$> liftReaderT (BS.readFile fileName))
+        then fmap processCsv (decode NoHeader <$> liftIO (BS.readFile fileName))
         else return Nothing
   where
     processCsv = either (const Nothing) (Just . toList)
@@ -42,6 +43,3 @@ cacheFileName context = do
 
 cacheDirectory :: String
 cacheDirectory = "tmp/unused"
-
-liftReaderT :: m a -> ReaderT r m a
-liftReaderT m = ReaderT $ const m
