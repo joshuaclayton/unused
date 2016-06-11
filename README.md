@@ -126,9 +126,6 @@ additional custom configuration to help improve this.
       #   e.g. `app/policies/user_policy.rb`, `app/policies/project_policy.rb`
       pathStartsWith: app/policies
 
-      # Matcher for `^config/application.rb$`
-      pathEquals: config/application.rb
-
       # list of termEquals
       # Matcher allowing any exact match from a list
       allowedTerms:
