@@ -6,9 +6,8 @@ module Unused.TagsSource
     , loadTagsFromPipe
     ) where
 
-import Data.List (nub)
+import Data.List (isPrefixOf, nub)
 import System.Directory (findFile)
-import Unused.Regex (matchRegex)
 import qualified Data.Text as T
 
 data TagSearchOutcome
@@ -22,13 +21,13 @@ loadTagsFromFile = fmap (fmap tokensFromTags) tagsContent
 
 tokensFromTags :: String -> [String]
 tokensFromTags =
-    filter tagRemovalRegex . nub . map token . tokenLocations
+    filter validTokens . nub . tokenLocations
   where
-    tokenLocations = map (T.splitOn "\t" . T.pack) . lines
+    tokenLocations = map (token . T.splitOn "\t" . T.pack) . lines
     token = T.unpack . head
 
-tagRemovalRegex :: String -> Bool
-tagRemovalRegex = not . matchRegex "^!_TAG"
+validTokens :: String -> Bool
+validTokens = not . isPrefixOf "!_TAG"
 
 tagsContent :: IO (Either TagSearchOutcome String)
 tagsContent = findFile possibleTagsFileDirectories "tags" >>= eitherReadFile

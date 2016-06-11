@@ -7,8 +7,8 @@ module Unused.TermSearch.Internal
 
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
+import qualified Data.Char as C
 import Unused.Types (TermMatch(..))
-import Unused.Regex
 import Unused.Util (stringToInt)
 
 commandLineOptions :: String -> [String]
@@ -29,4 +29,6 @@ parseSearchResult term s =
 
 regexSafeTerm :: String -> Bool
 regexSafeTerm =
-    matchRegex "^[[:word:]]+$"
+    all regexSafeChar
+  where
+    regexSafeChar c = C.isAlphaNum c || c == '_' || c == '-'

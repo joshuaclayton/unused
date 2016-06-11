@@ -10,7 +10,7 @@ module Unused.ResponseFilter
 
 import qualified Data.Map.Strict as Map
 import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
-import Unused.Regex (matchRegex)
+import qualified Data.Char as C
 import Unused.Types
 import Unused.ResultsClassifier
 
@@ -35,7 +35,11 @@ includesLikelihood :: [RemovalLikelihood] -> TermResults -> Bool
 includesLikelihood l = (`elem` l) . rLikelihood . trRemoval
 
 isClassOrModule :: TermResults -> Bool
-isClassOrModule = matchRegex "^[A-Z]" . trTerm
+isClassOrModule =
+    startsWithUpper . trTerm
+  where
+    startsWithUpper [] = False
+    startsWithUpper (a:_) = C.isUpper a
 
 autoLowLikelihood :: LanguageConfiguration -> TermResults -> Bool
 autoLowLikelihood l r =
@@ -55,15 +59,15 @@ classOrModuleFunction True = isClassOrModule
 classOrModuleFunction False = const True
 
 matcherToBool :: Matcher -> TermResults -> Bool
-matcherToBool (Path p v) = any (positionToRegex p v) . paths
-matcherToBool (Term p v) = positionToRegex p v . trTerm
+matcherToBool (Path p v) = any (positionToTest p v) . paths
+matcherToBool (Term p v) = positionToTest p v . trTerm
 matcherToBool (AppOccurrences i) = (== i) . appOccurrenceCount
-matcherToBool (AllowedTerms ts) = flip isAllowedTerm ts
+matcherToBool (AllowedTerms ts) = (`isAllowedTerm` ts)
 
-positionToRegex :: Position -> (String -> String -> Bool)
-positionToRegex StartsWith = isPrefixOf
-positionToRegex EndsWith = isSuffixOf
-positionToRegex Equals = (==)
+positionToTest :: Position -> (String -> String -> Bool)
+positionToTest StartsWith = isPrefixOf
+positionToTest EndsWith = isSuffixOf
+positionToTest Equals = (==)
 
 paths :: TermResults -> [String]
 paths r = tmPath <$> trMatches r
