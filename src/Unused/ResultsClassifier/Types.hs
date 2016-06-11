@@ -138,5 +138,5 @@ extractMatcher e p = either displayFailure (convertFoundObjectToMatcher p) e
 convertFoundObjectToMatcher :: (Monad m, Alternative m) => m (Maybe a) -> (a -> b) -> m b
 convertFoundObjectToMatcher p f = maybe empty (pure . f) =<< p
 
-displayFailure :: T.Text -> a
-displayFailure t = error $ "Parse error: '" ++ T.unpack t ++ "' is not a valid key in a singleOnly matcher"
+displayFailure :: T.Text -> Y.Parser a
+displayFailure t = fail $ "Parse error: '" ++ T.unpack t ++ "' is not a valid key in a singleOnly matcher"
