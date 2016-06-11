@@ -1,42 +1,14 @@
 module Main where
 
-import Control.Monad.IO.Class (liftIO)
-import qualified Data.Bifunctor as B
-import Control.Monad.Except (ExceptT(..), runExceptT)
+import App
 import Options.Applicative
 import Data.Maybe (fromMaybe)
-import Unused.Parser (parseResults)
-import Unused.Types (TermMatchSet, RemovalLikelihood(..))
-import Unused.TermSearch (SearchResults(..), fromResults)
-import Unused.ResultsClassifier
-import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
-import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.CLI (SearchRunner(..), withRuntime, renderHeader, executeSearch)
-import qualified Unused.CLI.Views as V
-import Unused.Cache
-import Unused.Aliases (termsAndAliases)
-import Unused.TagsSource
-
-data Options = Options
-    { oSearchRunner :: SearchRunner
-    , oSingleOccurrenceMatches :: Bool
-    , oLikelihoods :: [RemovalLikelihood]
-    , oAllLikelihoods :: Bool
-    , oIgnoredPaths :: [String]
-    , oGrouping :: CurrentGrouping
-    , oWithoutCache :: Bool
-    , oFromStdIn :: Bool
-    }
-
-data AppError
-    = TagError TagSearchOutcome
-    | InvalidConfigError [ParseConfigError]
+import Unused.Grouping (CurrentGrouping(..))
+import Unused.Types (RemovalLikelihood(..))
+import Unused.CLI (SearchRunner(..))
 
 main :: IO ()
 main = runProgram =<< parseCLI
-  where
-    runProgram options = withRuntime $
-        runExceptT (run options) >>= either renderError return
 
 parseCLI :: IO Options
 parseCLI =
@@ -47,55 +19,6 @@ parseCLI =
                   \ (located at .git/tags, tags, or tmp/tags) to identify tokens\
                   \ in a codebase that are unused."
     pFooter      = "CLI USAGE: $ unused"
-
-renderError :: AppError -> IO ()
-renderError (TagError e) = V.missingTagsFileError e
-renderError (InvalidConfigError e) = V.invalidConfigError e
-
-run :: Options -> ExceptT AppError IO ()
-run options = do
-    terms' <- withException TagError $ calculateTagInput options
-    languageConfig <- withException InvalidConfigError loadAllConfigurations
-
-    let terms = termsWithAlternatesFromConfig languageConfig terms'
-
-    liftIO $ renderHeader terms
-    results <- liftIO $ withCache options $ executeSearch (oSearchRunner options) terms
-
-    liftIO $ printResults options $ parseResults languageConfig results
-  where
-    withException e = ExceptT . fmap (B.first e)
-
-termsWithAlternatesFromConfig :: [LanguageConfiguration] -> [String] -> [String]
-termsWithAlternatesFromConfig lcs =
-    termsAndAliases aliases
-  where
-    aliases = concatMap lcTermAliases lcs
-
-printResults :: Options -> TermMatchSet -> IO ()
-printResults options = V.searchResults . groupedResponses (oGrouping options) . optionFilters options
-
-calculateTagInput :: Options -> IO (Either TagSearchOutcome [String])
-calculateTagInput Options{ oFromStdIn = True } = loadTagsFromPipe
-calculateTagInput Options{ oFromStdIn = False } = loadTagsFromFile
-
-withCache :: Options -> IO SearchResults -> IO SearchResults
-withCache Options{ oWithoutCache = True } = id
-withCache Options{ oWithoutCache = False } = fmap SearchResults . cached "term-matches" . fmap fromResults
-
-optionFilters :: Options -> (TermMatchSet -> TermMatchSet)
-optionFilters o =
-    foldl1 (.) filters
-  where
-    filters =
-        [ if oSingleOccurrenceMatches o then withOneOccurrence else id
-        , withLikelihoods likelihoods
-        , ignoringPaths $ oIgnoredPaths o
-        ]
-    likelihoods
-        | oAllLikelihoods o = [High, Medium, Low]
-        | null (oLikelihoods o) = [High]
-        | otherwise = oLikelihoods o
 
 withInfo :: Parser a -> String -> String -> String -> ParserInfo a
 withInfo opts h d f =

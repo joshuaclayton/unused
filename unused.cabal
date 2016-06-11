@@ -80,6 +80,7 @@ executable unused
                      , optparse-applicative
                      , mtl
                      , transformers
+  other-modules:       App
   default-language:    Haskell2010
 
 test-suite unused-test
