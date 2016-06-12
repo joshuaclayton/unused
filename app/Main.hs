@@ -28,24 +28,31 @@ data Options = Options
     , oFromStdIn :: Bool
     }
 
+data AppError
+    = TagError TagSearchOutcome
+    | InvalidConfigError [ParseConfigError]
+
 main :: IO ()
-main = runProgram =<< execParser (withInfo parseOptions pHeader pDescription pFooter)
+main = runProgram =<< parseCLI
   where
     runProgram options = withRuntime $
         runExceptT (run options) >>= either renderError return
+
+parseCLI :: IO Options
+parseCLI =
+    execParser (withInfo parseOptions pHeader pDescription pFooter)
+  where
     pHeader      = "Unused: Analyze potentially unused code"
     pDescription = "Unused allows a developer to leverage an existing tags file\
                   \ (located at .git/tags, tags, or tmp/tags) to identify tokens\
                   \ in a codebase that are unused."
     pFooter      = "CLI USAGE: $ unused"
 
-data LocalizedError = TagError TagSearchOutcome | InvalidConfigError [ParseConfigError]
-
-renderError :: LocalizedError -> IO ()
+renderError :: AppError -> IO ()
 renderError (TagError e) = V.missingTagsFileError e
 renderError (InvalidConfigError e) = V.invalidConfigError e
 
-run :: Options -> ExceptT LocalizedError IO ()
+run :: Options -> ExceptT AppError IO ()
 run options = do
     terms' <- withException TagError $ calculateTagInput options
     languageConfig <- withException InvalidConfigError loadAllConfigurations
@@ -76,10 +83,6 @@ withCache :: Options -> IO SearchResults -> IO SearchResults
 withCache Options{ oWithoutCache = True } = id
 withCache Options{ oWithoutCache = False } = fmap SearchResults . cached "term-matches" . fmap fromResults
 
-withInfo :: Parser a -> String -> String -> String -> ParserInfo a
-withInfo opts h d f =
-    info (helper <*> opts) $ header h <> progDesc d <> footer f
-
 optionFilters :: Options -> (TermMatchSet -> TermMatchSet)
 optionFilters o =
     foldl1 (.) filters
@@ -93,6 +96,10 @@ optionFilters o =
         | oAllLikelihoods o = [High, Medium, Low]
         | null (oLikelihoods o) = [High]
         | otherwise = oLikelihoods o
+
+withInfo :: Parser a -> String -> String -> String -> ParserInfo a
+withInfo opts h d f =
+    info (helper <*> opts) $ header h <> progDesc d <> footer f
 
 parseOptions :: Parser Options
 parseOptions =
