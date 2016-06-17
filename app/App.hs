@@ -10,6 +10,7 @@ module App
 import qualified Data.Bifunctor as B
 import Control.Monad.Reader
 import Control.Monad.Except
+import Data.Maybe (isJust)
 import Unused.Grouping (CurrentGrouping(..), groupedResponses)
 import Unused.Types (TermMatchSet, RemovalLikelihood(..))
 import Unused.TermSearch (SearchResults(..), fromResults)
@@ -19,7 +20,7 @@ import Unused.TagsSource
 import Unused.ResultsClassifier
 import Unused.Aliases (termsAndAliases)
 import Unused.Parser (parseResults)
-import Unused.CLI (SearchRunner(..), renderHeader, executeSearch, withRuntime)
+import Unused.CLI (SearchRunner(..), loadGitContext, renderHeader, executeSearch, withRuntime)
 import qualified Unused.CLI.Views as V
 
 type AppConfig = MonadReader Options
@@ -41,6 +42,7 @@ data Options = Options
     , oGrouping :: CurrentGrouping
     , oWithoutCache :: Bool
     , oFromStdIn :: Bool
+    , oCommitCount :: Maybe Int
     }
 
 runProgram :: Options -> IO ()
@@ -54,7 +56,7 @@ run = do
     liftIO $ renderHeader terms
     results <- withCache . (`executeSearch` terms) =<< searchRunner
 
-    printResults . (`parseResults` results) =<< loadAllConfigs
+    printResults =<< retrieveGitContext =<< fmap (`parseResults` results) loadAllConfigs
 
 termsWithAlternatesFromConfig :: App [String]
 termsWithAlternatesFromConfig = do
@@ -67,11 +69,19 @@ renderError :: AppError -> IO ()
 renderError (TagError e) = V.missingTagsFileError e
 renderError (InvalidConfigError e) = V.invalidConfigError e
 
+retrieveGitContext :: TermMatchSet -> App TermMatchSet
+retrieveGitContext tms = do
+    commitCount <- numberOfCommits
+    case commitCount of
+        Just c -> liftIO $ loadGitContext c tms
+        Nothing -> return tms
+
 printResults :: TermMatchSet -> App ()
 printResults ts = do
     filters <- optionFilters ts
     grouping <- groupingOptions
-    liftIO $ V.searchResults $ groupedResponses grouping filters
+    formatter <- resultFormatter
+    liftIO $ V.searchResults formatter $ groupedResponses grouping filters
 
 loadAllConfigs :: App [LanguageConfiguration]
 loadAllConfigs = do
@@ -131,3 +141,13 @@ searchRunner = oSearchRunner <$> ask
 
 runWithCache :: AppConfig m => m Bool
 runWithCache = not . oWithoutCache <$> ask
+
+numberOfCommits :: AppConfig m => m (Maybe Int)
+numberOfCommits = oCommitCount <$> ask
+
+resultFormatter :: AppConfig m => m V.ResultsFormat
+resultFormatter = do
+    c <- numberOfCommits
+    return $ if isJust c
+        then V.List
+        else V.Column

@@ -7,10 +7,14 @@ module Unused.Types
     , RemovalLikelihood(..)
     , Removal(..)
     , Occurrences(..)
+    , GitContext(..)
+    , GitCommit(..)
     , resultsFromMatches
     , totalFileCount
     , totalOccurrenceCount
     , appOccurrenceCount
+    , removalLikelihood
+    , resultAliases
     ) where
 
 import qualified Data.Map.Strict as Map
@@ -41,11 +45,20 @@ data TermResults = TermResults
     , trAppOccurrences :: Occurrences
     , trTotalOccurrences :: Occurrences
     , trRemoval :: Removal
+    , trGitContext :: Maybe GitContext
     } deriving (Eq, Show)
 
 data Removal = Removal
     { rLikelihood :: RemovalLikelihood
     , rReason :: String
+    } deriving (Eq, Show)
+
+data GitContext = GitContext
+    { gcCommits :: [GitCommit]
+    } deriving (Eq, Show)
+
+data GitCommit = GitCommit
+    { gcSha :: String
     } deriving (Eq, Show)
 
 data RemovalLikelihood = High | Medium | Low | Unknown | NotCalculated deriving (Eq, Show)
@@ -61,6 +74,12 @@ totalOccurrenceCount = oOccurrences . trTotalOccurrences
 appOccurrenceCount :: TermResults -> Int
 appOccurrenceCount = oOccurrences . trAppOccurrences
 
+removalLikelihood :: TermResults -> RemovalLikelihood
+removalLikelihood = rLikelihood . trRemoval
+
+resultAliases :: TermResults -> [String]
+resultAliases = trTerms
+
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
     TermResults
@@ -71,6 +90,7 @@ resultsFromMatches m =
         , trTestOccurrences = testOccurrence
         , trTotalOccurrences = Occurrences (sum $ map oFiles [appOccurrence, testOccurrence]) (sum $ map oOccurrences [appOccurrence, testOccurrence])
         , trRemoval = Removal NotCalculated "Likelihood not calculated"
+        , trGitContext = Nothing
         }
   where
     testOccurrence = testOccurrences m

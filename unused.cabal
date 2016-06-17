@@ -21,6 +21,7 @@ library
                      , Unused.TermSearch.Internal
                      , Unused.Parser
                      , Unused.Types
+                     , Unused.GitContext
                      , Unused.Util
                      , Unused.Regex
                      , Unused.Aliases
@@ -38,14 +39,20 @@ library
                      , Unused.TagsSource
                      , Unused.CLI
                      , Unused.CLI.Search
+                     , Unused.CLI.GitContext
                      , Unused.CLI.Util
                      , Unused.CLI.Views
                      , Unused.CLI.Views.NoResultsFound
                      , Unused.CLI.Views.AnalysisHeader
+                     , Unused.CLI.Views.GitSHAsHeader
                      , Unused.CLI.Views.MissingTagsFileError
                      , Unused.CLI.Views.InvalidConfigError
                      , Unused.CLI.Views.SearchResult
                      , Unused.CLI.Views.SearchResult.ColumnFormatter
+                     , Unused.CLI.Views.SearchResult.Internal
+                     , Unused.CLI.Views.SearchResult.ListResult
+                     , Unused.CLI.Views.SearchResult.TableResult
+                     , Unused.CLI.Views.SearchResult.Types
                      , Unused.CLI.ProgressIndicator
                      , Unused.CLI.ProgressIndicator.Internal
                      , Unused.CLI.ProgressIndicator.Types

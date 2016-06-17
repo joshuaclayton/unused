@@ -6,6 +6,7 @@ import Data.Maybe (fromMaybe)
 import Unused.Grouping (CurrentGrouping(..))
 import Unused.Types (RemovalLikelihood(..))
 import Unused.CLI (SearchRunner(..))
+import Unused.Util (stringToInt)
 
 main :: IO ()
 main = runProgram =<< parseCLI
@@ -35,6 +36,7 @@ parseOptions =
     <*> parseGroupings
     <*> parseWithoutCache
     <*> parseFromStdIn
+    <*> parseCommitCount
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -105,3 +107,11 @@ parseFromStdIn :: Parser Bool
 parseFromStdIn = switch $
     long "stdin"
     <> help "Read tags from STDIN"
+
+parseCommitCount :: Parser (Maybe Int)
+parseCommitCount =
+    (stringToInt =<<) <$> commitParser
+  where
+    commitParser = optional $ strOption $
+        long "commits"
+        <> help "Number of recent commit SHAs to display per token"
