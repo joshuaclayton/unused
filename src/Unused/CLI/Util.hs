@@ -5,6 +5,7 @@ module Unused.CLI.Util
     , module System.Console.ANSI
     ) where
 
+import Control.Concurrent.ParallelIO
 import Control.Monad (void)
 import System.Console.ANSI
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
@@ -16,7 +17,7 @@ import System.Exit (ExitCode(ExitFailure))
 withRuntime :: IO a -> IO a
 withRuntime a = do
     hSetBuffering stdout NoBuffering
-    withInterruptHandler $ withoutCursor a
+    withInterruptHandler $ withoutCursor a <* stopGlobalPool
 
 resetScreen :: IO ()
 resetScreen = do

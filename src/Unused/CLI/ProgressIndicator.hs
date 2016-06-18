@@ -25,6 +25,6 @@ progressWithIndicator f i terms = do
     printPrefix i
     (tid, indicator) <- start i $ length terms
     installChildInterruptHandler tid
-    mconcat <$> parallel (ioOps indicator) <* stop indicator <* stopGlobalPool
+    mconcat <$> parallel (ioOps indicator) <* stop indicator
   where
     ioOps i' = map (\t -> f t <* increment i') terms
