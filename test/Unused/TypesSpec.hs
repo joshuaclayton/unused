@@ -15,4 +15,4 @@ spec = parallel $
                           ]
 
             resultsFromMatches matches `shouldBe`
-                TermResults "ApplicationController" matches (Occurrences 1 10) (Occurrences 1 1) (Occurrences 2 11) (Removal NotCalculated "Likelihood not calculated")
+                TermResults "ApplicationController" ["ApplicationController"] matches (Occurrences 1 10) (Occurrences 1 1) (Occurrences 2 11) (Removal NotCalculated "Likelihood not calculated")

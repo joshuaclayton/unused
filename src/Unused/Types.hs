@@ -15,6 +15,7 @@ module Unused.Types
 
 import qualified Data.Map.Strict as Map
 import Data.Csv
+import qualified Data.List as L
 import GHC.Generics
 import Unused.Regex
 
@@ -34,6 +35,7 @@ data Occurrences = Occurrences
 
 data TermResults = TermResults
     { trTerm :: String
+    , trTerms :: [String]
     , trMatches :: [TermMatch]
     , trTestOccurrences :: Occurrences
     , trAppOccurrences :: Occurrences
@@ -63,6 +65,7 @@ resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
     TermResults
         { trTerm = resultTerm terms
+        , trTerms = L.sort $ L.nub terms
         , trMatches = m
         , trAppOccurrences = appOccurrence
         , trTestOccurrences = testOccurrence

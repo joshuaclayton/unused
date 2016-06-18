@@ -18,10 +18,10 @@ spec = parallel $
                             , TermMatch "method_name" "app/path/other.rb" 5
                             , TermMatch "method_name" "spec/path/foo_spec.rb" 10
                             ]
-            let r1Results = TermResults "method_name" r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
+            let r1Results = TermResults "method_name" ["method_name"] r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
 
             let r2Matches = [ TermMatch "other" "app/path/other.rb" 1 ]
-            let r2Results = TermResults "other" r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used once")
+            let r2Results = TermResults "other" ["other"] r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used once")
 
             (Right config) <- loadConfig
 
@@ -35,7 +35,7 @@ spec = parallel $
                             , TermMatch "method_name" "app/path/other.rb" 5
                             , TermMatch "method_name" "spec/path/foo_spec.rb" 10
                             ]
-            let r1Results = TermResults "method_name" r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
+            let r1Results = TermResults "method_name" ["method_name"] r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently")
 
             let result = parseResults [] $ SearchResults r1Matches
 
@@ -55,7 +55,7 @@ spec = parallel $
 
             let result = parseResults config $ SearchResults searchResults
 
-            let results = TermResults "admin?" searchResults (Occurrences 2 4) (Occurrences 1 3) (Occurrences 3 7) (Removal Low "used frequently")
+            let results = TermResults "admin?" ["admin?", "be_admin"] searchResults (Occurrences 2 4) (Occurrences 1 3) (Occurrences 3 7) (Removal Low "used frequently")
             result `shouldBe`
                 Map.fromList [ ("admin?|be_admin", results) ]
 
