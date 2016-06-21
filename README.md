@@ -74,6 +74,11 @@ In an application where the tags file exists, run:
 unused
 ```
 
+If you don't have a tags file, you can generate one by running:
+```sh
+ctags -R .
+```
+
 If you want to specify a custom tags file, or load tokens from somewhere else,
 run:
 
