@@ -1,6 +1,7 @@
 module Unused.Util
     ( groupBy
     , stringToInt
+    , safeHead
     , readIfFileExists
     ) where
 
@@ -14,6 +15,10 @@ groupBy :: (Ord b) => (a -> b) -> [a] -> [(b, [a])]
 groupBy f = map (f . head &&& id)
                    . L.groupBy ((==) `on` f)
                    . L.sortBy (compare `on` f)
+
+safeHead :: [a] -> Maybe a
+safeHead (x:_) = Just x
+safeHead _ = Nothing
 
 stringToInt :: String -> Maybe Int
 stringToInt xs

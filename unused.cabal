@@ -48,6 +48,7 @@ library
                      , Unused.CLI.Views.GitSHAsHeader
                      , Unused.CLI.Views.MissingTagsFileError
                      , Unused.CLI.Views.InvalidConfigError
+                     , Unused.CLI.Views.FingerprintError
                      , Unused.CLI.Views.SearchResult
                      , Unused.CLI.Views.SearchResult.ColumnFormatter
                      , Unused.CLI.Views.SearchResult.Internal

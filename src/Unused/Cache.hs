@@ -1,5 +1,6 @@
 module Unused.Cache
-    ( cached
+    ( FingerprintOutcome(..)
+    , cached
     ) where
 
 import Control.Monad.IO.Class (liftIO)
@@ -8,16 +9,16 @@ import System.Directory
 import Data.Csv (FromRecord, ToRecord, HasHeader(..), encode, decode)
 import Data.Vector (toList)
 import qualified Data.ByteString.Lazy as BS
-import Unused.Cache.DirectoryFingerprint (sha)
+import Unused.Cache.DirectoryFingerprint
 
 newtype CacheFileName = CacheFileName String
 type Cache = ReaderT CacheFileName IO
 
-cached :: (FromRecord a, ToRecord a) => String -> IO [a] -> IO [a]
-cached context f =
-    runReaderT fromCache =<< cacheFileName context
+cached :: (FromRecord a, ToRecord a) => String -> IO [a] -> IO (Either FingerprintOutcome [a])
+cached cachePrefix f =
+    mapM fromCache =<< cacheFileName cachePrefix
   where
-    fromCache = maybe (writeCache =<< liftIO f) return =<< readCache
+    fromCache = runReaderT $ maybe (writeCache =<< liftIO f) return =<< readCache
 
 writeCache :: ToRecord a => [a] -> Cache [a]
 writeCache [] = return []
@@ -38,11 +39,12 @@ readCache = do
   where
     processCsv = either (const Nothing) (Just . toList)
 
-cacheFileName :: String -> IO CacheFileName
+cacheFileName :: String -> IO (Either FingerprintOutcome CacheFileName)
 cacheFileName context = do
     putStrLn "\n\nCalculating cache fingerprint... "
-    currentSha <- sha
-    return $ CacheFileName $ cacheDirectory ++ "/" ++ context ++ "-" ++ currentSha ++ ".csv"
+    fmap toFileName <$> sha
+  where
+    toFileName s = CacheFileName $ cacheDirectory ++ "/" ++ context ++ "-" ++ s ++ ".csv"
 
 cacheDirectory :: String
 cacheDirectory = "tmp/unused"

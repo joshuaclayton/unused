@@ -28,6 +28,7 @@ type AppConfig = MonadReader Options
 data AppError
     = TagError TagSearchOutcome
     | InvalidConfigError [ParseConfigError]
+    | CacheError FingerprintOutcome
 
 newtype App a = App {
     runApp :: ReaderT Options (ExceptT AppError IO) a
@@ -68,6 +69,7 @@ termsWithAlternatesFromConfig = do
 renderError :: AppError -> IO ()
 renderError (TagError e) = V.missingTagsFileError e
 renderError (InvalidConfigError e) = V.invalidConfigError e
+renderError (CacheError e) = V.fingerprintError e
 
 retrieveGitContext :: TermMatchSet -> App TermMatchSet
 retrieveGitContext tms = do
@@ -97,10 +99,14 @@ calculateTagInput = do
 
 withCache :: IO SearchResults -> App SearchResults
 withCache f =
-    liftIO . operateCache =<< runWithCache
+    operateCache =<< runWithCache
   where
-    operateCache b = if b then withCache' f else f
-    withCache' = fmap SearchResults . cached "term-matches" . fmap fromResults
+    operateCache b = if b then withCache' f else liftIO f
+    withCache' :: IO SearchResults -> App SearchResults
+    withCache' r =
+        either (throwError . CacheError) (return . SearchResults) =<<
+            liftIO (cached "term-matches" $ fmap fromResults r)
+
 
 optionFilters :: AppConfig m => TermMatchSet -> m TermMatchSet
 optionFilters tms = foldl (>>=) (pure tms) matchSetFilters
