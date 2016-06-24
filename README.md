@@ -46,6 +46,27 @@ brew install unused
 
 Alternatively, you can install by hand.
 
+### Stack
+
+If you already have [Stack] installed, ensure you have the latest list of
+packages:
+
+```sh
+stack update
+```
+
+Verify Stack is using at least `lts-6.0` when installing by checking the
+global project settings in `~/.stack/global-project/stack.yaml`.
+
+Once that is complete, run:
+
+```sh
+stack install unused
+```
+
+This will install unused in the appropriate directory for Stack; you'll want
+to ensure your `$PATH` reflects this.
+
 ### Installing by hand
 
 This project uses [Haskell] and [Stack].
