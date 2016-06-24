@@ -4,18 +4,13 @@ module Unused.CLI.Views.MissingTagsFileError
 
 import Unused.TagsSource
 import Unused.CLI.Util
+import Unused.CLI.Views.Error
 
 missingTagsFileError :: TagSearchOutcome -> IO ()
 missingTagsFileError e = do
-    setSGR [SetColor Background Vivid Red]
-    setSGR [SetColor Foreground Vivid White]
-    setSGR [SetConsoleIntensity BoldIntensity]
-
-    putStrLn "\nThere was a problem finding a tags file.\n"
-
-    setSGR [Reset]
-
+    errorHeader "There was a problem finding a tags file."
     printOutcomeMessage e
+
     putStr "\n"
 
     setSGR [SetConsoleIntensity BoldIntensity]

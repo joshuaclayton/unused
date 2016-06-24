@@ -42,6 +42,7 @@ library
                      , Unused.CLI.GitContext
                      , Unused.CLI.Util
                      , Unused.CLI.Views
+                     , Unused.CLI.Views.Error
                      , Unused.CLI.Views.NoResultsFound
                      , Unused.CLI.Views.AnalysisHeader
                      , Unused.CLI.Views.GitSHAsHeader

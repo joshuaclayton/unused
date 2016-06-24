@@ -3,17 +3,12 @@ module Unused.CLI.Views.InvalidConfigError
     ) where
 
 import Unused.CLI.Util
+import Unused.CLI.Views.Error
 import Unused.ResultsClassifier (ParseConfigError(..))
 
 invalidConfigError :: [ParseConfigError] -> IO ()
 invalidConfigError es = do
-    setSGR [SetColor Background Vivid Red]
-    setSGR [SetColor Foreground Vivid White]
-    setSGR [SetConsoleIntensity BoldIntensity]
-
-    putStrLn "\nThere was a problem with the following config file(s):\n"
-
-    setSGR [Reset]
+    errorHeader "There was a problem with the following config file(s):"
 
     mapM_ configError es
 
