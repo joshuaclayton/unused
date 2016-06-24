@@ -77,13 +77,13 @@ library
                      , vector
                      , mtl
                      , transformers
-  ghc-options:         -Wall -O
+  ghc-options:         -Wall
   default-language:    Haskell2010
 
 executable unused
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -O
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:       base
                      , unused
                      , optparse-applicative
