@@ -1,3 +1,6 @@
+0.5.0.1 (June 24, 2016)
+  Update unused.cabal to remove -O flag entirely (for Hackage upload)
+
 0.5.0.0 (June 24, 2016)
   Prepare for upload to Hackage
   Include flag to display most recent git commit SHAs per token to help track down removal commits
