@@ -25,7 +25,7 @@ Especially with projects built in Ruby, Elixir, or JavaScript, there are ways
 to dynamically trigger or define behavior that may be surprising. A test suite
 can help here, but still cannot determine every possible execution path.
 
-## Installing
+## Installing and Updating
 
 ### Homebrew (Recommended)
 
@@ -44,7 +44,14 @@ brew install unused
 [my formulae]: https://github.com/joshuaclayton/homebrew-formulae
 [Homebrew]: http://brew.sh/
 
-Alternatively, you can install by hand.
+To update, run:
+
+```sh
+brew update
+brew upgrade unused
+```
+
+Alternatively, you can install with [Stack] or by hand.
 
 ### Stack
 
@@ -69,9 +76,9 @@ to ensure your `$PATH` reflects this.
 
 ### Installing by hand
 
-This project uses [Haskell] and [Stack].
+This project is written in [Haskell] and uses [Stack].
 
-Once you have these tools installed:
+Once you have these tools installed and the project cloned locally:
 
 ```sh
 stack setup
