@@ -119,14 +119,14 @@ optionFilters tms = foldl (>>=) (pure tms) matchSetFilters
 
 singleOccurrenceFilter :: AppConfig m => TermMatchSet -> m TermMatchSet
 singleOccurrenceFilter tms = do
-    allowsSingleOccurrence <- oSingleOccurrenceMatches <$> ask
+    allowsSingleOccurrence <- asks oSingleOccurrenceMatches
     return $ if allowsSingleOccurrence
         then withOneOccurrence tms
         else tms
 
 likelihoodsFilter :: AppConfig m => TermMatchSet -> m TermMatchSet
 likelihoodsFilter tms =
-     withLikelihoods . likelihoods <$> ask <*> pure tms
+     asks $ withLikelihoods . likelihoods <*> pure tms
   where
     likelihoods options
         | oAllLikelihoods options = [High, Medium, Low]
@@ -134,22 +134,22 @@ likelihoodsFilter tms =
         | otherwise = oLikelihoods options
 
 ignoredPathsFilter :: AppConfig m => TermMatchSet -> m TermMatchSet
-ignoredPathsFilter tms = ignoringPaths . oIgnoredPaths <$> ask <*> pure tms
+ignoredPathsFilter tms = asks $ ignoringPaths . oIgnoredPaths <*> pure tms
 
 readFromStdIn :: AppConfig m => m Bool
-readFromStdIn = oFromStdIn <$> ask
+readFromStdIn = asks oFromStdIn
 
 groupingOptions :: AppConfig m => m CurrentGrouping
-groupingOptions = oGrouping <$> ask
+groupingOptions = asks oGrouping
 
 searchRunner :: AppConfig m => m SearchRunner
-searchRunner = oSearchRunner <$> ask
+searchRunner = asks oSearchRunner
 
 runWithCache :: AppConfig m => m Bool
-runWithCache = not . oWithoutCache <$> ask
+runWithCache = asks $ not . oWithoutCache
 
 numberOfCommits :: AppConfig m => m (Maybe Int)
-numberOfCommits = oCommitCount <$> ask
+numberOfCommits = asks oCommitCount
 
 resultFormatter :: AppConfig m => m V.ResultsFormat
 resultFormatter = do
