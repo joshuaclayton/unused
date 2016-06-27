@@ -9,13 +9,13 @@ import qualified Data.ByteString.Char8 as C
 import qualified Data.Either as E
 import qualified Data.Bifunctor as B
 import System.FilePath ((</>))
-import System.Directory (getHomeDirectory)
+import System.Directory (getHomeDirectory, doesFileExist)
 import Paths_unused (getDataFileName)
 import Unused.ResultsClassifier.Types (LanguageConfiguration, ParseConfigError(..))
 import Unused.Util (readIfFileExists)
 
 loadConfig :: IO (Either String [LanguageConfiguration])
-loadConfig = Y.decodeEither <$> readConfig
+loadConfig = either Left Y.decodeEither <$> readConfig
 
 loadAllConfigurations :: IO (Either [ParseConfigError] [LanguageConfiguration])
 loadAllConfigurations = do
@@ -41,5 +41,11 @@ loadConfigFromFile path = do
 addSourceToLeft :: String -> Either String c -> Either ParseConfigError c
 addSourceToLeft source = B.first (ParseConfigError source)
 
-readConfig :: IO BS.ByteString
-readConfig = getDataFileName ("data" </> "config.yml") >>= BS.readFile
+readConfig :: IO (Either String BS.ByteString)
+readConfig = do
+    configFileName <- getDataFileName ("data" </> "config.yml")
+    exists <- doesFileExist configFileName
+
+    if exists
+        then Right <$> BS.readFile configFileName
+        else return $ Left "default config not found"
