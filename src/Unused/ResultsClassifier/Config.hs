@@ -15,7 +15,13 @@ import Unused.ResultsClassifier.Types (LanguageConfiguration, ParseConfigError(.
 import Unused.Util (readIfFileExists)
 
 loadConfig :: IO (Either String [LanguageConfiguration])
-loadConfig = either Left Y.decodeEither <$> readConfig
+loadConfig = do
+    configFileName <- getDataFileName ("data" </> "config.yml")
+    exists <- doesFileExist configFileName
+
+    if exists
+        then Y.decodeEither <$> BS.readFile configFileName
+        else return $ Left "default config not found"
 
 loadAllConfigurations :: IO (Either [ParseConfigError] [LanguageConfiguration])
 loadAllConfigurations = do
@@ -40,12 +46,3 @@ loadConfigFromFile path = do
 
 addSourceToLeft :: String -> Either String c -> Either ParseConfigError c
 addSourceToLeft source = B.first (ParseConfigError source)
-
-readConfig :: IO (Either String BS.ByteString)
-readConfig = do
-    configFileName <- getDataFileName ("data" </> "config.yml")
-    exists <- doesFileExist configFileName
-
-    if exists
-        then Right <$> BS.readFile configFileName
-        else return $ Left "default config not found"
