@@ -115,6 +115,43 @@ To view more usage options, run:
 unused --help
 ```
 
+## Troubleshooting
+
+### "Calculating cache fingerprint" takes a long time
+
+`unused` attempts to be intelligent at understanding if your codebase has
+changed before running analysis (since it can be time-consuming on large
+codebases). To do so, it calculates a "fingerprint" of the entire directory by
+using `md5` (or `md5sum`), along with `find` and your `.gitignore` file.
+
+If you're checking in artifacts (e.g. `node_modules/`, `dist/`, `tmp/`, or
+similar), `unused` will likely take significantly longer to calculate the
+fingerprint.
+
+Per the `--help` documentation, you can disable caching with the `-C` flag:
+
+```sh
+$ unused -C
+```
+
+### "No results found" when expecting results
+
+If you're expecting to see results but `unused` doesn't find anything, verify
+that any artifacts `unused` uses (e.g. the `tags` file, wherever it's located)
+or generates (e.g. in `PROJECT_ROOT/tmp/unused`) is `.gitignore`d.
+
+What might be happening is, because unused searches for tokens with `ag`
+(which honors `.gitignore`), it's running into checked-in versions of the
+tokens from other files, resulting in duplicate occurrences that aren't
+representative of the actual codebase. The most obvious might be the `tags`
+file itself, although if you're using an IDE that runs any sort of analysis
+and that's getting checked in somehow, that may cause it too.
+
+One final piece to check is the number of tokens in the tags file itself; if
+`ctags` is misconfigured and only a handful of tokens are being analyzed, they
+all may have low removal likelihood and not display in the default results
+(high-likelihood only).
+
 ## Custom Configuration
 
 The first time you use `unused`, you might see a handful of false positives.
