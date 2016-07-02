@@ -20,7 +20,7 @@ Right now, there are some special cases built in for Rails and Phoenix apps
 e.g. Controllers in Rails and Views in Phoenix), but it'll work on Rubygems,
 Elixir packages, or anything else.
 
-That said, be confident the code you're removing won't break your program.
+That said, **be confident the code you're removing won't break your program**.
 Especially with projects built in Ruby, Elixir, or JavaScript, there are ways
 to dynamically trigger or define behavior that may be surprising. A test suite
 can help here, but still cannot determine every possible execution path.
