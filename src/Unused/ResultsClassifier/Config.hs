@@ -4,12 +4,11 @@ module Unused.ResultsClassifier.Config
     ) where
 
 import qualified Data.Yaml as Y
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as C
 import qualified Data.Either as E
 import qualified Data.Bifunctor as B
 import System.FilePath ((</>))
-import System.Directory (getHomeDirectory, doesFileExist)
+import System.Directory (getHomeDirectory)
 import Paths_unused (getDataFileName)
 import Unused.ResultsClassifier.Types (LanguageConfiguration, ParseConfigError(..))
 import Unused.Util (safeReadFile)
@@ -17,11 +16,11 @@ import Unused.Util (safeReadFile)
 loadConfig :: IO (Either String [LanguageConfiguration])
 loadConfig = do
     configFileName <- getDataFileName ("data" </> "config.yml")
-    exists <- doesFileExist configFileName
 
-    if exists
-        then Y.decodeEither <$> BS.readFile configFileName
-        else return $ Left "default config not found"
+    either
+        (const $ Left "default config not found")
+        (Y.decodeEither . C.pack)
+        <$> safeReadFile configFileName
 
 loadAllConfigurations :: IO (Either [ParseConfigError] [LanguageConfiguration])
 loadAllConfigurations = do

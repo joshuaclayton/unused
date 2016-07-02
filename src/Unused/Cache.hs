@@ -5,11 +5,13 @@ module Unused.Cache
 
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader
-import System.Directory
 import Data.Csv (FromRecord, ToRecord, HasHeader(..), encode, decode)
 import Data.Vector (toList)
+import System.Directory (createDirectoryIfMissing)
 import qualified Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Lazy.Char8 as C
 import Unused.Cache.DirectoryFingerprint
+import Unused.Util (safeReadFile)
 
 newtype CacheFileName = CacheFileName String
 type Cache = ReaderT CacheFileName IO
@@ -31,11 +33,11 @@ writeCache contents = do
 readCache :: FromRecord a => Cache (Maybe [a])
 readCache = do
     (CacheFileName fileName) <- ask
-    exists <- liftIO $ doesFileExist fileName
 
-    if exists
-        then fmap processCsv (decode NoHeader <$> liftIO (BS.readFile fileName))
-        else return Nothing
+    either
+        (const Nothing)
+        (processCsv . decode NoHeader . C.pack)
+        <$> (liftIO $ safeReadFile fileName)
   where
     processCsv = either (const Nothing) (Just . toList)
 
