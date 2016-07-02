@@ -10,7 +10,7 @@ import qualified System.Directory as D
 import qualified Data.Char as C
 import Data.Maybe (fromMaybe)
 import Unused.Cache.FindArgsFromIgnoredPaths
-import Unused.Util (safeHead, readIfFileExists)
+import Unused.Util (safeHead, safeReadFile)
 
 type MD5Config = ReaderT String IO
 
@@ -43,7 +43,7 @@ md5Result r = do
     liftIO $ readProcess md5exec [] r
 
 ignoredPaths :: IO [String]
-ignoredPaths = fromMaybe [] <$> (fmap lines <$> readIfFileExists ".gitignore")
+ignoredPaths = either (const []) id <$> (fmap lines <$> safeReadFile ".gitignore")
 
 md5Executable :: IO (Maybe String)
 md5Executable =

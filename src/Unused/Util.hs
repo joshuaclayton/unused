@@ -2,11 +2,11 @@ module Unused.Util
     ( groupBy
     , stringToInt
     , safeHead
-    , readIfFileExists
+    , safeReadFile
     ) where
 
-import System.Directory (doesFileExist)
 import Control.Arrow ((&&&))
+import qualified Control.Exception as E
 import qualified Data.List as L
 import Data.Function
 import Data.Char (digitToInt, isDigit)
@@ -27,10 +27,5 @@ stringToInt xs
   where
     loop = foldl (\acc x -> acc * 10 + digitToInt x)
 
-readIfFileExists :: String -> IO (Maybe String)
-readIfFileExists path = do
-    exists <- doesFileExist path
-
-    if exists
-        then Just <$> readFile path
-        else return Nothing
+safeReadFile :: FilePath -> IO (Either E.IOException String)
+safeReadFile = E.try . readFile

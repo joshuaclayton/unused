@@ -12,7 +12,7 @@ import System.FilePath ((</>))
 import System.Directory (getHomeDirectory, doesFileExist)
 import Paths_unused (getDataFileName)
 import Unused.ResultsClassifier.Types (LanguageConfiguration, ParseConfigError(..))
-import Unused.Util (readIfFileExists)
+import Unused.Util (safeReadFile)
 
 loadConfig :: IO (Either String [LanguageConfiguration])
 loadConfig = do
@@ -39,10 +39,10 @@ loadAllConfigurations = do
 
 loadConfigFromFile :: String -> IO (Either ParseConfigError [LanguageConfiguration])
 loadConfigFromFile path = do
-    file <- fmap C.pack <$> readIfFileExists path
+    file <- fmap C.pack <$> safeReadFile path
     return $ case file of
-        Nothing -> Right []
-        Just body -> addSourceToLeft path $ Y.decodeEither body
+        Left _ -> Right []
+        Right body -> addSourceToLeft path $ Y.decodeEither body
 
 addSourceToLeft :: String -> Either String c -> Either ParseConfigError c
 addSourceToLeft source = B.first (ParseConfigError source)
