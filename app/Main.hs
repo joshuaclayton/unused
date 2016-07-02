@@ -16,9 +16,9 @@ parseCLI =
     execParser (withInfo parseOptions pHeader pDescription pFooter)
   where
     pHeader      = "Unused: Analyze potentially unused code"
-    pDescription = "Unused allows a developer to leverage an existing tags file\
-                  \ (located at .git/tags, tags, or tmp/tags) to identify tokens\
-                  \ in a codebase that are unused."
+    pDescription = "Unused allows a developer to leverage an existing tags file \
+                   \(located at .git/tags, tags, or tmp/tags) to identify tokens \
+                   \in a codebase that are unused."
     pFooter      = "CLI USAGE: $ unused"
 
 withInfo :: Parser a -> String -> String -> String -> ParserInfo a
