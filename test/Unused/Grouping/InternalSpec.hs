@@ -4,9 +4,9 @@ module Unused.Grouping.InternalSpec
     ) where
 
 import Test.Hspec
-import Unused.Types
 import Unused.Grouping.Internal
 import Unused.Grouping.Types
+import Unused.Types
 
 main :: IO ()
 main = hspec spec

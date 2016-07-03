@@ -3,16 +3,16 @@ module Unused.CLI.Views.SearchResult
     , searchResults
     ) where
 
-import Control.Arrow ((&&&))
+import           Control.Arrow ((&&&))
 import qualified Data.Map.Strict as Map
-import Unused.Types
-import Unused.Grouping (Grouping(..), GroupedTerms)
-import Unused.CLI.Views.SearchResult.ColumnFormatter
-import Unused.CLI.Util
-import Unused.CLI.Views.SearchResult.Types
+import           Unused.CLI.Util
 import qualified Unused.CLI.Views.NoResultsFound as V
+import           Unused.CLI.Views.SearchResult.ColumnFormatter
 import qualified Unused.CLI.Views.SearchResult.ListResult as V
 import qualified Unused.CLI.Views.SearchResult.TableResult as V
+import           Unused.CLI.Views.SearchResult.Types
+import           Unused.Grouping (Grouping(..), GroupedTerms)
+import           Unused.Types (TermMatchSet, TermResults(..), TermMatch)
 
 searchResults :: ResultsFormat -> [GroupedTerms] -> IO ()
 searchResults format terms = do

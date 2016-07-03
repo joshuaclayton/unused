@@ -2,16 +2,17 @@ module Unused.CLI.Views.SearchResult.ListResult
     ( printList
     ) where
 
-import Control.Monad (forM_, void, when)
-import Data.List (intercalate, (\\))
-import Unused.CLI.Util
-import Unused.Types
-import Unused.CLI.Views.SearchResult.Internal
-import Unused.CLI.Views.SearchResult.Types
+import qualified Control.Monad as M
+import           Data.List ((\\))
+import qualified Data.List as L
+import           Unused.CLI.Util
+import qualified Unused.CLI.Views.SearchResult.Internal as SR
+import qualified Unused.CLI.Views.SearchResult.Types as SR
+import           Unused.Types (TermResults(..), GitContext(..), GitCommit(..), TermMatch(..), totalFileCount, totalOccurrenceCount)
 
-printList :: TermResults -> [TermMatch] -> ResultsPrinter ()
-printList r ms = liftIO $
-    forM_ ms $ \m -> do
+printList :: TermResults -> [TermMatch] -> SR.ResultsPrinter ()
+printList r ms = SR.liftIO $
+    M.forM_ ms $ \m -> do
         printTermAndOccurrences r
         printAliases r
         printFilePath m
@@ -21,7 +22,7 @@ printList r ms = liftIO $
 
 printTermAndOccurrences :: TermResults -> IO ()
 printTermAndOccurrences r = do
-    setSGR [SetColor Foreground Dull (termColor r)]
+    setSGR [SetColor Foreground Dull (SR.termColor r)]
     setSGR [SetConsoleIntensity BoldIntensity]
     putStr "  "
     setSGR [SetUnderlining SingleUnderline]
@@ -39,9 +40,9 @@ printTermAndOccurrences r = do
     putStr "\n"
 
 printAliases :: TermResults -> IO ()
-printAliases r = when anyAliases $ do
+printAliases r = M.when anyAliases $ do
     printHeader "    Aliases: "
-    putStrLn $ intercalate ", " remainingAliases
+    putStrLn $ L.intercalate ", " remainingAliases
   where
     anyAliases = not $ null remainingAliases
     remainingAliases = trTerms r \\ [trTerm r]
@@ -56,17 +57,17 @@ printFilePath m = do
 printSHAs :: TermResults -> IO ()
 printSHAs r =
     case mshas of
-        Nothing -> void $ putStr ""
+        Nothing -> M.void $ putStr ""
         Just shas' -> do
             printHeader "    Recent SHAs: "
-            putStrLn $ intercalate ", " shas'
+            putStrLn $ L.intercalate ", " shas'
   where
     mshas = (map gcSha . gcCommits) <$> trGitContext r
 
 printRemovalReason :: TermResults -> IO ()
 printRemovalReason r = do
     printHeader "    Reason: "
-    putStrLn $ removalReason r
+    putStrLn $ SR.removalReason r
 
 printHeader :: String -> IO ()
 printHeader v = do

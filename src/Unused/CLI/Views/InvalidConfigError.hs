@@ -2,13 +2,13 @@ module Unused.CLI.Views.InvalidConfigError
     ( invalidConfigError
     ) where
 
-import Unused.CLI.Util
-import Unused.CLI.Views.Error
-import Unused.ResultsClassifier (ParseConfigError(..))
+import           Unused.CLI.Util
+import qualified Unused.CLI.Views.Error as V
+import           Unused.ResultsClassifier (ParseConfigError(..))
 
 invalidConfigError :: [ParseConfigError] -> IO ()
 invalidConfigError es = do
-    errorHeader "There was a problem with the following config file(s):"
+    V.errorHeader "There was a problem with the following config file(s):"
 
     mapM_ configError es
 

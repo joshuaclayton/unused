@@ -1,30 +1,30 @@
 module Unused.CLI.ProgressIndicator
-    ( ProgressIndicator
+    ( I.ProgressIndicator
     , createProgressBar
     , createSpinner
     , progressWithIndicator
     ) where
 
-import Control.Concurrent.ParallelIO
-import Unused.CLI.Util
-import Unused.CLI.ProgressIndicator.Types
-import Unused.CLI.ProgressIndicator.Internal
+import qualified Control.Concurrent.ParallelIO as PIO
+import qualified Unused.CLI.ProgressIndicator.Internal as I
+import qualified Unused.CLI.ProgressIndicator.Types as I
+import           Unused.CLI.Util (Color(..), installChildInterruptHandler)
 
-createProgressBar :: ProgressIndicator
-createProgressBar = ProgressBar Nothing Nothing
+createProgressBar :: I.ProgressIndicator
+createProgressBar = I.ProgressBar Nothing Nothing
 
-createSpinner :: ProgressIndicator
+createSpinner :: I.ProgressIndicator
 createSpinner =
-    Spinner snapshots (length snapshots) 75000 colors Nothing
+    I.Spinner snapshots (length snapshots) 75000 colors Nothing
   where
     snapshots = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
     colors = cycle [Black, Red, Yellow, Green, Blue, Cyan, Magenta]
 
-progressWithIndicator :: Monoid b => (a -> IO b) -> ProgressIndicator -> [a] -> IO b
+progressWithIndicator :: Monoid b => (a -> IO b) -> I.ProgressIndicator -> [a] -> IO b
 progressWithIndicator f i terms = do
-    printPrefix i
-    (tid, indicator) <- start i $ length terms
+    I.printPrefix i
+    (tid, indicator) <- I.start i $ length terms
     installChildInterruptHandler tid
-    mconcat <$> parallel (ioOps indicator) <* stop indicator
+    mconcat <$> PIO.parallel (ioOps indicator) <* I.stop indicator
   where
-    ioOps i' = map (\t -> f t <* increment i') terms
+    ioOps i' = map (\t -> f t <* I.increment i') terms

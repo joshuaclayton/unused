@@ -3,11 +3,11 @@ module Unused.ResponseFilterSpec
     , spec
     ) where
 
-import Test.Hspec
 import Data.List (find)
-import Unused.Types (TermMatch(..), TermResults, resultsFromMatches)
+import Test.Hspec
 import Unused.ResponseFilter
 import Unused.ResultsClassifier
+import Unused.Types (TermMatch(..), TermResults, resultsFromMatches)
 
 main :: IO ()
 main = hspec spec

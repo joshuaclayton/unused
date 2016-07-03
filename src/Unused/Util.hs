@@ -8,13 +8,13 @@ module Unused.Util
     , safeReadFile
     ) where
 
-import Control.Arrow ((&&&))
+import           Control.Arrow ((&&&))
 import qualified Control.Exception as E
+import qualified Data.ByteString.Char8 as C8
+import qualified Data.ByteString.Lazy.Char8 as Cl8
+import qualified Data.Char as C
+import           Data.Function (on)
 import qualified Data.List as L
-import Data.Function
-import Data.Char (digitToInt, isDigit)
-import qualified Data.ByteString.Lazy.Char8 as Cl
-import qualified Data.ByteString.Char8 as C
 
 groupBy :: (Ord b) => (a -> b) -> [a] -> [(b, [a])]
 groupBy f = map (f . head &&& id)
@@ -27,10 +27,10 @@ safeHead _ = Nothing
 
 stringToInt :: String -> Maybe Int
 stringToInt xs
-    | all isDigit xs = Just $ loop 0 xs
+    | all C.isDigit xs = Just $ loop 0 xs
     | otherwise = Nothing
   where
-    loop = foldl (\acc x -> acc * 10 + digitToInt x)
+    loop = foldl (\acc x -> acc * 10 + C.digitToInt x)
 
 class Readable a where
     readFile' :: FilePath -> IO a
@@ -38,11 +38,11 @@ class Readable a where
 instance Readable String where
     readFile' = readFile
 
-instance Readable C.ByteString where
-    readFile' = C.readFile
+instance Readable C8.ByteString where
+    readFile' = C8.readFile
 
-instance Readable Cl.ByteString where
-    readFile' = Cl.readFile
+instance Readable Cl8.ByteString where
+    readFile' = Cl8.readFile
 
 safeReadFile :: Readable s => FilePath -> IO (Either E.IOException s)
 safeReadFile = E.try . readFile'

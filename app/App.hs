@@ -7,22 +7,22 @@ module App
     , runProgram
     ) where
 
-import qualified Data.Bifunctor as B
-import Control.Monad.Reader
-import Control.Monad.Except
-import Data.Maybe (isJust)
-import Data.Bool (bool)
-import Unused.Grouping (CurrentGrouping(..), groupedResponses)
-import Unused.Types (TermMatchSet, RemovalLikelihood(..))
-import Unused.TermSearch (SearchResults(..), fromResults)
-import Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
-import Unused.Cache
-import Unused.TagsSource
-import Unused.ResultsClassifier
-import Unused.Aliases (termsAndAliases)
-import Unused.Parser (parseResults)
-import Unused.CLI (SearchRunner(..), loadGitContext, renderHeader, executeSearch, withRuntime)
+import           Control.Monad.Except (ExceptT, MonadError, runExceptT, throwError)
+import           Control.Monad.Reader (ReaderT, MonadReader, MonadIO, runReaderT, asks, liftIO)
+import qualified Data.Bifunctor as BF
+import qualified Data.Bool as B
+import qualified Data.Maybe as M
+import           Unused.Aliases (termsAndAliases)
+import           Unused.CLI (SearchRunner(..), loadGitContext, renderHeader, executeSearch, withRuntime)
 import qualified Unused.CLI.Views as V
+import           Unused.Cache (FingerprintOutcome(..), cached)
+import           Unused.Grouping (CurrentGrouping(..), groupedResponses)
+import           Unused.Parser (parseResults)
+import           Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
+import           Unused.ResultsClassifier (ParseConfigError, LanguageConfiguration(..), loadAllConfigurations)
+import           Unused.TagsSource (TagSearchOutcome, loadTagsFromFile, loadTagsFromPipe)
+import           Unused.TermSearch (SearchResults(..), fromResults)
+import           Unused.Types (TermMatchSet, RemovalLikelihood(..))
 
 type AppConfig = MonadReader Options
 
@@ -88,18 +88,18 @@ printResults tms = do
 loadAllConfigs :: App [LanguageConfiguration]
 loadAllConfigs =
     either throwError return
-        =<< B.first InvalidConfigError <$> liftIO loadAllConfigurations
+        =<< BF.first InvalidConfigError <$> liftIO loadAllConfigurations
 
 calculateTagInput :: App [String]
 calculateTagInput =
     either throwError return
         =<< liftIO .
-            fmap (B.first TagError) .
-            bool loadTagsFromFile loadTagsFromPipe =<< readFromStdIn
+            fmap (BF.first TagError) .
+            B.bool loadTagsFromFile loadTagsFromPipe =<< readFromStdIn
 
 withCache :: IO SearchResults -> App SearchResults
 withCache f =
-    bool (liftIO f) (withCache' f) =<< runWithCache
+    B.bool (liftIO f) (withCache' f) =<< runWithCache
   where
     withCache' :: IO SearchResults -> App SearchResults
     withCache' r =
@@ -118,7 +118,7 @@ optionFilters tms = foldl (>>=) (pure tms) matchSetFilters
 
 singleOccurrenceFilter :: AppConfig m => TermMatchSet -> m TermMatchSet
 singleOccurrenceFilter tms =
-    bool tms (withOneOccurrence tms) <$> asks oSingleOccurrenceMatches
+    B.bool tms (withOneOccurrence tms) <$> asks oSingleOccurrenceMatches
 
 likelihoodsFilter :: AppConfig m => TermMatchSet -> m TermMatchSet
 likelihoodsFilter tms =
@@ -148,4 +148,4 @@ numberOfCommits :: AppConfig m => m (Maybe Int)
 numberOfCommits = asks oCommitCount
 
 resultFormatter :: AppConfig m => m V.ResultsFormat
-resultFormatter = bool V.Column V.List . isJust <$> numberOfCommits
+resultFormatter = B.bool V.Column V.List . M.isJust <$> numberOfCommits

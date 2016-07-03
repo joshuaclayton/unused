@@ -5,11 +5,11 @@ module Unused.TermSearch.Internal
     , parseSearchResult
     ) where
 
-import Data.Maybe (fromMaybe)
-import qualified Data.Text as T
 import qualified Data.Char as C
-import Unused.Types (TermMatch(..))
-import Unused.Util (stringToInt)
+import qualified Data.Maybe as M
+import qualified Data.Text as T
+import           Unused.Types (TermMatch(..))
+import           Unused.Util (stringToInt)
 
 commandLineOptions :: String -> [String]
 commandLineOptions t =
@@ -20,15 +20,12 @@ commandLineOptions t =
     baseFlags = ["-c", "--ackmate", "--ignore-dir", "tmp/unused"]
 
 parseSearchResult :: String -> String -> Maybe TermMatch
-parseSearchResult term s =
-    toTermMatch $ map T.unpack $ T.splitOn ":" $ T.pack s
+parseSearchResult term =
+    toTermMatch . map T.unpack . T.splitOn ":" . T.pack
   where
     toTermMatch [_, path, count] = Just $ TermMatch term path (countInt count)
     toTermMatch _ = Nothing
-    countInt = fromMaybe 0 . stringToInt
+    countInt = M.fromMaybe 0 . stringToInt
 
 regexSafeTerm :: String -> Bool
-regexSafeTerm =
-    all regexSafeChar
-  where
-    regexSafeChar c = C.isAlphaNum c || c == '_' || c == '-'
+regexSafeTerm = all (\c -> C.isAlphaNum c || c == '_' || c == '-')

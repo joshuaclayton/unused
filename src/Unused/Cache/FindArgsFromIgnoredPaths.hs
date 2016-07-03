@@ -2,9 +2,9 @@ module Unused.Cache.FindArgsFromIgnoredPaths
     ( findArgs
     ) where
 
-import Data.Char (isAlphaNum)
-import Data.List (isSuffixOf)
-import System.FilePath
+import qualified Data.Char as C
+import qualified Data.List as L
+import qualified System.FilePath as FP
 
 findArgs :: [String] -> [String]
 findArgs = concatMap ignoreToFindArgs . validIgnoreOptions
@@ -28,14 +28,14 @@ ignoreToFindArgs = toExclusions . wildcardPrefix
 wildcardSuffix :: String -> String
 wildcardSuffix s
     | isWildcardFilename s = s
-    | "/" `isSuffixOf` s = s ++ "*"
+    | "/" `L.isSuffixOf` s = s ++ "*"
     | otherwise = s ++ "/*"
 
 isWildcardFilename :: String -> Bool
-isWildcardFilename = elem '*' . takeFileName
+isWildcardFilename = elem '*' . FP.takeFileName
 
 isMissingFilename :: String -> Bool
-isMissingFilename s = takeFileName s == ""
+isMissingFilename = null . FP.takeFileName
 
 validIgnoreOptions :: [String] -> [String]
 validIgnoreOptions =
@@ -44,4 +44,4 @@ validIgnoreOptions =
     isPath "" = False
     isPath ('/':_) = True
     isPath ('.':_) = True
-    isPath s = isAlphaNum $ head s
+    isPath s = C.isAlphaNum $ head s

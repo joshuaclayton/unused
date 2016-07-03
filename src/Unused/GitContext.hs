@@ -4,10 +4,10 @@ module Unused.GitContext
     ( gitContextForResults
     ) where
 
-import qualified Data.Text as T
 import qualified Data.List as L
-import System.Process
-import Unused.Types (TermResults(trGitContext), GitContext(..), GitCommit(..), RemovalLikelihood(High), removalLikelihood, resultAliases)
+import qualified Data.Text as T
+import qualified System.Process as P
+import           Unused.Types (TermResults(trGitContext), GitContext(..), GitCommit(..), RemovalLikelihood(High), removalLikelihood, resultAliases)
 
 newtype GitOutput = GitOutput { unOutput :: String }
 
@@ -31,5 +31,5 @@ logToGitContext =
 
 gitLogSearchFor :: Int -> [String] -> IO GitOutput
 gitLogSearchFor commitCount ts = do
-  (_, results, _) <- readProcessWithExitCode "git" ["log", "-G", L.intercalate "|" ts, "--oneline", "-n", show commitCount] ""
+  (_, results, _) <- P.readProcessWithExitCode "git" ["log", "-G", L.intercalate "|" ts, "--oneline", "-n", show commitCount] ""
   return $ GitOutput results

@@ -1,11 +1,11 @@
 module Unused.ParserSpec where
 
-import Test.Hspec
-import Unused.Types
-import Unused.Parser
-import Unused.TermSearch
-import Unused.ResultsClassifier
 import qualified Data.Map.Strict as Map
+import           Test.Hspec
+import           Unused.Parser
+import           Unused.ResultsClassifier
+import           Unused.TermSearch
+import           Unused.Types
 
 main :: IO ()
 main = hspec spec

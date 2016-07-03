@@ -17,17 +17,17 @@ module Unused.Types
     , resultAliases
     ) where
 
-import qualified Data.Map.Strict as Map
-import Data.Csv
+import           Data.Csv (FromRecord, ToRecord)
 import qualified Data.List as L
-import GHC.Generics
-import Unused.Regex
+import qualified Data.Map.Strict as Map
+import qualified GHC.Generics as G
+import qualified Unused.Regex as R
 
 data TermMatch = TermMatch
     { tmTerm :: String
     , tmPath :: String
     , tmOccurrences :: Int
-    } deriving (Eq, Show, Generic)
+    } deriving (Eq, Show, G.Generic)
 
 instance FromRecord TermMatch
 instance ToRecord TermMatch
@@ -118,13 +118,13 @@ testOccurrences ms =
     totalOccurrences = sum $ map tmOccurrences testMatches
 
 testDir :: String -> Bool
-testDir = matchRegex "(spec|tests?|features)\\/"
+testDir = R.matchRegex "(spec|tests?|features)\\/"
 
 testSnakeCaseFilename :: String -> Bool
-testSnakeCaseFilename = matchRegex ".*(_spec|_test)\\."
+testSnakeCaseFilename = R.matchRegex ".*(_spec|_test)\\."
 
 testCamelCaseFilename :: String -> Bool
-testCamelCaseFilename = matchRegex ".*(Spec|Test)\\."
+testCamelCaseFilename = R.matchRegex ".*(Spec|Test)\\."
 
 termMatchIsTest :: TermMatch -> Bool
 termMatchIsTest m =

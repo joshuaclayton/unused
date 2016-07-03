@@ -5,19 +5,19 @@ module Unused.CLI.Util
     , module System.Console.ANSI
     ) where
 
-import Control.Concurrent.ParallelIO
-import Control.Monad (void)
-import System.Console.ANSI
-import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
-import Control.Exception (throwTo)
-import System.Posix.Signals (Handler(Catch), installHandler, keyboardSignal)
-import Control.Concurrent (ThreadId, myThreadId, killThread)
-import System.Exit (ExitCode(ExitFailure))
+import qualified Control.Concurrent as CC
+import qualified Control.Concurrent.ParallelIO as PIO
+import qualified Control.Exception as E
+import qualified Control.Monad as M
+import           System.Console.ANSI
+import qualified System.Exit as Ex
+import           System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
+import qualified System.Posix.Signals as S
 
 withRuntime :: IO a -> IO a
 withRuntime a = do
     hSetBuffering stdout NoBuffering
-    withInterruptHandler $ withoutCursor a <* stopGlobalPool
+    withInterruptHandler $ withoutCursor a <* PIO.stopGlobalPool
 
 resetScreen :: IO ()
 resetScreen = do
@@ -31,30 +31,30 @@ withoutCursor body = do
 
 withInterruptHandler :: IO a -> IO a
 withInterruptHandler body = do
-    tid <- myThreadId
-    void $ installHandler keyboardSignal (Catch (handleInterrupt tid)) Nothing
+    tid <- CC.myThreadId
+    M.void $ S.installHandler S.keyboardSignal (S.Catch (handleInterrupt tid)) Nothing
     body
 
-installChildInterruptHandler :: ThreadId -> IO ()
+installChildInterruptHandler :: CC.ThreadId -> IO ()
 installChildInterruptHandler tid = do
-    currentThread <- myThreadId
-    void $ installHandler keyboardSignal (Catch (handleChildInterrupt currentThread tid)) Nothing
+    currentThread <- CC.myThreadId
+    M.void $ S.installHandler S.keyboardSignal (S.Catch (handleChildInterrupt currentThread tid)) Nothing
 
-handleInterrupt :: ThreadId -> IO ()
+handleInterrupt :: CC.ThreadId -> IO ()
 handleInterrupt tid = do
     resetScreenState
-    throwTo tid $ ExitFailure interruptExitCode
+    E.throwTo tid $ Ex.ExitFailure interruptExitCode
 
-handleChildInterrupt :: ThreadId -> ThreadId -> IO ()
+handleChildInterrupt :: CC.ThreadId -> CC.ThreadId -> IO ()
 handleChildInterrupt parentTid childTid = do
-    killThread childTid
+    CC.killThread childTid
     resetScreenState
-    throwTo parentTid $ ExitFailure interruptExitCode
+    E.throwTo parentTid $ Ex.ExitFailure interruptExitCode
     handleInterrupt parentTid
 
 interruptExitCode :: Int
 interruptExitCode =
-    signalToInt $ 128 + keyboardSignal
+    signalToInt $ 128 + S.keyboardSignal
   where
     signalToInt s = read $ show s :: Int
 

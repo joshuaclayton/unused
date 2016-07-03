@@ -8,11 +8,11 @@ module Unused.ResponseFilter
     , updateMatches
     ) where
 
-import qualified Data.Map.Strict as Map
-import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
 import qualified Data.Char as C
-import Unused.Types
-import Unused.ResultsClassifier
+import qualified Data.List as L
+import qualified Data.Map.Strict as Map
+import           Unused.ResultsClassifier (Position(..), Matcher(..), LanguageConfiguration(..), LowLikelihoodMatch(..))
+import           Unused.Types (TermResults(..), TermMatchSet, TermMatch(..), RemovalLikelihood, Removal(..), totalOccurrenceCount, appOccurrenceCount)
 
 withOneOccurrence :: TermMatchSet -> TermMatchSet
 withOneOccurrence = Map.filterWithKey (const oneOccurence)
@@ -29,7 +29,7 @@ ignoringPaths xs =
     updateMatches newMatches
   where
     newMatches = filter (not . matchesPath . tmPath)
-    matchesPath p = any (`isInfixOf` p) xs
+    matchesPath p = any (`L.isInfixOf` p) xs
 
 includesLikelihood :: [RemovalLikelihood] -> TermResults -> Bool
 includesLikelihood l = (`elem` l) . rLikelihood . trRemoval
@@ -65,12 +65,12 @@ matcherToBool (AppOccurrences i) = (== i) . appOccurrenceCount
 matcherToBool (AllowedTerms ts) = (`isAllowedTerm` ts)
 
 positionToTest :: Position -> (String -> String -> Bool)
-positionToTest StartsWith = isPrefixOf
-positionToTest EndsWith = isSuffixOf
+positionToTest StartsWith = L.isPrefixOf
+positionToTest EndsWith = L.isSuffixOf
 positionToTest Equals = (==)
 
 paths :: TermResults -> [String]
-paths r = tmPath <$> trMatches r
+paths = fmap tmPath . trMatches
 
 updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
 updateMatches fm =

@@ -1,12 +1,12 @@
 module Main where
 
-import App
-import Options.Applicative
-import Data.Maybe (fromMaybe)
-import Unused.Grouping (CurrentGrouping(..))
-import Unused.Types (RemovalLikelihood(..))
-import Unused.CLI (SearchRunner(..))
-import Unused.Util (stringToInt)
+import           App (runProgram, Options(Options))
+import qualified Data.Maybe as M
+import           Options.Applicative
+import           Unused.CLI (SearchRunner(..))
+import           Unused.Grouping (CurrentGrouping(..))
+import           Unused.Types (RemovalLikelihood(..))
+import           Unused.Util (stringToInt)
 
 main :: IO ()
 main = runProgram =<< parseCLI
@@ -80,7 +80,7 @@ parseIgnorePaths = many $ strOption $
 
 parseGroupings :: Parser CurrentGrouping
 parseGroupings =
-    fromMaybe GroupByDirectory <$> maybeGroup
+    M.fromMaybe GroupByDirectory <$> maybeGroup
   where
     maybeGroup = optional $ parseGrouping <$> parseGroupingOption
 

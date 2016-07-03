@@ -4,9 +4,9 @@ module Unused.LikelihoodCalculatorSpec
     ) where
 
 import Test.Hspec
-import Unused.Types
 import Unused.LikelihoodCalculator
 import Unused.ResultsClassifier
+import Unused.Types
 
 main :: IO ()
 main = hspec spec

@@ -3,16 +3,17 @@ module Unused.Cache.DirectoryFingerprint
     , sha
     ) where
 
-import System.Process
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Reader
-import qualified System.Directory as D
+import           Control.Monad.Reader (ReaderT, runReaderT, asks, liftIO)
 import qualified Data.Char as C
-import Data.Maybe (fromMaybe)
-import Unused.Cache.FindArgsFromIgnoredPaths
-import Unused.Util (safeHead, safeReadFile)
+import qualified Data.Maybe as M
+import qualified System.Directory as D
+import qualified System.Process as P
+import           Unused.Cache.FindArgsFromIgnoredPaths (findArgs)
+import           Unused.Util (safeHead, safeReadFile)
 
-type MD5Config = ReaderT String IO
+newtype MD5ExecutablePath = MD5ExecutablePath { toMD5String :: String }
+
+type MD5Config = ReaderT MD5ExecutablePath IO
 
 data FingerprintOutcome
     = MD5ExecutableNotFound [String]
@@ -22,25 +23,25 @@ sha = do
     md5Executable' <- md5Executable
     case md5Executable' of
         Just exec ->
-            Right . getSha <$> runReaderT (fileList >>= sortInput >>= md5Result) exec
+            Right . getSha <$> runReaderT (fileList >>= sortInput >>= md5Result) (MD5ExecutablePath exec)
         Nothing -> return $ Left $ MD5ExecutableNotFound supportedMD5Executables
   where
-    getSha = takeWhile C.isAlphaNum . fromMaybe "" . safeHead . lines
+    getSha = takeWhile C.isAlphaNum . M.fromMaybe "" . safeHead . lines
 
 fileList :: MD5Config String
 fileList = do
     filterNamePathArgs <- liftIO $ findArgs <$> ignoredPaths
-    md5exec <- ask
+    md5exec <- asks toMD5String
     let args = [".", "-type", "f", "-not", "-path", "*/.git/*"] ++ filterNamePathArgs ++ ["-exec", md5exec, "{}", "+"]
-    liftIO $ readProcess "find" args ""
+    liftIO $ P.readProcess "find" args ""
 
 sortInput :: String -> MD5Config String
-sortInput = liftIO . readProcess "sort" ["-k", "2"]
+sortInput = liftIO . P.readProcess "sort" ["-k", "2"]
 
 md5Result :: String -> MD5Config String
 md5Result r = do
-    md5exec <- ask
-    liftIO $ readProcess md5exec [] r
+    md5exec <- asks toMD5String
+    liftIO $ P.readProcess md5exec [] r
 
 ignoredPaths :: IO [String]
 ignoredPaths = either (const []) id <$> (fmap lines <$> safeReadFile ".gitignore")

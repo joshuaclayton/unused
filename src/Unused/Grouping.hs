@@ -5,12 +5,12 @@ module Unused.Grouping
     , groupedResponses
     ) where
 
+import qualified Data.List as L
 import qualified Data.Map.Strict as Map
-import Data.List (sort, nub)
-import Unused.Types
-import Unused.ResponseFilter (updateMatches)
-import Unused.Grouping.Types
-import Unused.Grouping.Internal
+import           Unused.Grouping.Internal (groupFilter)
+import           Unused.Grouping.Types (Grouping(..), CurrentGrouping(..), GroupFilter, GroupedTerms)
+import           Unused.ResponseFilter (updateMatches)
+import           Unused.Types (TermMatchSet, TermResults(trMatches))
 
 groupedResponses :: CurrentGrouping -> TermMatchSet -> [GroupedTerms]
 groupedResponses g tms =
@@ -21,12 +21,10 @@ groupedResponses g tms =
 
 groupedMatchSetSubsets :: GroupFilter -> Grouping -> TermMatchSet -> TermMatchSet
 groupedMatchSetSubsets f tms =
-    updateMatches newMatches
-  where
-    newMatches = filter ((== tms) . f)
+    updateMatches $ filter ((== tms) . f)
 
 allGroupings :: GroupFilter -> TermMatchSet -> [Grouping]
 allGroupings f =
     uniqueValues . Map.map (fmap f . trMatches)
   where
-    uniqueValues = sort . nub . concat . Map.elems
+    uniqueValues = L.sort . L.nub . concat . Map.elems

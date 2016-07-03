@@ -2,12 +2,8 @@
 
 module Unused.TermSearch.Types
     ( SearchResults(..)
-    , fromResults
     ) where
 
 import Unused.Types (TermMatch)
 
-newtype SearchResults = SearchResults [TermMatch] deriving (Monoid)
-
-fromResults :: SearchResults -> [TermMatch]
-fromResults (SearchResults a) = a
+newtype SearchResults = SearchResults { fromResults :: [TermMatch] } deriving (Monoid)

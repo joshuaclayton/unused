@@ -2,19 +2,19 @@ module Unused.CLI.ProgressIndicator.Types
     ( ProgressIndicator(..)
     ) where
 
-import Control.Concurrent (ThreadId)
-import System.ProgressBar (ProgressRef)
-import System.Console.ANSI (Color)
+import qualified Control.Concurrent as CC
+import qualified System.Console.ANSI as ANSI
+import qualified System.ProgressBar as PB
 
 data ProgressIndicator
     = Spinner
         { sSnapshots :: [String]
         , sLength :: Int
         , sDelay :: Int
-        , sColors :: [Color]
-        , sThreadId :: Maybe ThreadId
+        , sColors :: [ANSI.Color]
+        , sThreadId :: Maybe CC.ThreadId
         }
     | ProgressBar
-        { pbProgressRef :: Maybe ProgressRef
-        , pbThreadId :: Maybe ThreadId
+        { pbProgressRef :: Maybe PB.ProgressRef
+        , pbThreadId :: Maybe CC.ThreadId
         }

@@ -6,12 +6,11 @@ module Unused.CLI.Views.SearchResult.Types
     , columnFormat
     , outputFormat
     , R.runReaderT
-    , M.liftIO
+    , R.liftIO
     ) where
 
-import qualified Control.Monad.Trans.Reader as R
-import qualified Control.Monad.IO.Class as M
-import Unused.CLI.Views.SearchResult.ColumnFormatter
+import qualified Control.Monad.Reader as R
+import           Unused.CLI.Views.SearchResult.ColumnFormatter
 
 data ResultsOptions = ResultsOptions
     { roColumnFormat :: ColumnFormat

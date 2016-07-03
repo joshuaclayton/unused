@@ -4,23 +4,23 @@ module Unused.CLI.Search
     , executeSearch
     ) where
 
-import Unused.TermSearch (SearchResults, search)
-import Unused.CLI.Util
+import qualified Unused.CLI.ProgressIndicator as I
+import qualified Unused.CLI.Util as U
 import qualified Unused.CLI.Views as V
-import Unused.CLI.ProgressIndicator
+import qualified Unused.TermSearch as TS
 
 data SearchRunner = SearchWithProgress | SearchWithoutProgress
 
 renderHeader :: [String] -> IO ()
 renderHeader terms = do
-    resetScreen
+    U.resetScreen
     V.analysisHeader terms
 
-executeSearch :: SearchRunner -> [String] -> IO SearchResults
+executeSearch :: SearchRunner -> [String] -> IO TS.SearchResults
 executeSearch runner terms = do
     renderHeader terms
-    runSearch runner terms <* resetScreen
+    runSearch runner terms <* U.resetScreen
 
-runSearch :: SearchRunner -> [String] -> IO SearchResults
-runSearch SearchWithProgress    = progressWithIndicator search createProgressBar
-runSearch SearchWithoutProgress = progressWithIndicator search createSpinner
+runSearch :: SearchRunner -> [String] -> IO TS.SearchResults
+runSearch SearchWithProgress    = I.progressWithIndicator TS.search I.createProgressBar
+runSearch SearchWithoutProgress = I.progressWithIndicator TS.search I.createSpinner

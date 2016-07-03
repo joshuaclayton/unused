@@ -2,13 +2,13 @@ module Unused.CLI.Views.MissingTagsFileError
     ( missingTagsFileError
     ) where
 
-import Unused.TagsSource
-import Unused.CLI.Util
-import Unused.CLI.Views.Error
+import           Unused.CLI.Util
+import qualified Unused.CLI.Views.Error as V
+import           Unused.TagsSource (TagSearchOutcome(..))
 
 missingTagsFileError :: TagSearchOutcome -> IO ()
 missingTagsFileError e = do
-    errorHeader "There was a problem finding a tags file."
+    V.errorHeader "There was a problem finding a tags file."
     printOutcomeMessage e
 
     putStr "\n"
@@ -40,3 +40,6 @@ printOutcomeMessage :: TagSearchOutcome -> IO ()
 printOutcomeMessage (TagsFileNotFound directoriesSearched) = do
     putStrLn "Looked for a 'tags' file in the following directories:\n"
     mapM_ (\d -> putStrLn $ "* " ++ d) directoriesSearched
+printOutcomeMessage (IOError e) = do
+    putStrLn "Received error when loading tags file:\n"
+    putStrLn $ "    " ++ show e

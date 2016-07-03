@@ -3,18 +3,18 @@ module Unused.ResultsClassifier.Config
     , loadAllConfigurations
     ) where
 
-import qualified Data.Yaml as Y
+import qualified Data.Bifunctor as BF
 import qualified Data.Either as E
-import qualified Data.Bifunctor as B
-import System.FilePath ((</>))
-import System.Directory (getHomeDirectory)
-import Paths_unused (getDataFileName)
-import Unused.ResultsClassifier.Types (LanguageConfiguration, ParseConfigError(..))
-import Unused.Util (safeReadFile)
+import qualified Data.Yaml as Y
+import qualified Paths_unused as Paths
+import qualified System.Directory as D
+import           System.FilePath ((</>))
+import           Unused.ResultsClassifier.Types (LanguageConfiguration, ParseConfigError(..))
+import           Unused.Util (safeReadFile)
 
 loadConfig :: IO (Either String [LanguageConfiguration])
 loadConfig = do
-    configFileName <- getDataFileName ("data" </> "config.yml")
+    configFileName <- Paths.getDataFileName ("data" </> "config.yml")
 
     either
         (const $ Left "default config not found")
@@ -23,7 +23,7 @@ loadConfig = do
 
 loadAllConfigurations :: IO (Either [ParseConfigError] [LanguageConfiguration])
 loadAllConfigurations = do
-    homeDir <- getHomeDirectory
+    homeDir <- D.getHomeDirectory
 
     defaultConfig <- addSourceToLeft "default config" <$> loadConfig
     localConfig <- loadConfigFromFile ".unused.yml"
@@ -31,16 +31,16 @@ loadAllConfigurations = do
 
     let (lefts, rights) = E.partitionEithers [defaultConfig, localConfig, userConfig]
 
-    if not (null lefts)
-        then return $ Left lefts
-        else return $ Right $ concat rights
+    return $ if not (null lefts)
+        then Left lefts
+        else Right $ concat rights
 
 loadConfigFromFile :: String -> IO (Either ParseConfigError [LanguageConfiguration])
-loadConfigFromFile path = do
-    file <- safeReadFile path
-    return $ case file of
-        Left _ -> Right []
-        Right body -> addSourceToLeft path $ Y.decodeEither body
+loadConfigFromFile path =
+    either
+        (const $ Right [])
+        (addSourceToLeft path . Y.decodeEither)
+        <$> safeReadFile path
 
 addSourceToLeft :: String -> Either String c -> Either ParseConfigError c
-addSourceToLeft source = B.first (ParseConfigError source)
+addSourceToLeft = BF.first . ParseConfigError

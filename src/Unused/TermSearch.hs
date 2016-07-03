@@ -1,20 +1,18 @@
 module Unused.TermSearch
     ( SearchResults(..)
-    , fromResults
     , search
     ) where
 
-import System.Process
-import Data.Maybe (mapMaybe)
-import Unused.TermSearch.Types
-import Unused.TermSearch.Internal
+import qualified Data.Maybe as M
+import qualified System.Process as P
+import           Unused.TermSearch.Internal (commandLineOptions, parseSearchResult)
+import           Unused.TermSearch.Types (SearchResults(..))
 
 search :: String -> IO SearchResults
-search t = do
-    results <- lines <$> ag t
-    return $ SearchResults $ mapMaybe (parseSearchResult t) results
+search t =
+    SearchResults . M.mapMaybe (parseSearchResult t) <$> (lines <$> ag t)
 
 ag :: String -> IO String
 ag t = do
-  (_, results, _) <- readProcessWithExitCode "ag" (commandLineOptions t) ""
+  (_, results, _) <- P.readProcessWithExitCode "ag" (commandLineOptions t) ""
   return results

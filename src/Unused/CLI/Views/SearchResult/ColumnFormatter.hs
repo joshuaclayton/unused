@@ -3,7 +3,7 @@ module Unused.CLI.Views.SearchResult.ColumnFormatter
     , buildColumnFormatter
     ) where
 
-import Text.Printf
+import Text.Printf (printf)
 import Unused.Types (TermResults(..), TermMatch(..), totalFileCount, totalOccurrenceCount)
 
 data ColumnFormat = ColumnFormat

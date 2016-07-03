@@ -2,21 +2,21 @@ module Unused.CLI.Views.SearchResult.TableResult
     ( printTable
     ) where
 
-import Control.Monad (forM_)
-import Unused.Types
-import Unused.CLI.Util
-import Unused.CLI.Views.SearchResult.Internal
-import Unused.CLI.Views.SearchResult.Types
+import qualified Control.Monad as M
+import           Unused.CLI.Util
+import qualified Unused.CLI.Views.SearchResult.Internal as SR
+import qualified Unused.CLI.Views.SearchResult.Types as SR
+import           Unused.Types (TermResults, TermMatch(..), totalFileCount, totalOccurrenceCount)
 
-printTable :: TermResults -> [TermMatch] -> ResultsPrinter ()
+printTable :: TermResults -> [TermMatch] -> SR.ResultsPrinter ()
 printTable r ms = do
-    cf <- columnFormat
-    let printTerm = cfPrintTerm cf
-    let printPath = cfPrintPath cf
-    let printNumber = cfPrintNumber cf
+    cf <- SR.columnFormat
+    let printTerm = SR.cfPrintTerm cf
+    let printPath = SR.cfPrintPath cf
+    let printNumber = SR.cfPrintNumber cf
 
-    liftIO $ forM_ ms $ \m -> do
-        setSGR [SetColor Foreground Dull (termColor r)]
+    SR.liftIO $ M.forM_ ms $ \m -> do
+        setSGR [SetColor Foreground Dull (SR.termColor r)]
         setSGR [SetConsoleIntensity NormalIntensity]
         putStr $ "     " ++ printTerm (tmTerm m)
         setSGR [Reset]
@@ -31,5 +31,5 @@ printTable r ms = do
         putStr $ "  " ++ printPath (tmPath m)
         setSGR [Reset]
 
-        putStr $ "  " ++ removalReason r
+        putStr $ "  " ++ SR.removalReason r
         putStr "\n"

@@ -10,13 +10,13 @@ module Unused.ResultsClassifier.Types
     , ParseConfigError(..)
     ) where
 
-import Control.Monad (mzero)
-import qualified Data.Text as T
-import qualified Data.Yaml as Y
+import qualified Control.Applicative as A
+import qualified Control.Monad as M
+import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
-import Data.HashMap.Strict (keys)
-import Control.Applicative (Alternative, empty)
-import Data.Yaml (FromJSON(..), (.:), (.:?), (.!=))
+import qualified Data.Text as T
+import           Data.Yaml (FromJSON(..), (.:), (.:?), (.!=))
+import qualified Data.Yaml as Y
 
 data LanguageConfiguration = LanguageConfiguration
     { lcName :: String
@@ -50,20 +50,20 @@ instance FromJSON LanguageConfiguration where
         <*> o .:? "allowedTerms" .!= []
         <*> o .:? "autoLowLikelihood" .!= []
         <*> o .:? "aliases" .!= []
-    parseJSON _ = mzero
+    parseJSON _ = M.mzero
 
 instance FromJSON LowLikelihoodMatch where
     parseJSON (Y.Object o) = LowLikelihoodMatch
         <$> o .: "name"
         <*> parseMatchers o
         <*> o .:? "classOrModule" .!= False
-    parseJSON _ = mzero
+    parseJSON _ = M.mzero
 
 instance FromJSON TermAlias where
     parseJSON (Y.Object o) = TermAlias
         <$> o .: "from"
         <*> o .: "to"
-    parseJSON _ = mzero
+    parseJSON _ = M.mzero
 
 data MatchHandler a = MatchHandler
     { mhKeys :: [String]
@@ -112,7 +112,7 @@ validateLowLikelihoodKeys o ms =
         else fail $ "The following keys are unsupported: " ++ L.intercalate ", " (T.unpack <$> unsupportedKeys)
   where
     fullOverlap = null unsupportedKeys
-    unsupportedKeys = keys o L.\\ lowLikelihoodMatchKeys
+    unsupportedKeys = HM.keys o L.\\ lowLikelihoodMatchKeys
 
 parseMatchers :: Y.Object -> Y.Parser [Matcher]
 parseMatchers o =
@@ -130,13 +130,13 @@ buildMatcherList o mh =
     mKey = (.:?) o
 
 positionKeysforMatcher :: Y.Object -> [String] -> [T.Text]
-positionKeysforMatcher o ls = L.intersect (T.pack <$> ls) $ keys o
+positionKeysforMatcher o ls = L.intersect (T.pack <$> ls) $ HM.keys o
 
 extractMatcher :: Either T.Text (a -> Matcher) -> Y.Parser (Maybe a) -> Y.Parser Matcher
 extractMatcher e p = either displayFailure (convertFoundObjectToMatcher p) e
 
-convertFoundObjectToMatcher :: (Monad m, Alternative m) => m (Maybe a) -> (a -> b) -> m b
-convertFoundObjectToMatcher p f = maybe empty (pure . f) =<< p
+convertFoundObjectToMatcher :: (Monad m, A.Alternative m) => m (Maybe a) -> (a -> b) -> m b
+convertFoundObjectToMatcher p f = maybe A.empty (pure . f) =<< p
 
 displayFailure :: T.Text -> Y.Parser a
 displayFailure t = fail $ "Parse error: '" ++ T.unpack t ++ "' is not a valid key in a singleOnly matcher"

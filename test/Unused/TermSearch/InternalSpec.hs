@@ -4,8 +4,8 @@ module Unused.TermSearch.InternalSpec
     ) where
 
 import Test.Hspec
-import Unused.Types
 import Unused.TermSearch.Internal
+import Unused.Types
 
 main :: IO ()
 main = hspec spec
