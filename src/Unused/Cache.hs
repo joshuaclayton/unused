@@ -9,7 +9,6 @@ import Data.Csv (FromRecord, ToRecord, HasHeader(..), encode, decode)
 import Data.Vector (toList)
 import System.Directory (createDirectoryIfMissing)
 import qualified Data.ByteString.Lazy as BS
-import qualified Data.ByteString.Lazy.Char8 as C
 import Unused.Cache.DirectoryFingerprint
 import Unused.Util (safeReadFile)
 
@@ -36,7 +35,7 @@ readCache = do
 
     either
         (const Nothing)
-        (processCsv . decode NoHeader . C.pack)
+        (processCsv . decode NoHeader)
         <$> (liftIO $ safeReadFile fileName)
   where
     processCsv = either (const Nothing) (Just . toList)

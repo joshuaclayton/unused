@@ -4,7 +4,6 @@ module Unused.ResultsClassifier.Config
     ) where
 
 import qualified Data.Yaml as Y
-import qualified Data.ByteString.Char8 as C
 import qualified Data.Either as E
 import qualified Data.Bifunctor as B
 import System.FilePath ((</>))
@@ -19,7 +18,7 @@ loadConfig = do
 
     either
         (const $ Left "default config not found")
-        (Y.decodeEither . C.pack)
+        Y.decodeEither
         <$> safeReadFile configFileName
 
 loadAllConfigurations :: IO (Either [ParseConfigError] [LanguageConfiguration])
@@ -38,7 +37,7 @@ loadAllConfigurations = do
 
 loadConfigFromFile :: String -> IO (Either ParseConfigError [LanguageConfiguration])
 loadConfigFromFile path = do
-    file <- fmap C.pack <$> safeReadFile path
+    file <- safeReadFile path
     return $ case file of
         Left _ -> Right []
         Right body -> addSourceToLeft path $ Y.decodeEither body

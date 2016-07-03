@@ -1,3 +1,6 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+
 module Unused.Util
     ( groupBy
     , stringToInt
@@ -10,6 +13,8 @@ import qualified Control.Exception as E
 import qualified Data.List as L
 import Data.Function
 import Data.Char (digitToInt, isDigit)
+import qualified Data.ByteString.Lazy.Char8 as Cl
+import qualified Data.ByteString.Char8 as C
 
 groupBy :: (Ord b) => (a -> b) -> [a] -> [(b, [a])]
 groupBy f = map (f . head &&& id)
@@ -27,5 +32,17 @@ stringToInt xs
   where
     loop = foldl (\acc x -> acc * 10 + digitToInt x)
 
-safeReadFile :: FilePath -> IO (Either E.IOException String)
-safeReadFile = E.try . readFile
+class Readable a where
+    readFile' :: FilePath -> IO a
+
+instance Readable String where
+    readFile' = readFile
+
+instance Readable C.ByteString where
+    readFile' = C.readFile
+
+instance Readable Cl.ByteString where
+    readFile' = Cl.readFile
+
+safeReadFile :: Readable s => FilePath -> IO (Either E.IOException s)
+safeReadFile = E.try . readFile'
