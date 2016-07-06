@@ -152,6 +152,23 @@ One final piece to check is the number of tokens in the tags file itself; if
 all may have low removal likelihood and not display in the default results
 (high-likelihood only).
 
+### Analysis takes a long time due to a large number of terms found
+
+In my experience, projects under 100,000LOC should have at most around 8,000
+unique tokens found. This obviously depends on how you structure your
+classes/modules/functions, but it'll likely be close.
+
+If you're seeing more than 15,000 terms matched (I've seen upwards of 70,000),
+this is very likely due to misconfiguration of ctags where it includes some
+amount of build artifacts. In Ruby, this might be a `RAILS_ROOT/vendor`
+directory, or if you're using NPM, `APP_ROOT/node_modules` or
+`APP_ROOT/bower_components`.
+
+When configuring ctags, be sure to include your `--exclude` directives; you
+can [find an example here].
+
+[find an example here]: https://github.com/joshuaclayton/dotfiles/commit/edf35f2a3ca2204a7c6796c3685b7da34bddf5fb#diff-6d7e423e99befb791a7db6ae51126747R76
+
 ## Custom Configuration
 
 The first time you use `unused`, you might see a handful of false positives.
