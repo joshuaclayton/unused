@@ -24,7 +24,7 @@ spec = parallel $ do
 
     describe "parseSearchResult" $ do
         it "parses normal results from `ag` to a TermMatch" $
-            parseSearchResult "method_name" ":app/models/foo.rb:123" `shouldBe` (Just $ TermMatch "method_name" "app/models/foo.rb" 123)
+            parseSearchResult (OriginalTerm "method_name") ":app/models/foo.rb:123" `shouldBe` (Just $ TermMatch "method_name" "app/models/foo.rb" Nothing 123)
 
         it "returns Nothing when it cannot parse" $
-            parseSearchResult "method_name" "" `shouldBe` Nothing
+            parseSearchResult (OriginalTerm "method_name") "" `shouldBe` Nothing

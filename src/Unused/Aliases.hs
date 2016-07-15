@@ -5,56 +5,28 @@ module Unused.Aliases
     , termsAndAliases
     ) where
 
-import           Data.List ((\\))
 import qualified Data.List as L
 import           Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Tuple as Tu
 import           Unused.ResultsClassifier.Types
-import           Unused.Types (TermMatch, tmTerm)
+import           Unused.Types (SearchTerm(..), TermMatch, tmTerm)
 import           Unused.Util (groupBy)
 
-type Alias = (Text, Text)
-type GroupedResult = (String, [TermMatch])
+groupedTermsAndAliases :: [TermMatch] -> [[TermMatch]]
+groupedTermsAndAliases = map snd . groupBy tmTerm
 
-groupedTermsAndAliases :: [TermAlias] -> [TermMatch] -> [[TermMatch]]
-groupedTermsAndAliases as ms =
-    map snd $ foldl (processResultsWithAliases aliases) [] matchesGroupedByTerm
+termsAndAliases :: [TermAlias] -> [String] -> [SearchTerm]
+termsAndAliases [] = map OriginalTerm
+termsAndAliases as = L.nub . concatMap ((as >>=) . generateSearchTerms . T.pack)
+
+generateSearchTerms :: Text -> TermAlias -> [SearchTerm]
+generateSearchTerms term TermAlias{taFrom = from, taTo = to} =
+    toTermWithAlias $ parsePatternForMatch (T.pack from) term
   where
-    matchesGroupedByTerm = groupBy tmTerm ms
-    aliases = map toAlias as
-
-termsAndAliases :: [TermAlias] -> [String] -> [String]
-termsAndAliases [] = id
-termsAndAliases as =
-    L.nub . map T.unpack . concatMap (allAliases aliases . T.pack)
-  where
-    aliases = map toAlias as
-    allAliases :: [Alias] -> Text -> [Text]
-    allAliases as' term = concatMap (`generateAliases` term) as'
-
-processResultsWithAliases :: [Alias] -> [GroupedResult] -> GroupedResult -> [GroupedResult]
-processResultsWithAliases as acc result@(term, matches) =
-    if noAliasesExist
-        then acc ++ [result]
-        else case closestAlias of
-            Nothing -> acc ++ [result]
-            Just alias@(aliasTerm, aliasMatches) -> (acc \\ [alias]) ++ [(aliasTerm, aliasMatches ++ matches)]
-  where
-    packedTerm = T.pack term
-    noAliasesExist = null listOfAliases
-    listOfAliases = L.nub (concatMap (`aliasesForTerm` packedTerm) as) \\ [packedTerm]
-    closestAlias = L.find ((`elem` listOfAliases) . T.pack . fst) acc
-
-toAlias :: TermAlias -> Alias
-toAlias TermAlias{taFrom = from, taTo = to} = (T.pack from, T.pack to)
-
-generateAliases :: Alias -> Text -> [Text]
-generateAliases (from, to) term =
-    toTermWithAlias $ parsePatternForMatch from term
-  where
-    toTermWithAlias (Right (Just match)) = [term, T.replace wildcard match to]
-    toTermWithAlias _ = [term]
+    toTermWithAlias (Right (Just match)) = [OriginalTerm unpackedTerm, AliasTerm unpackedTerm (aliasedResult match)]
+    toTermWithAlias _ = [OriginalTerm unpackedTerm]
+    unpackedTerm = T.unpack term
+    aliasedResult match = T.unpack $ T.replace wildcard match (T.pack to)
 
 parsePatternForMatch :: Text -> Text -> Either Text (Maybe Text)
 parsePatternForMatch aliasPattern term =
@@ -62,9 +34,6 @@ parsePatternForMatch aliasPattern term =
   where
     findMatch [prefix, suffix] = Right $ T.stripSuffix suffix =<< T.stripPrefix prefix term
     findMatch _ = Left $ T.pack $ "There was a problem with the pattern: " ++ show aliasPattern
-
-aliasesForTerm :: Alias -> Text -> [Text]
-aliasesForTerm a t = L.nub $ L.sort $ generateAliases a t ++ generateAliases (Tu.swap a) t
 
 wildcard :: Text
 wildcard = "%s"

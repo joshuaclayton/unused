@@ -1,7 +1,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Unused.Types
-    ( TermMatch(..)
+    ( SearchTerm(..)
+    , TermMatch(..)
     , TermResults(..)
     , TermMatchSet
     , RemovalLikelihood(..)
@@ -9,7 +10,9 @@ module Unused.Types
     , Occurrences(..)
     , GitContext(..)
     , GitCommit(..)
+    , searchTermToString
     , resultsFromMatches
+    , tmDisplayTerm
     , totalFileCount
     , totalOccurrenceCount
     , appOccurrenceCount
@@ -17,15 +20,26 @@ module Unused.Types
     , resultAliases
     ) where
 
+import           Control.Monad (liftM2)
 import           Data.Csv (FromRecord, ToRecord)
 import qualified Data.List as L
+import qualified Data.Maybe as M
 import qualified Data.Map.Strict as Map
 import qualified GHC.Generics as G
 import qualified Unused.Regex as R
 
+data SearchTerm
+    = OriginalTerm String
+    | AliasTerm String String deriving (Eq, Show)
+
+searchTermToString :: SearchTerm -> String
+searchTermToString (OriginalTerm s) = s
+searchTermToString (AliasTerm _ a) = a
+
 data TermMatch = TermMatch
     { tmTerm :: String
     , tmPath :: String
+    , tmAlias :: Maybe String
     , tmOccurrences :: Int
     } deriving (Eq, Show, G.Generic)
 
@@ -80,6 +94,9 @@ removalLikelihood = rLikelihood . trRemoval
 resultAliases :: TermResults -> [String]
 resultAliases = trTerms
 
+tmDisplayTerm :: TermMatch -> String
+tmDisplayTerm = liftM2 M.fromMaybe tmTerm tmAlias
+
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches m =
     TermResults
@@ -95,7 +112,7 @@ resultsFromMatches m =
   where
     testOccurrence = testOccurrences m
     appOccurrence = appOccurrences m
-    terms = map tmTerm m
+    terms = map tmDisplayTerm m
     resultTerm (x:_) = x
     resultTerm _ = ""
 

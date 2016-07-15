@@ -16,11 +16,11 @@ renderHeader terms = do
     U.resetScreen
     V.analysisHeader terms
 
-executeSearch :: SearchRunner -> [String] -> IO TS.SearchResults
+executeSearch :: SearchRunner -> [TS.SearchTerm] -> IO TS.SearchResults
 executeSearch runner terms = do
     renderHeader terms
     runSearch runner terms <* U.resetScreen
 
-runSearch :: SearchRunner -> [String] -> IO TS.SearchResults
+runSearch :: SearchRunner -> [TS.SearchTerm] -> IO TS.SearchResults
 runSearch SearchWithProgress    = I.progressWithIndicator TS.search I.createProgressBar
 runSearch SearchWithoutProgress = I.progressWithIndicator TS.search I.createSpinner

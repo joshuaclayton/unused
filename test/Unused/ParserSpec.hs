@@ -14,13 +14,13 @@ spec :: Spec
 spec = parallel $
     describe "parseResults" $ do
         it "parses from the correct format" $ do
-            let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" 1
-                            , TermMatch "method_name" "app/path/other.rb" 5
-                            , TermMatch "method_name" "spec/path/foo_spec.rb" 10
+            let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" Nothing 1
+                            , TermMatch "method_name" "app/path/other.rb" Nothing 5
+                            , TermMatch "method_name" "spec/path/foo_spec.rb" Nothing 10
                             ]
             let r1Results = TermResults "method_name" ["method_name"] r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently") Nothing
 
-            let r2Matches = [ TermMatch "other" "app/path/other.rb" 1 ]
+            let r2Matches = [ TermMatch "other" "app/path/other.rb" Nothing 1 ]
             let r2Results = TermResults "other" ["other"] r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "used once") Nothing
 
             (Right config) <- loadConfig
@@ -31,9 +31,9 @@ spec = parallel $
                 Map.fromList [ ("method_name", r1Results), ("other", r2Results) ]
 
         it "parses when no config is provided" $ do
-            let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" 1
-                            , TermMatch "method_name" "app/path/other.rb" 5
-                            , TermMatch "method_name" "spec/path/foo_spec.rb" 10
+            let r1Matches = [ TermMatch "method_name" "app/path/foo.rb" Nothing 1
+                            , TermMatch "method_name" "app/path/other.rb" Nothing 5
+                            , TermMatch "method_name" "spec/path/foo_spec.rb" Nothing 10
                             ]
             let r1Results = TermResults "method_name" ["method_name"] r1Matches (Occurrences 1 10) (Occurrences 2 6) (Occurrences 3 16) (Removal Low "used frequently") Nothing
 
@@ -43,10 +43,10 @@ spec = parallel $
                 Map.fromList [ ("method_name", r1Results) ]
 
         it "handles aliases correctly" $ do
-            let r1Matches = [ TermMatch "admin?" "app/path/user.rb" 3 ]
+            let r1Matches = [ TermMatch "admin?" "app/path/user.rb" Nothing 3 ]
 
-            let r2Matches = [ TermMatch "be_admin" "spec/models/user_spec.rb" 2
-                            , TermMatch "be_admin" "spec/features/user_promoted_to_admin_spec.rb" 2
+            let r2Matches = [ TermMatch "admin?" "spec/models/user_spec.rb" (Just "be_admin") 2
+                            , TermMatch "admin?" "spec/features/user_promoted_to_admin_spec.rb" (Just "be_admin") 2
                             ]
 
 

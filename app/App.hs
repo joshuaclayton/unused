@@ -21,7 +21,7 @@ import           Unused.Parser (parseResults)
 import           Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import           Unused.ResultsClassifier (ParseConfigError, LanguageConfiguration(..), loadAllConfigurations)
 import           Unused.TagsSource (TagSearchOutcome, loadTagsFromFile, loadTagsFromPipe)
-import           Unused.TermSearch (SearchResults(..), fromResults)
+import           Unused.TermSearch (SearchResults(..), SearchTerm, fromResults)
 import           Unused.Types (TermMatchSet, RemovalLikelihood(..))
 
 type AppConfig = MonadReader Options
@@ -61,7 +61,7 @@ run = do
 
     printResults =<< retrieveGitContext =<< fmap (`parseResults` results) loadAllConfigs
 
-termsWithAlternatesFromConfig :: App [String]
+termsWithAlternatesFromConfig :: App [SearchTerm]
 termsWithAlternatesFromConfig = do
     aliases <- concatMap lcTermAliases <$> loadAllConfigs
     terms <- calculateTagInput

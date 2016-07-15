@@ -8,25 +8,25 @@ import qualified Data.List as L
 import           Unused.CLI.Util
 import qualified Unused.CLI.Views.SearchResult.Internal as SR
 import qualified Unused.CLI.Views.SearchResult.Types as SR
-import           Unused.Types (TermResults(..), GitContext(..), GitCommit(..), TermMatch(..), totalFileCount, totalOccurrenceCount)
+import           Unused.Types (TermResults(..), GitContext(..), GitCommit(..), TermMatch(..), tmDisplayTerm, totalFileCount, totalOccurrenceCount)
 
 printList :: TermResults -> [TermMatch] -> SR.ResultsPrinter ()
 printList r ms = SR.liftIO $
     M.forM_ ms $ \m -> do
-        printTermAndOccurrences r
+        printTermAndOccurrences r m
         printAliases r
         printFilePath m
         printSHAs r
         printRemovalReason r
         putStr "\n"
 
-printTermAndOccurrences :: TermResults -> IO ()
-printTermAndOccurrences r = do
+printTermAndOccurrences :: TermResults -> TermMatch -> IO ()
+printTermAndOccurrences r m = do
     setSGR [SetColor Foreground Dull (SR.termColor r)]
     setSGR [SetConsoleIntensity BoldIntensity]
     putStr "  "
     setSGR [SetUnderlining SingleUnderline]
-    putStr $ trTerm r
+    putStr $ tmDisplayTerm m
     setSGR [Reset]
 
     setSGR [SetColor Foreground Vivid Cyan]
