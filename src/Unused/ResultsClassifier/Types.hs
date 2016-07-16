@@ -15,8 +15,10 @@ import qualified Control.Monad as M
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
 import qualified Data.Text as T
+import           Data.Text (Text)
 import           Data.Yaml (FromJSON(..), (.:), (.:?), (.!=))
 import qualified Data.Yaml as Y
+import           Unused.Projection
 
 data LanguageConfiguration = LanguageConfiguration
     { lcName :: String
@@ -34,6 +36,7 @@ data LowLikelihoodMatch = LowLikelihoodMatch
 data TermAlias = TermAlias
     { taFrom :: String
     , taTo :: String
+    , taTransform :: Text -> Text
     }
 
 data ParseConfigError = ParseConfigError
@@ -63,6 +66,7 @@ instance FromJSON TermAlias where
     parseJSON (Y.Object o) = TermAlias
         <$> o .: "from"
         <*> o .: "to"
+        <*> (either (fail . show) return =<< (translate . T.pack <$> (o .: "to")))
     parseJSON _ = M.mzero
 
 data MatchHandler a = MatchHandler

@@ -20,13 +20,13 @@ termsAndAliases [] = map OriginalTerm
 termsAndAliases as = L.nub . concatMap ((as >>=) . generateSearchTerms . T.pack)
 
 generateSearchTerms :: Text -> TermAlias -> [SearchTerm]
-generateSearchTerms term TermAlias{taFrom = from, taTo = to} =
+generateSearchTerms term TermAlias{taFrom = from, taTransform = transform} =
     toTermWithAlias $ parsePatternForMatch (T.pack from) term
   where
     toTermWithAlias (Right (Just match)) = [OriginalTerm unpackedTerm, AliasTerm unpackedTerm (aliasedResult match)]
     toTermWithAlias _ = [OriginalTerm unpackedTerm]
     unpackedTerm = T.unpack term
-    aliasedResult match = T.unpack $ T.replace wildcard match (T.pack to)
+    aliasedResult = T.unpack . transform
 
 parsePatternForMatch :: Text -> Text -> Either Text (Maybe Text)
 parsePatternForMatch aliasPattern term =
@@ -36,4 +36,4 @@ parsePatternForMatch aliasPattern term =
     findMatch _ = Left $ T.pack $ "There was a problem with the pattern: " ++ show aliasPattern
 
 wildcard :: Text
-wildcard = "%s"
+wildcard = "*"
