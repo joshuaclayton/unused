@@ -4,7 +4,7 @@ module Unused.CLI.Views.AnalysisHeader
 
 import Unused.CLI.Util
 
-analysisHeader :: [String] -> IO ()
+analysisHeader :: [a] -> IO ()
 analysisHeader terms = do
     setSGR [SetConsoleIntensity BoldIntensity]
     putStr "Unused: "

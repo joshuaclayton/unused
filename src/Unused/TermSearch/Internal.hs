@@ -21,11 +21,12 @@ commandLineOptions t =
 
 parseSearchResult :: String -> String -> Maybe TermMatch
 parseSearchResult term =
-    toTermMatch . map T.unpack . T.splitOn ":" . T.pack
+    maybeTermMatch . map T.unpack . T.splitOn ":" . T.pack
   where
-    toTermMatch [_, path, count] = Just $ TermMatch term path (countInt count)
-    toTermMatch _ = Nothing
+    maybeTermMatch [_, path, count] = Just $ toTermMatch term path $ countInt count
+    maybeTermMatch _ = Nothing
     countInt = M.fromMaybe 0 . stringToInt
+    toTermMatch = TermMatch
 
 regexSafeTerm :: String -> Bool
 regexSafeTerm = all (\c -> C.isAlphaNum c || c == '_' || c == '-')

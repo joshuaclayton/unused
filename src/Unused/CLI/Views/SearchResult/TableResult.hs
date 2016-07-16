@@ -2,7 +2,7 @@ module Unused.CLI.Views.SearchResult.TableResult
     ( printTable
     ) where
 
-import qualified Control.Monad as M
+import           Control.Monad (forM_)
 import           Unused.CLI.Util
 import qualified Unused.CLI.Views.SearchResult.Internal as SR
 import qualified Unused.CLI.Views.SearchResult.Types as SR
@@ -15,7 +15,7 @@ printTable r ms = do
     let printPath = SR.cfPrintPath cf
     let printNumber = SR.cfPrintNumber cf
 
-    SR.liftIO $ M.forM_ ms $ \m -> do
+    SR.liftIO $ forM_ ms $ \m -> do
         setSGR [SetColor Foreground Dull (SR.termColor r)]
         setSGR [SetConsoleIntensity NormalIntensity]
         putStr $ "     " ++ printTerm (tmTerm m)

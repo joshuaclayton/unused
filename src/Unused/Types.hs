@@ -103,7 +103,7 @@ appOccurrences :: [TermMatch] -> Occurrences
 appOccurrences ms =
     Occurrences appFiles appOccurrences'
   where
-    totalFiles = length ms
+    totalFiles = length $ L.nub $ map tmPath ms
     totalOccurrences = sum $ map tmOccurrences ms
     tests = testOccurrences ms
     appFiles = totalFiles - oFiles tests
@@ -114,7 +114,7 @@ testOccurrences ms =
     Occurrences totalFiles totalOccurrences
   where
     testMatches = filter termMatchIsTest ms
-    totalFiles = length testMatches
+    totalFiles = length $ L.nub $ map tmPath testMatches
     totalOccurrences = sum $ map tmOccurrences testMatches
 
 testDir :: String -> Bool

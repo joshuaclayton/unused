@@ -11,7 +11,7 @@ import qualified Unused.TermSearch as TS
 
 data SearchRunner = SearchWithProgress | SearchWithoutProgress
 
-renderHeader :: [String] -> IO ()
+renderHeader :: [a] -> IO ()
 renderHeader terms = do
     U.resetScreen
     V.analysisHeader terms
