@@ -17,7 +17,7 @@ calculateLikelihood lcs r =
         | M.isJust firstAutoLowLikelihood = (Low, autoLowLikelihoodMessage)
         | singleNonTestUsage r && testsExist r = (High, "only the definition and corresponding tests exist")
         | doubleNonTestUsage r && testsExist r = (Medium, "only the definition and one other use, along with tests, exists")
-        | totalScore < 2 = (High, "used once")
+        | totalScore < 2 = (High, "occurs once")
         | totalScore < 6 = (Medium, "used semi-frequently")
         | totalScore >= 6 = (Low, "used frequently")
         | otherwise = (Unknown, "could not determine likelihood")
