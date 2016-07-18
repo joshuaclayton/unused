@@ -30,7 +30,7 @@ spec = parallel $
 
             removalLikelihood' matches `shouldReturn` Low
 
-        it "weighs only-used-once methods as high likelihood" $ do
+        it "weighs only-occurs-once methods as high likelihood" $ do
             let matches = [ TermMatch "obscure_method" "app/models/user.rb" Nothing 1 ]
 
             removalLikelihood' matches `shouldReturn` High
