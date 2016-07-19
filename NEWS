@@ -1,3 +1,9 @@
+0.6.0.0 (July 19, 2016)
+  [Alpha] Projection-style transformations for aliases
+  Improve likelihood output for single-occurrence terms
+  Increase safety of reading files
+  Improve documentation including installation via Stack, common troubleshooting scenarios
+
 0.5.0.2 (June 24, 2016)
   Remove final -Werror flag
 
