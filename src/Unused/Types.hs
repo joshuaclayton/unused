@@ -98,11 +98,11 @@ tmDisplayTerm :: TermMatch -> String
 tmDisplayTerm = liftM2 M.fromMaybe tmTerm tmAlias
 
 resultsFromMatches :: [TermMatch] -> TermResults
-resultsFromMatches m =
+resultsFromMatches tms =
     TermResults
         { trTerm = resultTerm terms
         , trTerms = L.sort $ L.nub terms
-        , trMatches = m
+        , trMatches = tms
         , trAppOccurrences = appOccurrence
         , trTestOccurrences = testOccurrence
         , trTotalOccurrences = Occurrences (sum $ map oFiles [appOccurrence, testOccurrence]) (sum $ map oOccurrences [appOccurrence, testOccurrence])
@@ -110,9 +110,9 @@ resultsFromMatches m =
         , trGitContext = Nothing
         }
   where
-    testOccurrence = testOccurrences m
-    appOccurrence = appOccurrences m
-    terms = map tmDisplayTerm m
+    testOccurrence = testOccurrences tms
+    appOccurrence = appOccurrences tms
+    terms = map tmDisplayTerm tms
     resultTerm (x:_) = x
     resultTerm _ = ""
 
@@ -144,7 +144,5 @@ testCamelCaseFilename :: String -> Bool
 testCamelCaseFilename = R.matchRegex ".*(Spec|Test)\\."
 
 termMatchIsTest :: TermMatch -> Bool
-termMatchIsTest m =
+termMatchIsTest TermMatch{tmPath = path} =
     testDir path || testSnakeCaseFilename path || testCamelCaseFilename path
-  where
-    path = tmPath m
