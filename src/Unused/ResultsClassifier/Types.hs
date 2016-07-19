@@ -23,26 +23,26 @@ data LanguageConfiguration = LanguageConfiguration
     , lcAllowedTerms :: [String]
     , lcAutoLowLikelihood :: [LowLikelihoodMatch]
     , lcTermAliases :: [TermAlias]
-    } deriving Show
+    }
 
 data LowLikelihoodMatch = LowLikelihoodMatch
     { smName :: String
     , smMatchers :: [Matcher]
     , smClassOrModule :: Bool
-    } deriving Show
+    }
 
 data TermAlias = TermAlias
     { taFrom :: String
     , taTo :: String
-    } deriving Show
+    }
 
 data ParseConfigError = ParseConfigError
     { pcePath :: String
     , pceParseError :: String
     }
 
-data Position = StartsWith | EndsWith | Equals deriving Show
-data Matcher = Term Position String | Path Position String | AppOccurrences Int | AllowedTerms [String] deriving Show
+data Position = StartsWith | EndsWith | Equals
+data Matcher = Term Position String | Path Position String | AppOccurrences Int | AllowedTerms [String]
 
 instance FromJSON LanguageConfiguration where
     parseJSON (Y.Object o) = LanguageConfiguration
