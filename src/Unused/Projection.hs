@@ -2,6 +2,7 @@
 
 module Unused.Projection where
 
+import qualified Data.Bifunctor as BF
 import           Data.Monoid ((<>))
 import           Data.Text (Text)
 import qualified Data.Text as T
@@ -15,7 +16,7 @@ data ParsedTransform = ParsedTransform
     , ptPost :: Text
     }
 
-translate :: Text -> Either ParseError (Text -> Text)
+translate :: Text -> Either String (Text -> Text)
 translate template = applyTransform <$> parseTransform template
 
 applyTransform :: ParsedTransform -> Text -> Text
@@ -24,8 +25,8 @@ applyTransform pt t =
     <> runTransformations t (ptTransforms pt)
     <> ptPost pt
 
-parseTransform :: Text -> Either ParseError ParsedTransform
-parseTransform = parse parsedTransformParser ""
+parseTransform :: Text -> Either String ParsedTransform
+parseTransform = BF.first show . parse parsedTransformParser ""
 
 parsedTransformParser :: Parser ParsedTransform
 parsedTransformParser =

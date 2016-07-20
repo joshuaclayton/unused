@@ -66,7 +66,7 @@ instance FromJSON TermAlias where
     parseJSON (Y.Object o) = TermAlias
         <$> o .: "from"
         <*> o .: "to"
-        <*> (either (fail . show) return =<< (translate . T.pack <$> (o .: "to")))
+        <*> (either fail return =<< (translate . T.pack <$> (o .: "to")))
     parseJSON _ = M.mzero
 
 data MatchHandler a = MatchHandler
