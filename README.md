@@ -122,12 +122,29 @@ unused --help
 
 ## Troubleshooting
 
-### You're on a Mac and doing a Ruby on Rails project
+### Ctags (and a corresponding workflow) isn't configured
 
-* The version of ctags that ships with OSX -- at `/usr/bin/ctags` -- doesn't support Ruby. That BSD version of ctags says it "makes a tags file for ex(1) from the specified C, Pascal, Fortran, YACC, lex, and lisp sources."
-* So do a `brew install ctags` for a version that supports Ruby. You'll know this works if `which ctags` gives `/usr/local/bin/ctags`.
-* To generate CTAGS for your project, now go to the root directory and run `git ls-files | xargs ctags`
-* Finally, you have ctags, in a file called `tags` in your rails project root. Go ahead and run `unused -a > unused_output.txt` to see the results
+[Exuberant Ctags] is required to use `unused` correctly; however, the version of
+ctags that ships with OSX -- at `/usr/bin/ctags` -- is different (that BSD
+version of ctags says it "makes a tags file for ex(1) from the specified C,
+Pascal, Fortran, YACC, lex, and lisp sources.")
+
+If you're on OS X and installing via Homebrew, Exuberant Ctags should be
+installed for you; you can also run `brew install ctags` by hand. If you're not
+on OS X, use your favorite package manager and refer to the [Exuberant Ctags]
+site for download instructions.
+
+[Exuberant Ctags]: http://ctags.sourceforge.net/
+
+With `ctags` installed, you'll want to configure your workflow such that your
+tags file gets updated periodically without any action on your part. I
+recommend following the [instructions outlined by Tim Pope] on this matter,
+which discusses a workflow coupled to git for managing the tags file. `unused`
+is configured to look for a tags file in three different directories, including
+`.git/` as the article suggests, so no further configuration will be necessary
+with `unused`.
+
+[instructions outlined by Tim Pope]: http://tbaggery.com/2011/08/08/effortless-ctags-with-git.html
 
 ### "Calculating cache fingerprint" takes a long time
 
