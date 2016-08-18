@@ -23,7 +23,7 @@ spec = parallel $
             let r2Matches = [ TermMatch "other" "app/path/other.rb" Nothing 1 ]
             let r2Results = TermResults "other" ["other"] r2Matches (Occurrences 0 0) (Occurrences 1 1) (Occurrences 1 1) (Removal High "occurs once") Nothing
 
-            (Right config) <- loadConfig
+            let (Right config) = loadConfig
 
             let result = parseResults config $ SearchResults $ r1Matches ++ r2Matches
 
@@ -50,7 +50,7 @@ spec = parallel $
                             ]
 
 
-            (Right config) <- loadConfig
+            let (Right config) = loadConfig
             let searchResults = r1Matches ++ r2Matches
 
             let result = parseResults config $ SearchResults searchResults
@@ -60,6 +60,6 @@ spec = parallel $
                 Map.fromList [ ("admin?|be_admin", results) ]
 
         it "handles empty input" $ do
-            (Right config) <- loadConfig
+            let (Right config) = loadConfig
             let result = parseResults config $ SearchResults []
             result `shouldBe` Map.fromList []

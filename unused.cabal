@@ -12,7 +12,6 @@ category:            CLI
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
-data-files:          data/config.yml
 
 library
   hs-source-dirs:      src
@@ -60,7 +59,6 @@ library
                      , Unused.CLI.ProgressIndicator
                      , Unused.CLI.ProgressIndicator.Internal
                      , Unused.CLI.ProgressIndicator.Types
-  other-modules:       Paths_unused
   build-depends:       base >= 4.7 && < 5
                      , process
                      , containers
@@ -81,6 +79,7 @@ library
                      , transformers
                      , megaparsec
                      , inflections
+                     , file-embed
   ghc-options:         -Wall
   default-language:    Haskell2010
 
@@ -114,7 +113,6 @@ test-suite unused-test
                      , Unused.UtilSpec
                      , Unused.Cache.FindArgsFromIgnoredPathsSpec
                      , Unused.AliasesSpec
-                     , Paths_unused
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
   default-language:    Haskell2010
 
