@@ -1,6 +1,7 @@
 module Main where
 
 import           App (runProgram, Options(Options))
+import           Common
 import qualified Data.Maybe as M
 import           Options.Applicative
 import           Unused.CLI (SearchRunner(..))
