@@ -10,10 +10,10 @@ Anything.
 
 Yes, literally anything.
 
-It's probably best if you have a ctags file it can read from (it looks in
-`.git`, `tmp`, and the root directory for a `tags` file), but if you have
-another way to pipe a bunch of methods/functions/classes/modules/whatever in,
-that works too.
+It's probably best if you have a file generated from `ctags` it can read from
+(it looks in `.git`, `tmp`, and the root directory for a `tags` file), but if
+you have another way to pipe a bunch of
+methods/functions/classes/modules/whatever in, that works too.
 
 Right now, there are some special cases built in for Rails and Phoenix apps
 (specifically, assumptions about what's fine to only have one reference to,
@@ -43,6 +43,8 @@ brew install unused
 
 [my formulae]: https://github.com/joshuaclayton/homebrew-formulae
 [Homebrew]: http://brew.sh/
+
+This will install `unused` and its corresponding dependencies.
 
 To update, run:
 
@@ -104,7 +106,7 @@ unused
 
 If you don't have a tags file, you can generate one by running:
 ```sh
-ctags -R .
+git ls-files | xargs ctags
 ```
 
 If you want to specify a custom tags file, or load tokens from somewhere else,
@@ -124,25 +126,57 @@ unused --help
 
 ### Ctags (and a corresponding workflow) isn't configured
 
-[Exuberant Ctags] is required to use `unused` correctly; however, the version of
-ctags that ships with OSX -- at `/usr/bin/ctags` -- is different (that BSD
-version of ctags says it "makes a tags file for ex(1) from the specified C,
-Pascal, Fortran, YACC, lex, and lisp sources.")
+[Exuberant Ctags] (or another tool that will generate a tags file, like
+[hasktags] for Haskell projects) is required to use `unused` correctly;
+however, the version of `ctags` that ships with OS X (`/usr/bin/ctags`) is an
+older version won't work with many languages (that BSD version of `ctags` says
+it "makes a tags file for ex(1) from the specified C, Pascal, Fortran, YACC,
+lex, and lisp sources.")
 
-If you're on OS X and installing via Homebrew, Exuberant Ctags should be
-installed for you; you can also run `brew install ctags` by hand. If you're not
-on OS X, use your favorite package manager and refer to the [Exuberant Ctags]
-site for download instructions.
+[hasktags]: https://hackage.haskell.org/package/hasktags
+
+Installation via Homebrew includes the `ctags` dependency. You can also run
+`brew install ctags` by hand.  If you're not on OS X, use your favorite package
+manager and refer to the [Exuberant Ctags] site for download instructions.
 
 [Exuberant Ctags]: http://ctags.sourceforge.net/
+
+#### Ctags manual run
+
+If you're using `ctags` to generate a `tags` file prior to running `unused` and
+don't have a workflow around automatically generating a `tags` file, run:
+
+```sh
+git ls-files | xargs ctags -f tmp/tags
+```
+
+This will take your `.gitignore` into account and write the tags file to
+`tmp/tags`. Be sure to write this to a location that's ignored by `git`.
+
+While this process allows a developer to get started, it requires remembering
+to run this command before running `unused`. Let's explore how to automate this
+process.
+
+#### Ctags automatic runs via `git` hooks
 
 With `ctags` installed, you'll want to configure your workflow such that your
 tags file gets updated periodically without any action on your part. I
 recommend following the [instructions outlined by Tim Pope] on this matter,
-which discusses a workflow coupled to git for managing the tags file. `unused`
-is configured to look for a tags file in three different directories, including
-`.git/` as the article suggests, so no further configuration will be necessary
-with `unused`.
+which discusses a workflow coupled to `git` for managing the tags file. It
+includes shell scripting that may not look "effortless"; however, the fact this
+is automated helps to ensure `unused` is running against new versions of the
+code as you (and other teammates, if you have any) are committing.
+
+As he suggests, you'll want to run `git init` into the directories you want
+this hook, and to manually run the hook:
+
+```sh
+git ctags
+```
+
+`unused` is configured to look for a tags file in three different directories,
+including `.git/` as the article suggests, so no further configuration will be
+necessary with `unused`.
 
 [instructions outlined by Tim Pope]: http://tbaggery.com/2011/08/08/effortless-ctags-with-git.html
 
@@ -188,12 +222,12 @@ unique tokens found. This obviously depends on how you structure your
 classes/modules/functions, but it'll likely be close.
 
 If you're seeing more than 15,000 terms matched (I've seen upwards of 70,000),
-this is very likely due to misconfiguration of ctags where it includes some
+this is very likely due to misconfiguration of `ctags` where it includes some
 amount of build artifacts. In Ruby, this might be a `RAILS_ROOT/vendor`
 directory, or if you're using NPM, `APP_ROOT/node_modules` or
 `APP_ROOT/bower_components`.
 
-When configuring ctags, be sure to include your `--exclude` directives; you
+When configuring `ctags`, be sure to include your `--exclude` directives; you
 can [find an example here].
 
 [find an example here]: https://github.com/joshuaclayton/dotfiles/commit/edf35f2a3ca2204a7c6796c3685b7da34bddf5fb#diff-6d7e423e99befb791a7db6ae51126747R76
