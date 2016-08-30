@@ -1,5 +1,5 @@
 name:                unused
-version:             0.6.1.0
+version:             0.6.1.1
 synopsis:            A command line tool to identify unused code.
 description:         Please see README.md
 homepage:            https://github.com/joshuaclayton/unused#readme

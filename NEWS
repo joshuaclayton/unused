@@ -1,3 +1,6 @@
+0.6.1.1 (August 30, 2016)
+  Update unused.cabal to ensure data/config.yml is included in distribution
+
 0.6.1.0 (August 20, 2016)
   Conditionally import Data.Monoid.<> to address Homebrew compilation issues
   Replace reading config from FS with FileEmbed
