@@ -12,6 +12,7 @@ category:            CLI
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
+data-files:          data/config.yml
 
 library
   hs-source-dirs:      src
