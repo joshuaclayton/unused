@@ -4,17 +4,16 @@ module Unused.CLI.Views.SearchResult.ColumnFormatter
     ) where
 
 import Text.Printf (printf)
-import Unused.Types (TermResults(..), TermMatch(..), totalFileCount, totalOccurrenceCount)
+import Unused.Types (TermResults(..), TermMatch(..))
 
 data ColumnFormat = ColumnFormat
     { cfPrintTerm :: String -> String
     , cfPrintPath :: String -> String
-    , cfPrintNumber :: Int -> String
     }
 
 buildColumnFormatter :: [TermResults] -> ColumnFormat
 buildColumnFormatter r =
-    ColumnFormat (printf $ termFormat r) (printf $ pathFormat r) (printf $ numberFormat r)
+    ColumnFormat (printf $ termFormat r) (printf $ pathFormat r)
 
 termFormat :: [TermResults] -> String
 termFormat rs =
@@ -29,17 +28,3 @@ pathFormat rs =
   where
     pathWidth = maximum $ pathLength =<< trMatches =<< rs
     pathLength = return . length . tmPath
-
-numberFormat :: [TermResults] -> String
-numberFormat rs =
-    "%" ++ show numberWidth ++ "d"
-  where
-    numberWidth = maximum [fileWidth, occurrenceWidth]
-    fileWidth = maximum $ fileLength =<< rs
-    occurrenceWidth = maximum $ occurrenceLength =<< rs
-    fileLength = return . numberLength . totalFileCount
-    occurrenceLength = return . numberLength . totalOccurrenceCount
-
-numberLength :: Int -> Int
-numberLength i =
-    1 + floor (logBase 10 $ fromIntegral i :: Double)
