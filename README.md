@@ -93,6 +93,23 @@ your `$PATH`.
 [Haskell]: https://www.haskell.org
 [Stack]: http://www.haskellstack.org
 
+### Install via Docker
+
+Once [Docker is installed], create a binary within your `$PATH` to run the
+image:
+
+```bash
+#!/usr/bin/env bash
+
+docker run --rm -it -v $(pwd):/code joshuaclayton/unused unused $@
+```
+
+Note that, because Unused will be running inside of a virtual machine, it will
+take longer to generate output than were you to install via
+previously-mentioned methods.
+
+[Docker is installed]: https://docs.docker.com/engine/installation
+
 ## Using Unused
 
 `unused` attempts to read from common tags file locations (`.git/tags`,
