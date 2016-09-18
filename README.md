@@ -126,7 +126,7 @@ unused --help
 
 ### Ctags (and a corresponding workflow) isn't configured
 
-[Exuberant Ctags] (or another tool that will generate a tags file, like
+[Exuberant Ctags] \(or another tool that will generate a tags file, like
 [hasktags] for Haskell projects) is required to use `unused` correctly;
 however, the version of `ctags` that ships with OS X (`/usr/bin/ctags`) is an
 older version won't work with many languages (that BSD version of `ctags` says
