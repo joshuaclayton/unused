@@ -53,7 +53,7 @@ brew update
 brew upgrade unused
 ```
 
-Alternatively, you can install with [Stack] or by hand.
+Alternatively, you can install with [Stack] or by hand. Because it needs to compile, installation times may vary, but it's often several minutes.
 
 ### Stack
 
