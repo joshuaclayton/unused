@@ -93,6 +93,23 @@ your `$PATH`.
 [Haskell]: https://www.haskell.org
 [Stack]: http://www.haskellstack.org
 
+### Install via docker
+
+Step 1: clone the repo and cd into it
+
+Step 2: build the image
+```sh
+docker build -t local/unused .
+```
+
+Step 3: optionally, create a helper script in your PATH to launch the image
+```bash
+#!/bin/bash
+
+docker run --rm -it -v $(pwd):/code local/unused unused $@
+```
+
+
 ## Using Unused
 
 `unused` attempts to read from common tags file locations (`.git/tags`,
