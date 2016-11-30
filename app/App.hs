@@ -21,7 +21,7 @@ import           Unused.Parser (parseResults)
 import           Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
 import           Unused.ResultsClassifier (ParseConfigError, LanguageConfiguration(..), loadAllConfigurations)
 import           Unused.TagsSource (TagSearchOutcome, loadTagsFromFile, loadTagsFromPipe)
-import           Unused.TermSearch (SearchResults(..), SearchTerm, fromResults)
+import           Unused.TermSearch (SearchResults(..), SearchBackend(..), SearchTerm, fromResults)
 import           Unused.Types (TermMatchSet, RemovalLikelihood(..))
 
 type AppConfig = MonadReader Options
@@ -45,6 +45,7 @@ data Options = Options
     , oWithoutCache :: Bool
     , oFromStdIn :: Bool
     , oCommitCount :: Maybe Int
+    , oSearchBackend :: SearchBackend
     }
 
 runProgram :: Options -> IO ()
@@ -57,9 +58,13 @@ run = do
     terms <- termsWithAlternatesFromConfig
 
     liftIO $ renderHeader terms
-    results <- withCache . (`executeSearch` terms) =<< searchRunner
+    backend <- searchBackend
+    results <- withCache . flip (executeSearch backend) terms =<< searchRunner
 
     printResults =<< retrieveGitContext =<< fmap (`parseResults` results) loadAllConfigs
+
+searchBackend :: AppConfig m => m SearchBackend
+searchBackend = asks oSearchBackend
 
 termsWithAlternatesFromConfig :: App [SearchTerm]
 termsWithAlternatesFromConfig = do

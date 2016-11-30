@@ -363,6 +363,10 @@ Unused leverages [Ag](https://github.com/ggreer/the_silver_searcher) to
 analyze the codebase; as such, you'll need to have `ag` available in your
 `$PATH`. This is set as an explicit dependency in Homebrew.
 
+Alternatively, if you'd like to use
+[RipGrep](https://github.com/BurntSushi/ripgrep), you can do so with the
+`--search rg` flag. Be sure to have RipGrep installed first.
+
 ## Testing
 
 To run the test suite, run:

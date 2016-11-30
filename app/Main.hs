@@ -6,6 +6,7 @@ import qualified Data.Maybe as M
 import           Options.Applicative
 import           Unused.CLI (SearchRunner(..))
 import           Unused.Grouping (CurrentGrouping(..))
+import           Unused.TermSearch (SearchBackend(..))
 import           Unused.Types (RemovalLikelihood(..))
 import           Unused.Util (stringToInt)
 
@@ -38,6 +39,7 @@ parseOptions =
     <*> parseWithoutCache
     <*> parseFromStdIn
     <*> parseCommitCount
+    <*> parseSearchBackend
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
@@ -116,3 +118,17 @@ parseCommitCount =
     commitParser = optional $ strOption $
         long "commits"
         <> help "Number of recent commit SHAs to display per token"
+
+parseSearchBackend :: Parser SearchBackend
+parseSearchBackend = M.fromMaybe Ag <$> maybeBackend
+  where
+    maybeBackend = optional $ parseBackend <$> parseBackendOption
+    parseBackendOption =
+        strOption $
+        long "search"
+        <> help "[Allowed: ag, rg] Select searching backend"
+
+parseBackend :: String -> SearchBackend
+parseBackend "ag" = Ag
+parseBackend "rg" = Rg
+parseBackend _ = Ag
