@@ -1,3 +1,7 @@
+0.7.0.0 (January 12, 2016)
+  Explicitly set dependencies for inflections, megaparsec, and cassava
+  Remove occurrence count from output
+
 0.6.1.1 (August 30, 2016)
   Update unused.cabal to ensure data/config.yml is included in distribution
 
