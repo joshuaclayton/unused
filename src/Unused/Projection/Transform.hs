@@ -5,9 +5,7 @@ module Unused.Projection.Transform
 
 import           Data.Either (rights)
 import           Data.Text (Text)
-import qualified Data.Text as T
 import qualified Text.Inflections as I
-import qualified Text.Inflections.Parse.Types as I
 import qualified Unused.Util as U
 
 data Transform
@@ -24,14 +22,14 @@ runTransformation Snakecase = toSnakecase
 runTransformation Noop = id
 
 toCamelcase :: Text -> Text
-toCamelcase t = maybe t (T.pack . I.camelize) $ toMaybeWords t
+toCamelcase t = maybe t I.camelize $ toMaybeWords t
 
 toSnakecase :: Text -> Text
-toSnakecase t = maybe t (T.pack . I.underscore) $ toMaybeWords t
+toSnakecase t = maybe t I.underscore $ toMaybeWords t
 
-toMaybeWords :: Text -> Maybe [I.Word]
+toMaybeWords :: Text -> Maybe [I.SomeWord]
 toMaybeWords t =
     U.safeHead $ rights [asCamel, asSnake]
   where
-    asCamel = I.parseCamelCase [] $ T.unpack t
-    asSnake = I.parseSnakeCase [] $ T.unpack t
+    asCamel = I.parseCamelCase [] t
+    asSnake = I.parseSnakeCase [] t

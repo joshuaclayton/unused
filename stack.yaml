@@ -8,7 +8,19 @@ resolver: lts-6.0
 packages:
 - '.'
 # Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
-extra-deps: []
+extra-deps:
+- aeson-0.11.2.1
+- call-stack-0.1.0
+- cassava-0.4.5.1
+- hspec-2.3.2
+- hspec-core-2.3.2
+- hspec-discover-2.3.2
+- hspec-expectations-0.8.2
+- inflections-0.3.0.0
+- integer-logarithms-1
+- megaparsec-5.1.2
+- mmorph-1.0.9
+- scientific-0.3.4.10
 
 # Override default flag values for local packages and extra-deps
 flags: {}
