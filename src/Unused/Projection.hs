@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Unused.Projection where
 
 import qualified Data.Bifunctor as BF

@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Unused.Aliases
     ( groupedTermsAndAliases
     , termsAndAliases

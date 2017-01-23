@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Unused.AliasesSpec where
 
 import Data.Monoid ((<>))

@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Unused.TagsSource
     ( TagSearchOutcome(..)
     , loadTagsFromFile

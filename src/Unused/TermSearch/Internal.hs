@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Unused.TermSearch.Internal
     ( commandLineOptions
     , parseSearchResult

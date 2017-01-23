@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Unused.ProjectionSpec where
 
 import Data.Text (Text)

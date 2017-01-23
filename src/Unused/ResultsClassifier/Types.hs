@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module Unused.ResultsClassifier.Types
@@ -14,8 +13,8 @@ import qualified Control.Applicative as A
 import qualified Control.Monad as M
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as L
-import qualified Data.Text as T
 import           Data.Text (Text)
+import qualified Data.Text as T
 import           Data.Yaml (FromJSON(..), (.:), (.:?), (.!=))
 import qualified Data.Yaml as Y
 import           Unused.Projection
