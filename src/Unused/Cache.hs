@@ -23,21 +23,19 @@ cached cachePrefix f =
 writeCache :: ToRecord a => [a] -> Cache [a]
 writeCache [] = return []
 writeCache contents = do
-    liftIO $ D.createDirectoryIfMissing True cacheDirectory
-    (CacheFileName fileName) <- ask
-    liftIO $ BS.writeFile fileName $ encode contents
+    ensureCacheDirectoryExists
+    writeContentsToCacheFile contents =<< ask
     return contents
 
 readCache :: FromRecord a => Cache (Maybe [a])
-readCache = do
-    (CacheFileName fileName) <- ask
-
+readCache =
     either
         (const Nothing)
         (processCsv . decode NoHeader)
-        <$> liftIO (safeReadFile fileName)
+        <$> (readFromCache =<< ask)
   where
     processCsv = either (const Nothing) (Just . V.toList)
+    readFromCache (CacheFileName fileName) = liftIO $ safeReadFile fileName
 
 cacheFileName :: String -> IO (Either FingerprintOutcome CacheFileName)
 cacheFileName context = do
@@ -48,3 +46,11 @@ cacheFileName context = do
 
 cacheDirectory :: String
 cacheDirectory = "tmp/unused"
+
+ensureCacheDirectoryExists :: Cache ()
+ensureCacheDirectoryExists =
+    liftIO $ D.createDirectoryIfMissing True cacheDirectory
+
+writeContentsToCacheFile :: ToRecord a => [a] -> CacheFileName -> Cache ()
+writeContentsToCacheFile contents (CacheFileName fileName) =
+    liftIO $ BS.writeFile fileName $ encode contents
