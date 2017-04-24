@@ -7,7 +7,7 @@ license:             MIT
 license-file:        LICENSE
 author:              Josh Clayton
 maintainer:          sayhi@joshuaclayton.me
-copyright:           2016 Josh Clayton
+copyright:           2016-2017 Josh Clayton
 category:            CLI
 build-type:          Simple
 -- extra-source-files:

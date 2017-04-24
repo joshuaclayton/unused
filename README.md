@@ -377,4 +377,4 @@ stack test
 
 ## License
 
-Copyright 2016 Josh Clayton. See the [LICENSE](LICENSE).
+Copyright 2016-2017 Josh Clayton. See the [LICENSE](LICENSE).
