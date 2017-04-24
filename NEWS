@@ -1,3 +1,6 @@
+0.8.0.0 (April 24, 2017)
+  Allow use of `rg` instead of `ag` with the option `--search rg`
+
 0.7.0.0 (January 12, 2017)
   Explicitly set dependencies for inflections, megaparsec, and cassava
   Remove occurrence count from output
