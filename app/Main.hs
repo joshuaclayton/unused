@@ -1,9 +1,10 @@
 module Main where
 
-import           App (runProgram, Options(Options))
+import           App (runProgram)
 import           Common
 import qualified Data.Maybe as M
 import           Options.Applicative
+import           Types (Options(Options))
 import           Unused.CLI (SearchRunner(..))
 import           Unused.Grouping (CurrentGrouping(..))
 import           Unused.TermSearch (SearchBackend(..))

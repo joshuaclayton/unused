@@ -96,6 +96,7 @@ executable unused
                      , mtl
                      , transformers
   other-modules:       App
+                     , Types
   default-language:    Haskell2010
 
 test-suite unused-test

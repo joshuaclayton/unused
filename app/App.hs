@@ -1,52 +1,26 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module App
-    ( Options(..)
-    , runProgram
+    ( runProgram
     ) where
 
-import           Control.Monad.Except (ExceptT, MonadError, runExceptT, throwError)
-import           Control.Monad.Reader (ReaderT, MonadReader, MonadIO, runReaderT, asks, liftIO)
+import           Control.Monad.Except (runExceptT, throwError)
+import           Control.Monad.Reader (runReaderT, asks, liftIO)
 import qualified Data.Bifunctor as BF
 import qualified Data.Bool as B
 import qualified Data.Maybe as M
+import           Types
 import           Unused.Aliases (termsAndAliases)
 import           Unused.CLI (SearchRunner(..), loadGitContext, renderHeader, executeSearch, withRuntime)
 import qualified Unused.CLI.Views as V
-import           Unused.Cache (FingerprintOutcome(..), cached)
+import           Unused.Cache (cached)
 import           Unused.Grouping (CurrentGrouping(..), groupedResponses)
 import           Unused.Parser (parseResults)
 import           Unused.ResponseFilter (withOneOccurrence, withLikelihoods, ignoringPaths)
-import           Unused.ResultsClassifier (ParseConfigError, LanguageConfiguration(..), loadAllConfigurations)
-import           Unused.TagsSource (TagSearchOutcome, loadTagsFromFile, loadTagsFromPipe)
+import           Unused.ResultsClassifier (LanguageConfiguration(..), loadAllConfigurations)
+import           Unused.TagsSource (loadTagsFromFile, loadTagsFromPipe)
 import           Unused.TermSearch (SearchResults(..), SearchBackend(..), SearchTerm, fromResults)
 import           Unused.Types (TermMatchSet, RemovalLikelihood(..))
-
-type AppConfig = MonadReader Options
-
-data AppError
-    = TagError TagSearchOutcome
-    | InvalidConfigError [ParseConfigError]
-    | CacheError FingerprintOutcome
-
-newtype App a = App {
-    runApp :: ReaderT Options (ExceptT AppError IO) a
-} deriving (Monad, Functor, Applicative, AppConfig, MonadError AppError, MonadIO)
-
-data Options = Options
-    { oSearchRunner :: SearchRunner
-    , oSingleOccurrenceMatches :: Bool
-    , oLikelihoods :: [RemovalLikelihood]
-    , oAllLikelihoods :: Bool
-    , oIgnoredPaths :: [String]
-    , oGrouping :: CurrentGrouping
-    , oWithoutCache :: Bool
-    , oFromStdIn :: Bool
-    , oCommitCount :: Maybe Int
-    , oSearchBackend :: SearchBackend
-    }
 
 runProgram :: Options -> IO ()
 runProgram options = withRuntime $
@@ -67,11 +41,10 @@ searchBackend :: AppConfig m => m SearchBackend
 searchBackend = asks oSearchBackend
 
 termsWithAlternatesFromConfig :: App [SearchTerm]
-termsWithAlternatesFromConfig = do
-    aliases <- concatMap lcTermAliases <$> loadAllConfigs
-    terms <- calculateTagInput
-
-    return $ termsAndAliases aliases terms
+termsWithAlternatesFromConfig =
+    termsAndAliases
+    <$> (concatMap lcTermAliases <$> loadAllConfigs)
+    <*> calculateTagInput
 
 renderError :: AppError -> IO ()
 renderError (TagError e) = V.missingTagsFileError e
