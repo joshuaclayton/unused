@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+
+name                unused
+version             0.8.0.0
+categories          devel haskell
+platforms           darwin
+license             MIT
+maintainers         joshuaclayton
+description         A command line tool to identify unused code.
+long_description    Please see README.md
+homepage            https://github.com/joshuaclayton/unused#readme
+master_sites        https://github.com/joshuaclayton/unused/archive/
+distname            v${version}
+
+checksums           rmd160 10fc76bd6dae1165c4537ea816ffb71111c1fdb4 \
+                    sha256 a16dd109bef7943b95e62a0b4eeec4299d6900c1062033cb2d1ef4d59f77b023
+
+depends_build       port:haskell-stack
+
+worksrcdir          ${name}-${version}
+configure           { system "cd ${worksrcpath} && stack setup" }
+build               { system "cd ${worksrcpath} && stack --local-bin-path . install" }
+
+destroot.cmd        cp
+destroot.target     unused
+destroot.destdir    ${destroot}${prefix}/bin/unused
+
+test                { system "cd ${worksrcpath} && stack test" }
