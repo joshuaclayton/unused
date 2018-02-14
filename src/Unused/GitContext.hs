@@ -29,5 +29,5 @@ logToGitContext =
 
 gitLogSearchFor :: Int -> [String] -> IO GitOutput
 gitLogSearchFor commitCount ts = do
-  (_, results, _) <- P.readProcessWithExitCode "git" ["log", "-G", L.intercalate "|" ts, "--oneline", "-n", show commitCount] ""
+  (_, results, _) <- P.readProcessWithExitCode "git" ["log", "-S", L.intercalate "|" ts, "--oneline", "-n", show commitCount] ""
   return $ GitOutput results
