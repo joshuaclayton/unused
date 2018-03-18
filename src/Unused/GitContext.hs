@@ -32,6 +32,6 @@ gitLogSearchFor commitCount ts = do
     (_, results, _) <- P.readProcessWithExitCode "git" (gitCommand commitCount ts) ""
     return $ GitOutput results
   where
-    gitCommand :: Int [String] -> [String]
+    gitCommand :: Int -> [String] -> [String]
     gitCommand commitCount [t] = ["log", "-S", t, "--oneline", "-n", show commitCount]
     gitCommand commitCount ts = ["log", "-G", L.intercalate "|" ts, "--oneline", "-n", show commitCount]
