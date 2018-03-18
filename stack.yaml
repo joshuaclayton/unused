@@ -2,25 +2,20 @@
 # For more information, see: http://docs.haskellstack.org/en/stable/yaml_configuration/
 
 # Specifies the GHC version and set of packages available (e.g., lts-3.5, nightly-2015-09-21, ghc-7.10.2)
-resolver: lts-6.0
+resolver: lts-11.0
 
 # Local packages, usually specified by relative directory name
 packages:
 - '.'
 # Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
 extra-deps:
-- aeson-0.11.2.1
-- call-stack-0.1.0
 - cassava-0.4.5.1
-- hspec-2.3.2
-- hspec-core-2.3.2
-- hspec-discover-2.3.2
-- hspec-expectations-0.8.2
+- hspec-2.5.0
+- hspec-core-2.5.0
+- hspec-discover-2.5.0
 - inflections-0.3.0.0
-- integer-logarithms-1
-- megaparsec-5.1.2
-- mmorph-1.0.9
-- scientific-0.3.4.10
+- megaparsec-5.3.1
+- terminal-progress-bar-0.1.1.1
 
 # Override default flag values for local packages and extra-deps
 flags: {}
