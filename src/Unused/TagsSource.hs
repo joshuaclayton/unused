@@ -9,7 +9,7 @@ import qualified Data.Bifunctor as BF
 import qualified Data.List as L
 import qualified Data.Text as T
 import qualified System.Directory as D
-import           Unused.Util (safeReadFile)
+import Unused.Util (safeReadFile)
 
 data TagSearchOutcome
     = TagsFileNotFound [String]
@@ -22,8 +22,7 @@ loadTagsFromFile :: IO (Either TagSearchOutcome [String])
 loadTagsFromFile = fmap (fmap tokensFromTags) tagsContent
 
 tokensFromTags :: String -> [String]
-tokensFromTags =
-    filter validTokens . L.nub . tokenLocations
+tokensFromTags = filter validTokens . L.nub . tokenLocations
   where
     tokenLocations = map (token . T.splitOn "\t" . T.pack) . lines
     token = T.unpack . head

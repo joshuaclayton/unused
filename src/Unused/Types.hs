@@ -20,17 +20,19 @@ module Unused.Types
     , resultAliases
     ) where
 
-import           Control.Monad (liftM2)
-import           Data.Csv (FromRecord, ToRecord)
+import Control.Monad (liftM2)
+import Data.Csv (FromRecord, ToRecord)
 import qualified Data.List as L
-import qualified Data.Maybe as M
 import qualified Data.Map.Strict as Map
+import qualified Data.Maybe as M
 import qualified GHC.Generics as G
 import qualified Unused.Regex as R
 
 data SearchTerm
     = OriginalTerm String
-    | AliasTerm String String deriving (Eq, Show)
+    | AliasTerm String
+                String
+    deriving (Eq, Show)
 
 searchTermToString :: SearchTerm -> String
 searchTermToString (OriginalTerm s) = s
@@ -44,6 +46,7 @@ data TermMatch = TermMatch
     } deriving (Eq, Show, G.Generic)
 
 instance FromRecord TermMatch
+
 instance ToRecord TermMatch
 
 data Occurrences = Occurrences
@@ -75,7 +78,13 @@ data GitCommit = GitCommit
     { gcSha :: String
     } deriving (Eq, Show)
 
-data RemovalLikelihood = High | Medium | Low | Unknown | NotCalculated deriving (Eq, Show)
+data RemovalLikelihood
+    = High
+    | Medium
+    | Low
+    | Unknown
+    | NotCalculated
+    deriving (Eq, Show)
 
 type TermMatchSet = Map.Map String TermResults
 
@@ -100,15 +109,18 @@ tmDisplayTerm = liftM2 M.fromMaybe tmTerm tmAlias
 resultsFromMatches :: [TermMatch] -> TermResults
 resultsFromMatches tms =
     TermResults
-        { trTerm = resultTerm terms
-        , trTerms = L.sort $ L.nub terms
-        , trMatches = tms
-        , trAppOccurrences = appOccurrence
-        , trTestOccurrences = testOccurrence
-        , trTotalOccurrences = Occurrences (sum $ map oFiles [appOccurrence, testOccurrence]) (sum $ map oOccurrences [appOccurrence, testOccurrence])
-        , trRemoval = Removal NotCalculated "Likelihood not calculated"
-        , trGitContext = Nothing
-        }
+    { trTerm = resultTerm terms
+    , trTerms = L.sort $ L.nub terms
+    , trMatches = tms
+    , trAppOccurrences = appOccurrence
+    , trTestOccurrences = testOccurrence
+    , trTotalOccurrences =
+          Occurrences
+              (sum $ map oFiles [appOccurrence, testOccurrence])
+              (sum $ map oOccurrences [appOccurrence, testOccurrence])
+    , trRemoval = Removal NotCalculated "Likelihood not calculated"
+    , trGitContext = Nothing
+    }
   where
     testOccurrence = testOccurrences tms
     appOccurrence = appOccurrences tms
@@ -117,8 +129,7 @@ resultsFromMatches tms =
     resultTerm _ = ""
 
 appOccurrences :: [TermMatch] -> Occurrences
-appOccurrences ms =
-    Occurrences appFiles appOccurrences'
+appOccurrences ms = Occurrences appFiles appOccurrences'
   where
     totalFiles = length $ L.nub $ map tmPath ms
     totalOccurrences = sum $ map tmOccurrences ms
@@ -127,8 +138,7 @@ appOccurrences ms =
     appOccurrences' = totalOccurrences - oOccurrences tests
 
 testOccurrences :: [TermMatch] -> Occurrences
-testOccurrences ms =
-    Occurrences totalFiles totalOccurrences
+testOccurrences ms = Occurrences totalFiles totalOccurrences
   where
     testMatches = filter termMatchIsTest ms
     totalFiles = length $ L.nub $ map tmPath testMatches
@@ -144,5 +154,5 @@ testCamelCaseFilename :: String -> Bool
 testCamelCaseFilename = R.matchRegex ".*(Spec|Test)\\."
 
 termMatchIsTest :: TermMatch -> Bool
-termMatchIsTest TermMatch{tmPath = path} =
+termMatchIsTest TermMatch {tmPath = path} =
     testDir path || testSnakeCaseFilename path || testCamelCaseFilename path

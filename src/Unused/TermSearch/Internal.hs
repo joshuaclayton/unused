@@ -6,9 +6,9 @@ module Unused.TermSearch.Internal
 import qualified Data.Char as C
 import qualified Data.Maybe as M
 import qualified Data.Text as T
-import           Unused.TermSearch.Types (SearchBackend(..))
-import           Unused.Types (SearchTerm(..), TermMatch(..))
-import           Unused.Util (stringToInt)
+import Unused.TermSearch.Types (SearchBackend(..))
+import Unused.Types (SearchTerm(..), TermMatch(..))
+import Unused.Util (stringToInt)
 
 commandLineOptions :: SearchBackend -> String -> [String]
 commandLineOptions backend t =
@@ -17,8 +17,7 @@ commandLineOptions backend t =
         else nonRegexFlags backend t ++ baseFlags backend
 
 parseSearchResult :: SearchBackend -> SearchTerm -> String -> Maybe TermMatch
-parseSearchResult backend term =
-    maybeTermMatch backend . map T.unpack . T.splitOn ":" . T.pack
+parseSearchResult backend term = maybeTermMatch backend . map T.unpack . T.splitOn ":" . T.pack
   where
     maybeTermMatch Rg [path, count] = Just $ toTermMatch term path $ countInt count
     maybeTermMatch Rg _ = Nothing

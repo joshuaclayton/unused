@@ -1,12 +1,12 @@
 module Unused.Projection where
 
 import qualified Data.Bifunctor as BF
-import           Data.Monoid ((<>))
-import           Data.Text (Text)
+import Data.Monoid ((<>))
+import Data.Text (Text)
 import qualified Data.Text as T
-import           Text.Megaparsec
-import           Text.Megaparsec.Text
-import           Unused.Projection.Transform
+import Text.Megaparsec
+import Text.Megaparsec.Text
+import Unused.Projection.Transform
 
 data ParsedTransform = ParsedTransform
     { ptPre :: Text
@@ -18,20 +18,14 @@ translate :: Text -> Either String (Text -> Text)
 translate template = applyTransform <$> parseTransform template
 
 applyTransform :: ParsedTransform -> Text -> Text
-applyTransform pt t =
-    ptPre pt
-    <> runTransformations t (ptTransforms pt)
-    <> ptPost pt
+applyTransform pt t = ptPre pt <> runTransformations t (ptTransforms pt) <> ptPost pt
 
 parseTransform :: Text -> Either String ParsedTransform
 parseTransform = BF.first show . parse parsedTransformParser ""
 
 parsedTransformParser :: Parser ParsedTransform
 parsedTransformParser =
-    ParsedTransform
-    <$> preTransformsParser
-    <*> transformsParser
-    <*> postTransformsParser
+    ParsedTransform <$> preTransformsParser <*> transformsParser <*> postTransformsParser
 
 preTransformsParser :: Parser Text
 preTransformsParser = T.pack <$> manyTill anyChar (char '{')
@@ -45,7 +39,8 @@ postTransformsParser = T.pack <$> many anyChar
 transformParser :: Parser Transform
 transformParser = do
     result <- string "camelcase" <|> string "snakecase"
-    return $ case result of
-        "camelcase" -> Camelcase
-        "snakecase" -> Snakecase
-        _ -> Noop
+    return $
+        case result of
+            "camelcase" -> Camelcase
+            "snakecase" -> Snakecase
+            _ -> Noop

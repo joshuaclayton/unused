@@ -3,27 +3,30 @@ module Unused.Cache.DirectoryFingerprint
     , sha
     ) where
 
-import           Control.Monad.Reader (ReaderT, runReaderT, asks, liftIO)
+import Control.Monad.Reader (ReaderT, asks, liftIO, runReaderT)
 import qualified Data.Char as C
 import qualified Data.Maybe as M
 import qualified System.Directory as D
 import qualified System.Process as P
-import           Unused.Cache.FindArgsFromIgnoredPaths (findArgs)
-import           Unused.Util (safeHead, safeReadFile)
+import Unused.Cache.FindArgsFromIgnoredPaths (findArgs)
+import Unused.Util (safeHead, safeReadFile)
 
-newtype MD5ExecutablePath = MD5ExecutablePath { toMD5String :: String }
+newtype MD5ExecutablePath = MD5ExecutablePath
+    { toMD5String :: String
+    }
 
 type MD5Config = ReaderT MD5ExecutablePath IO
 
-data FingerprintOutcome
-    = MD5ExecutableNotFound [String]
+data FingerprintOutcome =
+    MD5ExecutableNotFound [String]
 
 sha :: IO (Either FingerprintOutcome String)
 sha = do
     md5Executable' <- md5Executable
     case md5Executable' of
         Just exec ->
-            Right . getSha <$> runReaderT (fileList >>= sortInput >>= md5Result) (MD5ExecutablePath exec)
+            Right . getSha <$>
+            runReaderT (fileList >>= sortInput >>= md5Result) (MD5ExecutablePath exec)
         Nothing -> return $ Left $ MD5ExecutableNotFound supportedMD5Executables
   where
     getSha = takeWhile C.isAlphaNum . M.fromMaybe "" . safeHead . lines
@@ -32,7 +35,9 @@ fileList :: MD5Config String
 fileList = do
     filterNamePathArgs <- liftIO $ findArgs <$> ignoredPaths
     md5exec <- asks toMD5String
-    let args = [".", "-type", "f", "-not", "-path", "*/.git/*"] ++ filterNamePathArgs ++ ["-exec", md5exec, "{}", "+"]
+    let args =
+            [".", "-type", "f", "-not", "-path", "*/.git/*"] ++
+            filterNamePathArgs ++ ["-exec", md5exec, "{}", "+"]
     liftIO $ P.readProcess "find" args ""
 
 sortInput :: String -> MD5Config String
@@ -47,8 +52,7 @@ ignoredPaths :: IO [String]
 ignoredPaths = either (const []) id <$> (fmap lines <$> safeReadFile ".gitignore")
 
 md5Executable :: IO (Maybe String)
-md5Executable =
-    safeHead . concat <$> mapM D.findExecutables supportedMD5Executables
+md5Executable = safeHead . concat <$> mapM D.findExecutables supportedMD5Executables
 
 supportedMD5Executables :: [String]
 supportedMD5Executables = ["md5", "md5sum"]

@@ -9,7 +9,9 @@ import qualified Unused.CLI.Util as U
 import qualified Unused.CLI.Views as V
 import qualified Unused.TermSearch as TS
 
-data SearchRunner = SearchWithProgress | SearchWithoutProgress
+data SearchRunner
+    = SearchWithProgress
+    | SearchWithoutProgress
 
 renderHeader :: [a] -> IO ()
 renderHeader terms = do
@@ -22,5 +24,5 @@ executeSearch backend runner terms = do
     runSearch backend runner terms <* U.resetScreen
 
 runSearch :: TS.SearchBackend -> SearchRunner -> [TS.SearchTerm] -> IO TS.SearchResults
-runSearch b SearchWithProgress    = I.progressWithIndicator (TS.search b) I.createProgressBar
+runSearch b SearchWithProgress = I.progressWithIndicator (TS.search b) I.createProgressBar
 runSearch b SearchWithoutProgress = I.progressWithIndicator (TS.search b) I.createSpinner

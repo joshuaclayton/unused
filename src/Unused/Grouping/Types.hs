@@ -5,12 +5,23 @@ module Unused.Grouping.Types
     , GroupFilter
     ) where
 
-import Unused.Types (TermMatchSet, TermMatch)
+import Unused.Types (TermMatch, TermMatchSet)
 
-data Grouping = ByDirectory String | ByTerm String | ByFile String | NoGrouping deriving (Eq, Ord)
-data CurrentGrouping = GroupByDirectory | GroupByTerm | GroupByFile | NoGroup
+data Grouping
+    = ByDirectory String
+    | ByTerm String
+    | ByFile String
+    | NoGrouping
+    deriving (Eq, Ord)
+
+data CurrentGrouping
+    = GroupByDirectory
+    | GroupByTerm
+    | GroupByFile
+    | NoGroup
 
 type GroupedTerms = (Grouping, TermMatchSet)
+
 type GroupFilter = TermMatch -> Grouping
 
 instance Show Grouping where

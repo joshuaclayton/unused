@@ -11,8 +11,12 @@ module Unused.ResponseFilter
 import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Map.Strict as Map
-import           Unused.ResultsClassifier (Position(..), Matcher(..), LanguageConfiguration(..), LowLikelihoodMatch(..))
-import           Unused.Types (TermResults(..), TermMatchSet, TermMatch(..), RemovalLikelihood, Removal(..), totalOccurrenceCount, appOccurrenceCount)
+import Unused.ResultsClassifier
+       (LanguageConfiguration(..), LowLikelihoodMatch(..), Matcher(..),
+        Position(..))
+import Unused.Types
+       (Removal(..), RemovalLikelihood, TermMatch(..), TermMatchSet,
+        TermResults(..), appOccurrenceCount, totalOccurrenceCount)
 
 withOneOccurrence :: TermMatchSet -> TermMatchSet
 withOneOccurrence = Map.filterWithKey (const oneOccurence)
@@ -25,8 +29,7 @@ withLikelihoods [] = id
 withLikelihoods l = Map.filterWithKey (const $ includesLikelihood l)
 
 ignoringPaths :: [String] -> TermMatchSet -> TermMatchSet
-ignoringPaths xs =
-    updateMatches newMatches
+ignoringPaths xs = updateMatches newMatches
   where
     newMatches = filter (not . matchesPath . tmPath)
     matchesPath p = any (`L.isInfixOf` p) xs
@@ -35,21 +38,18 @@ includesLikelihood :: [RemovalLikelihood] -> TermResults -> Bool
 includesLikelihood l = (`elem` l) . rLikelihood . trRemoval
 
 isClassOrModule :: TermResults -> Bool
-isClassOrModule =
-    startsWithUpper . trTerm
+isClassOrModule = startsWithUpper . trTerm
   where
     startsWithUpper [] = False
     startsWithUpper (a:_) = C.isUpper a
 
 autoLowLikelihood :: LanguageConfiguration -> TermResults -> Bool
-autoLowLikelihood l r =
-    isAllowedTerm r allowedTerms || or anySinglesOkay
+autoLowLikelihood l r = isAllowedTerm r allowedTerms || or anySinglesOkay
   where
     allowedTerms = lcAllowedTerms l
     anySinglesOkay = map (\sm -> classOrModule sm r && matchesToBool (smMatchers sm)) singles
     singles = lcAutoLowLikelihood l
     classOrModule = classOrModuleFunction . smClassOrModule
-
     matchesToBool :: [Matcher] -> Bool
     matchesToBool [] = False
     matchesToBool a = all (`matcherToBool` r) a
@@ -73,10 +73,9 @@ paths :: TermResults -> [String]
 paths = fmap tmPath . trMatches
 
 updateMatches :: ([TermMatch] -> [TermMatch]) -> TermMatchSet -> TermMatchSet
-updateMatches fm =
-    Map.map (updateMatchesWith $ fm . trMatches)
+updateMatches fm = Map.map (updateMatchesWith $ fm . trMatches)
   where
-    updateMatchesWith f tr = tr { trMatches = f tr }
+    updateMatchesWith f tr = tr {trMatches = f tr}
 
 isAllowedTerm :: TermResults -> [String] -> Bool
 isAllowedTerm = elem . trTerm

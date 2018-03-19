@@ -3,16 +3,16 @@ module Unused.CLI.Views.SearchResult
     , searchResults
     ) where
 
-import           Control.Arrow ((&&&))
+import Control.Arrow ((&&&))
 import qualified Data.Map.Strict as Map
-import           Unused.CLI.Util
+import Unused.CLI.Util
 import qualified Unused.CLI.Views.NoResultsFound as V
-import           Unused.CLI.Views.SearchResult.ColumnFormatter
+import Unused.CLI.Views.SearchResult.ColumnFormatter
 import qualified Unused.CLI.Views.SearchResult.ListResult as V
 import qualified Unused.CLI.Views.SearchResult.TableResult as V
-import           Unused.CLI.Views.SearchResult.Types
-import           Unused.Grouping (Grouping(..), GroupedTerms)
-import           Unused.Types (TermMatchSet, TermResults(..), TermMatch)
+import Unused.CLI.Views.SearchResult.Types
+import Unused.Grouping (GroupedTerms, Grouping(..))
+import Unused.Types (TermMatch, TermMatchSet, TermResults(..))
 
 searchResults :: ResultsFormat -> [GroupedTerms] -> IO ()
 searchResults format terms = do
@@ -28,8 +28,7 @@ printFormattedTerms [] = liftIO V.noResultsFound
 printFormattedTerms ts = mapM_ printGroupingSection ts
 
 listFromMatchSet :: TermMatchSet -> [(String, TermResults)]
-listFromMatchSet =
-  Map.toList
+listFromMatchSet = Map.toList
 
 printGroupingSection :: GroupedTerms -> ResultsPrinter ()
 printGroupingSection (g, tms) = do
@@ -46,8 +45,7 @@ printGrouping g = do
     setSGR [Reset]
 
 printTermResults :: (String, TermResults) -> ResultsPrinter ()
-printTermResults =
-    uncurry printMatches . (id &&& trMatches) . snd
+printTermResults = uncurry printMatches . (id &&& trMatches) . snd
 
 printMatches :: TermResults -> [TermMatch] -> ResultsPrinter ()
 printMatches r ms = do

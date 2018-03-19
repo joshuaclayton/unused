@@ -7,6 +7,10 @@ module Unused.TermSearch.Types
 
 import Unused.Types (TermMatch)
 
-data SearchBackend = Ag | Rg
+data SearchBackend
+    = Ag
+    | Rg
 
-newtype SearchResults = SearchResults { fromResults :: [TermMatch] } deriving (Monoid)
+newtype SearchResults = SearchResults
+    { fromResults :: [TermMatch]
+    } deriving (Monoid)

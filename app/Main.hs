@@ -1,59 +1,51 @@
 module Main where
 
-import           App (runProgram)
-import           Common
+import App (runProgram)
+import Common
 import qualified Data.Maybe as M
-import           Options.Applicative
-import           Types (Options(Options))
-import           Unused.CLI (SearchRunner(..))
-import           Unused.Grouping (CurrentGrouping(..))
-import           Unused.TermSearch (SearchBackend(..))
-import           Unused.Types (RemovalLikelihood(..))
-import           Unused.Util (stringToInt)
+import Options.Applicative
+import Types (Options(Options))
+import Unused.CLI (SearchRunner(..))
+import Unused.Grouping (CurrentGrouping(..))
+import Unused.TermSearch (SearchBackend(..))
+import Unused.Types (RemovalLikelihood(..))
+import Unused.Util (stringToInt)
 
 main :: IO ()
 main = runProgram =<< parseCLI
 
 parseCLI :: IO Options
-parseCLI =
-    execParser (withInfo parseOptions pHeader pDescription pFooter)
+parseCLI = execParser (withInfo parseOptions pHeader pDescription pFooter)
   where
-    pHeader      = "Unused: Analyze potentially unused code"
-    pDescription = "Unused allows a developer to leverage an existing tags file \
+    pHeader = "Unused: Analyze potentially unused code"
+    pDescription =
+        "Unused allows a developer to leverage an existing tags file \
                    \(located at .git/tags, tags, or tmp/tags) to identify tokens \
                    \in a codebase that are unused."
-    pFooter      = "CLI USAGE: $ unused"
+    pFooter = "CLI USAGE: $ unused"
 
 withInfo :: Parser a -> String -> String -> String -> ParserInfo a
-withInfo opts h d f =
-    info (helper <*> opts) $ header h <> progDesc d <> footer f
+withInfo opts h d f = info (helper <*> opts) $ header h <> progDesc d <> footer f
 
 parseOptions :: Parser Options
 parseOptions =
-    Options
-    <$> parseSearchRunner
-    <*> parseDisplaySingleOccurrenceMatches
-    <*> parseLikelihoods
-    <*> parseAllLikelihoods
-    <*> parseIgnorePaths
-    <*> parseGroupings
-    <*> parseWithoutCache
-    <*> parseFromStdIn
-    <*> parseCommitCount
-    <*> parseSearchBackend
+    Options <$> parseSearchRunner <*> parseDisplaySingleOccurrenceMatches <*> parseLikelihoods <*>
+    parseAllLikelihoods <*>
+    parseIgnorePaths <*>
+    parseGroupings <*>
+    parseWithoutCache <*>
+    parseFromStdIn <*>
+    parseCommitCount <*>
+    parseSearchBackend
 
 parseSearchRunner :: Parser SearchRunner
 parseSearchRunner =
     flag SearchWithProgress SearchWithoutProgress $
-        short 'P'
-        <> long "no-progress"
-        <> help "Don't display progress during analysis"
+    short 'P' <> long "no-progress" <> help "Don't display progress during analysis"
 
 parseDisplaySingleOccurrenceMatches :: Parser Bool
-parseDisplaySingleOccurrenceMatches = switch $
-    short 's'
-    <> long "single-occurrence"
-    <> help "Display only single occurrences"
+parseDisplaySingleOccurrenceMatches =
+    switch $ short 's' <> long "single-occurrence" <> help "Display only single occurrences"
 
 parseLikelihoods :: Parser [RemovalLikelihood]
 parseLikelihoods = many (parseLikelihood <$> parseLikelihoodOption)
@@ -65,26 +57,22 @@ parseLikelihood "low" = Low
 parseLikelihood _ = Unknown
 
 parseLikelihoodOption :: Parser String
-parseLikelihoodOption = strOption $
-    short 'l'
-    <> long "likelihood"
-    <> help "[Allows multiple] [Allowed: high, medium, low] Display results based on likelihood"
+parseLikelihoodOption =
+    strOption $
+    short 'l' <> long "likelihood" <>
+    help "[Allows multiple] [Allowed: high, medium, low] Display results based on likelihood"
 
 parseAllLikelihoods :: Parser Bool
-parseAllLikelihoods = switch $
-    short 'a'
-    <> long "all-likelihoods"
-    <> help "Display all likelihoods"
+parseAllLikelihoods = switch $ short 'a' <> long "all-likelihoods" <> help "Display all likelihoods"
 
 parseIgnorePaths :: Parser [String]
-parseIgnorePaths = many $ strOption $
-    long "ignore"
-    <> metavar "PATH"
-    <> help "[Allows multiple] Ignore paths that contain PATH"
+parseIgnorePaths =
+    many $
+    strOption $
+    long "ignore" <> metavar "PATH" <> help "[Allows multiple] Ignore paths that contain PATH"
 
 parseGroupings :: Parser CurrentGrouping
-parseGroupings =
-    M.fromMaybe GroupByDirectory <$> maybeGroup
+parseGroupings = M.fromMaybe GroupByDirectory <$> maybeGroup
   where
     maybeGroup = optional $ parseGrouping <$> parseGroupingOption
 
@@ -96,38 +84,30 @@ parseGrouping "none" = NoGroup
 parseGrouping _ = NoGroup
 
 parseGroupingOption :: Parser String
-parseGroupingOption = strOption $
-    short 'g'
-    <> long "group-by"
-    <> help "[Allowed: directory, term, file, none] Group results"
+parseGroupingOption =
+    strOption $
+    short 'g' <> long "group-by" <> help "[Allowed: directory, term, file, none] Group results"
 
 parseWithoutCache :: Parser Bool
-parseWithoutCache = switch $
-    short 'C'
-    <> long "no-cache"
-    <> help "Ignore cache when performing calculations"
+parseWithoutCache =
+    switch $ short 'C' <> long "no-cache" <> help "Ignore cache when performing calculations"
 
 parseFromStdIn :: Parser Bool
-parseFromStdIn = switch $
-    long "stdin"
-    <> help "Read tags from STDIN"
+parseFromStdIn = switch $ long "stdin" <> help "Read tags from STDIN"
 
 parseCommitCount :: Parser (Maybe Int)
-parseCommitCount =
-    (stringToInt =<<) <$> commitParser
+parseCommitCount = (stringToInt =<<) <$> commitParser
   where
-    commitParser = optional $ strOption $
-        long "commits"
-        <> help "Number of recent commit SHAs to display per token"
+    commitParser =
+        optional $
+        strOption $ long "commits" <> help "Number of recent commit SHAs to display per token"
 
 parseSearchBackend :: Parser SearchBackend
 parseSearchBackend = M.fromMaybe Ag <$> maybeBackend
   where
     maybeBackend = optional $ parseBackend <$> parseBackendOption
     parseBackendOption =
-        strOption $
-        long "search"
-        <> help "[Allowed: ag, rg] Select searching backend"
+        strOption $ long "search" <> help "[Allowed: ag, rg] Select searching backend"
 
 parseBackend :: String -> SearchBackend
 parseBackend "ag" = Ag

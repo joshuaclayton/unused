@@ -38,8 +38,7 @@ isMissingFilename :: String -> Bool
 isMissingFilename = null . FP.takeFileName
 
 validIgnoreOptions :: [String] -> [String]
-validIgnoreOptions =
-    filter isPath
+validIgnoreOptions = filter isPath
   where
     isPath "" = False
     isPath ('/':_) = True

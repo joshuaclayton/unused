@@ -9,7 +9,7 @@ module Types
     ) where
 
 import Control.Monad.Except (ExceptT, MonadError)
-import Control.Monad.Reader (MonadReader, ReaderT, MonadIO)
+import Control.Monad.Reader (MonadIO, MonadReader, ReaderT)
 import Unused.CLI (SearchRunner)
 import Unused.Cache (FingerprintOutcome)
 import Unused.Grouping (CurrentGrouping)
@@ -38,6 +38,6 @@ data AppError
     | InvalidConfigError [ParseConfigError]
     | CacheError FingerprintOutcome
 
-newtype App a = App {
-    runApp :: ReaderT Options (ExceptT AppError IO) a
-} deriving (Monad, Functor, Applicative, AppConfig, MonadError AppError, MonadIO)
+newtype App a = App
+    { runApp :: ReaderT Options (ExceptT AppError IO) a
+    } deriving (Monad, Functor, Applicative, AppConfig, MonadError AppError, MonadIO)

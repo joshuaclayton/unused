@@ -8,18 +8,16 @@ module Unused.Util
     , safeReadFile
     ) where
 
-import           Control.Arrow ((&&&))
+import Control.Arrow ((&&&))
 import qualified Control.Exception as E
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy.Char8 as Cl8
 import qualified Data.Char as C
-import           Data.Function (on)
+import Data.Function (on)
 import qualified Data.List as L
 
 groupBy :: (Ord b) => (a -> b) -> [a] -> [(b, [a])]
-groupBy f = map (f . head &&& id)
-                   . L.groupBy ((==) `on` f)
-                   . L.sortBy (compare `on` f)
+groupBy f = map (f . head &&& id) . L.groupBy ((==) `on` f) . L.sortBy (compare `on` f)
 
 safeHead :: [a] -> Maybe a
 safeHead (x:_) = Just x

@@ -7,14 +7,10 @@ import qualified System.Console.ANSI as ANSI
 import qualified System.ProgressBar as PB
 
 data ProgressIndicator
-    = Spinner
-        { sSnapshots :: [String]
-        , sLength :: Int
-        , sDelay :: Int
-        , sColors :: [ANSI.Color]
-        , sThreadId :: Maybe CC.ThreadId
-        }
-    | ProgressBar
-        { pbProgressRef :: Maybe PB.ProgressRef
-        , pbThreadId :: Maybe CC.ThreadId
-        }
+    = Spinner { sSnapshots :: [String]
+              , sLength :: Int
+              , sDelay :: Int
+              , sColors :: [ANSI.Color]
+              , sThreadId :: Maybe CC.ThreadId }
+    | ProgressBar { pbProgressRef :: Maybe PB.ProgressRef
+                  , pbThreadId :: Maybe CC.ThreadId }
