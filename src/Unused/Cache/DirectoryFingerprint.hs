@@ -17,7 +17,7 @@ newtype MD5ExecutablePath = MD5ExecutablePath
 
 type MD5Config = ReaderT MD5ExecutablePath IO
 
-data FingerprintOutcome =
+newtype FingerprintOutcome =
     MD5ExecutableNotFound [String]
 
 sha :: IO (Either FingerprintOutcome String)

@@ -70,11 +70,11 @@ data Removal = Removal
     , rReason :: String
     } deriving (Eq, Show)
 
-data GitContext = GitContext
+newtype GitContext = GitContext
     { gcCommits :: [GitCommit]
     } deriving (Eq, Show)
 
-data GitCommit = GitCommit
+newtype GitCommit = GitCommit
     { gcSha :: String
     } deriving (Eq, Show)
 
