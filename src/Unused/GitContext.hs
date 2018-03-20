@@ -33,5 +33,5 @@ gitLogSearchFor commitCount ts = do
     return $ GitOutput results
   where
     gitCommand :: Int -> [String] -> [String]
-    gitCommand commitCount [t] = ["log", "-S", t, "--oneline", "-n", show commitCount]
-    gitCommand commitCount ts = ["log", "-G", L.intercalate "|" ts, "--oneline", "-n", show commitCount]
+    gitCommand commitCount' [t] = ["log", "-S", t, "--oneline", "-n", show commitCount']
+    gitCommand commitCount' ts' = ["log", "-G", L.intercalate "|" ts', "--oneline", "-n", show commitCount']
