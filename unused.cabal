@@ -75,12 +75,12 @@ library
                      , bytestring
                      , text
                      , unordered-containers
-                     , cassava >= 0.4.5.0 && < 0.5
+                     , cassava >= 0.5.1.0 && < 0.6
                      , vector
                      , mtl
                      , transformers
-                     , megaparsec >= 5.1.2 && < 6
-                     , inflections >= 0.3.0.0 && < 0.4
+                     , megaparsec >= 6.5.0 && < 7
+                     , inflections >= 0.4.0.3 && < 0.5
                      , file-embed
   ghc-options:         -Wall
   default-language:    Haskell2010

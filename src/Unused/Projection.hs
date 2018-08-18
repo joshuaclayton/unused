@@ -4,8 +4,9 @@ import qualified Data.Bifunctor as BF
 import Data.Monoid ((<>))
 import Data.Text (Text)
 import qualified Data.Text as T
+import Data.Void (Void)
 import Text.Megaparsec
-import Text.Megaparsec.Text
+import Text.Megaparsec.Char
 import Unused.Projection.Transform
 
 data ParsedTransform = ParsedTransform
@@ -13,6 +14,8 @@ data ParsedTransform = ParsedTransform
     , ptTransforms :: [Transform]
     , ptPost :: Text
     }
+
+type Parser = Parsec Void Text
 
 translate :: Text -> Either String (Text -> Text)
 translate template = applyTransform <$> parseTransform template

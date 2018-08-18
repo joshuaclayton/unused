@@ -13,4 +13,4 @@ data SearchBackend
 
 newtype SearchResults = SearchResults
     { fromResults :: [TermMatch]
-    } deriving (Monoid)
+    } deriving (Semigroup, Monoid)
