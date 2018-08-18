@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: romanandreg/stack:latest
+    steps:
+      - checkout
+      - run: stack upgrade
+      - restore_cache:
+          keys:
+            - stack-{{ checksum "stack.yaml" }}
+      - restore_cache:
+          keys:
+            - stack-{{ checksum "stack.yaml" }}-{{ checksum "unused.cabal" }}
+      - run:
+          name: Configure Stack
+          command: stack -j 2 setup --no-terminal
+      - run:
+          name: Build Stack
+          command: stack -j 2 build --only-snapshot --fast --no-terminal
+      - save_cache:
+          key: stack-{{ checksum "stack.yaml" }}
+          paths:
+            - “/root/.stack”
+      - save_cache:
+          key: stack-{{ checksum "stack.yaml" }}-{{ checksum "unused.cabal" }}
+          paths:
+            - “.stack-work”
+      - run: stack test
