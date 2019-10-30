@@ -31,13 +31,13 @@ parsedTransformParser =
     ParsedTransform <$> preTransformsParser <*> transformsParser <*> postTransformsParser
 
 preTransformsParser :: Parser Text
-preTransformsParser = T.pack <$> manyTill anyChar (char '{')
+preTransformsParser = T.pack <$> manyTill anySingle (char '{')
 
 transformsParser :: Parser [Transform]
 transformsParser = transformParser `sepBy` char '|' <* char '}'
 
 postTransformsParser :: Parser Text
-postTransformsParser = T.pack <$> many anyChar
+postTransformsParser = T.pack <$> many anySingle
 
 transformParser :: Parser Transform
 transformParser = do

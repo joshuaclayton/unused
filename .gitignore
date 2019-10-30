@@ -1,2 +1,4 @@
 .stack-work
 tmp
+dist-newstyle/
+stack.yaml.lock
