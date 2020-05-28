@@ -2,6 +2,12 @@
 
 A command line tool to identify unused code.
 
+# NOTICE: As of May 27, 2020, this version of Unused has been deprecated
+
+Unused has been rewritten and now lives at https://github.com/unused-code/unused
+
+Issues, updates, and all future work will occur there.
+
 ![Image of Unused Output](http://i.giphy.com/3o7qDT1I4OfQxnJTvW.gif)
 
 ## "What kinds of projects can I used it on?"
